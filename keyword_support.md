@@ -33,7 +33,7 @@ This file tracks how closely the codebase matches the tabletop keyword glossary.
 
 | Keyword | Status | Notes |
 | --- | --- | --- |
-| `HIDDEN` | partial | Hidden now has real state flow through burrow/hide-style status handling, blocks ranged targeting beyond 4", can trigger evade, and negates Impact. Broader non-burrow Hidden sources are still incomplete. |
+| `HIDDEN` | partial | Hidden now has real state flow through burrow/hide-style status handling, blocks ranged targeting beyond 4", can trigger evade, negates Impact, can now be countered by nearby built-in detectors plus temporary Observer/Overseer-style detection fields, and is now complemented by grass-based concealment on the battlefield. Broader non-burrow Hidden sources and richer reveal state handling are still incomplete. |
 | `BURROWED` | partial | Burrow-capable units can now gain/lose Burrowed as a real activation, keep Hidden while underground, lose contesting, heal on activation where supported, break the status when revealing actions are taken, and automatically use Close Ranks when they resolve melee from a burrowed state. Still missing fuller faction ability coverage and wider Close Ranks action flow beyond that combat step. |
 | `FLYING` | partial | Flying units now ignore ground-only engagement, can move across blocker terrain without difficult-ground penalties, do not contest objectives, and treat blockers as not obstructing line of sight in the current 2D board model. It still needs dedicated roster coverage, altitude/elevation treatment, and fuller air-vs-air / air-vs-ground edge-case rules. |
 | `BULKY` | partial | Bulky now blocks ranged attack declarations while the attacker is engaged. It still needs broader roster data coverage and any future combat-step legality hooks beyond declaration time. |
@@ -52,3 +52,5 @@ This file tracks how closely the codebase matches the tabletop keyword glossary.
 2. Add real roster data for the newly-supported keywords so Pinpoint / Hits / Burst Fire / Locked In / Concentrated Fire show up in live matches more often.
 3. Expand the evade system with richer roster data, reaction timing, and clearer target legality explanations in the UI.
 4. Add true player-facing split-attack allocation beyond primary target focus, especially when melee or Impact attacks should be divided across multiple engaged enemies.
+5. Expand detection, warp-field, and terrain interactions so those board-state systems have fuller roster coverage and less unit-level approximation.
+6. Keep expanding terrain fidelity beyond the new grass concealment and elevated-cover defense rules into fuller elevation, obscuration, and access-point behavior.

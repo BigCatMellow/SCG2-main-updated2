@@ -10,6 +10,7 @@ import { applyBurrowedActivationEffects, removeStealthStatuses } from "./statuse
 import { getBlockingForceFieldCrossings, removeForceFieldsCrossedByUnit } from "./force_fields.js";
 import { getEffectiveRangedRange } from "./support.js";
 import { resolveCombatPhase } from "./combat.js";
+import { removeDisplacedCreepTumors } from "./creep.js";
 
 const RUN_BONUS = 2;
 const CHARGE_DECLARE_RANGE = 8;
@@ -132,6 +133,7 @@ export function resolveRun(state, playerId, unitId, leadingModelId, path, modelP
   removeForceFieldsCrossedByUnit(state, unit, path);
   refreshEngagement(state);
   refreshAllSupply(state);
+  const displacedCreep = removeDisplacedCreepTumors(state, unit, "runs");
 
   appendLog(
     state,
@@ -140,7 +142,14 @@ export function resolveRun(state, playerId, unitId, leadingModelId, path, modelP
   );
 
   endActivationAndPassTurn(state);
-  return { ok: true, state, events: [{ type: "unit_ran", payload: { unitId } }] };
+  return {
+    ok: true,
+    state,
+    events: [
+      { type: "unit_ran", payload: { unitId } },
+      ...displacedCreep.map(zone => ({ type: "creep_displaced", payload: { unitId, creepId: zone.id } }))
+    ]
+  };
 }
 
 function validateSpecifiedTarget(state, unit, targetUnitId) {
@@ -161,7 +170,7 @@ function validateSpecifiedTarget(state, unit, targetUnitId) {
   }
   const targeting = canTargetWithRangedWeapon(state, unit, target, primaryWeapon);
   if (!targeting.ok) {
-    return { ok: false, code: "BAD_TARGET", message: targeting.reason };
+    return { ok: false, code: "BAD_TARGET", message: targeting.reason, detail: targeting.detail ?? null };
   }
   return { ok: true, target };
 }

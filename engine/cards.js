@@ -6,6 +6,94 @@ function findCardInHand(player, cardInstanceId) {
   return player.hand?.find(card => card.instanceId === cardInstanceId) ?? null;
 }
 
+function buildSpecialCardEffect(card, playerId, target) {
+  if (card.id === 'observer' || card.id === 'overseer') {
+    return {
+      name: card.name,
+      source: { kind: 'tactical_card', id: card.id, owner: playerId },
+      target: target ? { scope: 'unit', unitId: target.id } : { scope: 'player', playerId },
+      timings: [],
+      modifiers: card.effect?.modifiers ?? [],
+      duration: { type: 'rounds', remaining: 1 },
+      zone: {
+        kind: 'detection_field',
+        radius: 6
+      }
+    };
+  }
+  if (card.id === 'warp_prism') {
+    return {
+      name: card.name,
+      source: { kind: 'tactical_card', id: card.id, owner: playerId },
+      target: target ? { scope: 'unit', unitId: target.id } : { scope: 'player', playerId },
+      timings: card.effect.timings,
+      modifiers: card.effect.modifiers,
+      duration: { type: 'rounds', remaining: 1 },
+      zone: {
+        kind: 'warp_field',
+        radius: 6
+      }
+    };
+  }
+  if (card.id === 'malignant_creep' || card.id === 'accelerating_creep') {
+    return {
+      name: card.name,
+      source: { kind: 'tactical_card', id: card.id, owner: playerId },
+      target: target ? { scope: 'unit', unitId: target.id } : { scope: 'player', playerId },
+      timings: card.effect.timings,
+      modifiers: card.effect.modifiers,
+      duration: { type: 'rounds', remaining: 1 },
+      zone: {
+        kind: 'creep_field',
+        radius: 6
+      }
+    };
+  }
+  if (card.id === 'hatchery') {
+    return {
+      name: card.name,
+      source: { kind: 'tactical_card', id: card.id, owner: playerId },
+      target: target ? { scope: 'unit', unitId: target.id } : { scope: 'player', playerId },
+      timings: card.effect.timings,
+      modifiers: card.effect.modifiers,
+      duration: { type: 'rounds', remaining: 1 },
+      zone: {
+        kind: 'hatchery_field',
+        radius: 6
+      }
+    };
+  }
+  if (card.id === 'barracks' || card.id === 'barracks_proxy') {
+    return {
+      name: card.name,
+      source: { kind: 'tactical_card', id: card.id, owner: playerId },
+      target: target ? { scope: 'unit', unitId: target.id } : { scope: 'player', playerId },
+      timings: card.effect.timings,
+      modifiers: card.effect.modifiers,
+      duration: { type: 'rounds', remaining: 1 },
+      zone: {
+        kind: 'proxy_field',
+        radius: 6
+      }
+    };
+  }
+  if (card.id === 'nexus' || card.id === 'overcharged_nexus') {
+    return {
+      name: card.name,
+      source: { kind: 'tactical_card', id: card.id, owner: playerId },
+      target: target ? { scope: 'unit', unitId: target.id } : { scope: 'player', playerId },
+      timings: card.effect.timings,
+      modifiers: card.effect.modifiers,
+      duration: { type: 'rounds', remaining: 1 },
+      zone: {
+        kind: 'warp_field',
+        radius: 6
+      }
+    };
+  }
+  return null;
+}
+
 export function validatePlayCard(state, playerId, cardInstanceId, targetUnitId = null) {
   const player = state.players[playerId];
   if (!player) return { ok: false, code: 'BAD_PLAYER', message: 'Unknown player.' };
@@ -36,7 +124,8 @@ export function resolvePlayCard(state, playerId, cardInstanceId, targetUnitId = 
   const player = state.players[playerId];
   const { card, cardInHand, target } = validation;
 
-  const effectId = addEffect(state, {
+  const specialEffect = buildSpecialCardEffect(card, playerId, target);
+  const effectId = addEffect(state, specialEffect ?? {
     name: card.name,
     source: { kind: 'tactical_card', id: card.id, owner: playerId },
     target: target ? { scope: 'unit', unitId: target.id } : { scope: 'player', playerId },

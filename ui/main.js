@@ -1,7 +1,7 @@
-import { createInitialGameState } from "../engine/state.js";
+import { createInitialGameState, cloneState } from "../engine/state.js";
 import { beginGame } from "../engine/phases.js";
 import { dispatch as engineDispatch } from "../engine/reducer.js";
-import { bindInputHandlers, beginMoveInteraction, beginDeployInteraction, beginDisengageInteraction, beginRunInteraction, beginForceFieldInteraction, beginMedpackInteraction, beginOpticalFlareInteraction, beginDeclareRangedInteraction, beginDeclareChargeInteraction, cancelCurrentInteraction } from "./input.js";
+import { bindInputHandlers, beginMoveInteraction, beginDeployInteraction, beginDisengageInteraction, beginRunInteraction, beginForceFieldInteraction, beginCreepInteraction, beginOmegaTransferInteraction, beginMedpackInteraction, beginOpticalFlareInteraction, beginDeclareRangedInteraction, beginDeclareChargeInteraction, beginBlinkInteraction, beginPsionicTransferInteraction, cancelCurrentInteraction } from "./input.js";
 import { renderAll } from "./renderer.js";
 import { autoArrangeModels } from "../engine/coherency.js";
 import { performBotTurn } from "../ai/bot.js";
@@ -10,12 +10,15 @@ import { getTacticalCard, TACTICAL_CARDS } from "../data/tactical_cards.js";
 import { MISSION_DATA } from "../data/missions.js";
 import { DEPLOYMENT_DATA } from "../data/deployments.js";
 import { snapPointToGrid, distance } from "../engine/geometry.js";
-import { getLegalMoveDestinations, getLegalDeployDestinations, getLegalDisengageDestinations, getLegalRunDestinations } from "../engine/legal_actions.js";
+import { getLegalMoveDestinations, getLegalDeployDestinations, getLegalDisengageDestinations, getLegalRunDestinations, getLegalBlinkDestinations, getLegalPsionicTransferDestinations } from "../engine/legal_actions.js";
 import { canBurrow, canHide, validateCloseRanks } from "../engine/statuses.js";
 import { getCombatActivationPreview, getMeleeTargetSelection } from "../engine/combat.js";
 import { importArmyBuilderRoster, isArmyBuilderPayload, buildSetupFromImportedRosters } from "../engine/army_builder_import.js";
 import { canTargetWithRangedWeapon, getLeaderPoint, getLongRangeValue } from "../engine/visibility.js";
 import { getObjectiveControlSnapshot } from "../engine/objectives.js";
+import { unitCanSourceCreep } from "../engine/creep.js";
+import { canUseOmegaWormNetwork, validateOmegaRecall } from "../engine/omega_worms.js";
+import { canUseBoardEntryDeploy } from "../engine/deployment.js";
 
 const DEFAULT_SETUP = {
   missionId: "take_and_hold",
@@ -47,9 +50,16 @@ const RULE_GLOSSARY = {
   "Close Ranks": "Close Ranks is the step where a burrowed unit surfaces and tightens formation so it can actually fight in melee above ground.",
   "Concentrated Fire": "Concentrated Fire limits how many casualties the attack can cause, and any excess damage beyond that cap is discarded.",
   "Critical Hit": "Critical Hit pushes wounds straight past armour before save rolls are made.",
+  "Detection": "Detection reveals hidden or burrowed enemies within range, stripping away stealth-based targeting protection and some stealth defenses.",
   "Dodge": "Dodge cancels a limited number of hits that already bypassed armour before those hits become damage.",
   "Evade": "Evade is a late defensive roll that can avoid hits after armour results are known.",
   "Fighting Rank": "Fighting Rank is the set of models actually close enough to the enemy to contribute attacks in melee.",
+  "Grass": "Grass conceals units at range. If a target is in grass and the attacker is not close enough or detecting it, the shot can be blocked entirely.",
+  "High Ground": "High Ground makes a lower attacker work harder to force damage through. Elevated defenders gain extra protection against ranged attacks from below.",
+  "Creep": "Creep is a Zerg battlefield layer that can speed up friendly movement and shape where the Zerg army wants to fight.",
+  "Power Field": "Power Fields let eligible Protoss reserves warp in from the battlefield instead of only from the table edge.",
+  "Guardian Shield": "Guardian Shield projects a temporary field that removes 1 die from nearby ranged attack pools against friendly units.",
+  "Detection": "Detection reveals hidden or burrowed enemies in range and strips away stealth-based targeting protection.",
   "Hidden": "Hidden protects a unit from normal ranged targeting at longer distance and can unlock special defensive behavior until the unit is revealed.",
   "Hits": "Hits adds automatic armour-pool hits. Those hits skip the normal hit and wound steps and do not generate Surge.",
   "Impact": "Impact happens after a successful charge. Eligible charging models roll impact dice before the main melee attack resolves.",
@@ -61,28 +71,48 @@ const RULE_GLOSSARY = {
   "Overwatch": "Overwatch is a reaction shot triggered by an enemy charge declaration before the charge attack resolves.",
   "Pierce": "Pierce increases damage against targets with matching tags.",
   "Pinpoint": "Pinpoint allows ranged attacks to target engaged enemy units, overriding the normal restriction against shooting into an engagement.",
+  "Point Defense Laser": "Point Defense Laser removes up to 2 dice from a nearby ranged attack, then the drone that fired it is removed from the battlefield.",
   "Precision": "Precision moves some failed hit dice directly into the armour pool, so they still count as hits without rolling to wound.",
   "Supporting Rank": "Supporting Rank models are not in direct contact with the enemy, but they can still help if they are in base contact with a fighting-rank model.",
   "Surge": "Surge converts matching wounds into hits that bypass armour after wounds are created.",
+  "Stimpack": "Stimpack trades non-lethal damage for extra speed and temporary Precision on the unit's attacks for the rest of the round.",
+  "Transfusion": "Transfusion is a Queen reaction that reduces incoming damage to a nearby friendly biological unit before it is allocated.",
   "Zealous Round": "Zealous Round trades the unit's unused activation in the current phase for immediate damage reduction."
 };
 
 function createStore(initialState) {
   let state = initialState;
+  let history = [];
   const listeners = [];
+  const HISTORY_LIMIT = 200;
   return {
     getState() { return state; },
     dispatch(action) {
       const result = engineDispatch(state, action);
       if (result.ok) {
+        history.push(cloneState(state));
+        if (history.length > HISTORY_LIMIT) history = history.slice(history.length - HISTORY_LIMIT);
         state = result.state;
         listeners.forEach(listener => listener(state, result.events ?? []));
       }
       return result;
     },
-    replaceState(nextState) {
+    replaceState(nextState, options = {}) {
       state = nextState;
+      if (options.clearHistory !== false) history = [];
       listeners.forEach(listener => listener(state, []));
+    },
+    canUndo() {
+      return history.length > 0;
+    },
+    getHistoryDepth() {
+      return history.length;
+    },
+    undo() {
+      if (!history.length) return { ok: false, message: "Nothing to undo." };
+      state = history.pop();
+      listeners.forEach(listener => listener(state, []));
+      return { ok: true, state };
     },
     subscribe(listener) {
       listeners.push(listener);
@@ -103,6 +133,7 @@ const uiState = {
   locked: false,
   lastError: null,
   notifications: [],
+  diagnosticHistory: [],
   lastSeenLogCount: 0,
   legalDestinations: [],
   hoveredUnitId: null,
@@ -113,6 +144,8 @@ const uiState = {
   aftermathNarrative: null,
   timelineFocusedKey: null,
   compactActionBar: false,
+  suppressNextBotRun: false,
+  suppressNextBoardNarration: false,
   lastObjectiveSnapshot: null,
   pendingPass: false,
   storyModalQueue: [],
@@ -172,6 +205,10 @@ function computeLegalDestinations() {
   try {
     if (uiState.mode === "move") {
       uiState.legalDestinations = getLegalMoveDestinations(state, "playerA", unit.id, unit.leadingModelId);
+    } else if (uiState.mode === "blink") {
+      uiState.legalDestinations = getLegalBlinkDestinations(state, "playerA", unit.id);
+    } else if (uiState.mode === "psionic_transfer") {
+      uiState.legalDestinations = getLegalPsionicTransferDestinations(state, "playerA", unit.id);
     } else if (uiState.mode === "deploy") {
       uiState.legalDestinations = getLegalDeployDestinations(state, "playerA", unit.id, unit.leadingModelId);
     } else if (uiState.mode === "disengage") {
@@ -244,10 +281,16 @@ function getModeText() {
 
   if (uiState.mode === "deploy" && unit) {
     const avail = state.players.playerA.supplyPool - getPlayerSupply(state);
-    return `Deploy ${unit.name} (${unit.currentSupplyValue} SP) — click a green square. Available supply: ${avail}.${progress}`;
+    return `Deploy ${unit.name} (${unit.currentSupplyValue} SP) — click a green square. Deep strike and Protoss warp-ins can enter directly on the board, low-supply Zerg can also arrive through a friendly Omega Worm, and other reserves use the entry edge. Available supply: ${avail}.${progress}`;
   }
   if (uiState.mode === "move" && unit) {
     return `Move ${unit.name} — click a green square within ${unit.speed}" speed. Leader moves first, squad follows in coherency.${progress}`;
+  }
+  if (uiState.mode === "blink" && unit) {
+    return `Blink — reposition ${unit.name} up to 6" to a clear destination. Blink ignores pathing, but it still cannot end overlapping terrain, bases, or enemy engagement.${progress}`;
+  }
+  if (uiState.mode === "psionic_transfer" && unit) {
+    return `Psionic Transfer — reposition ${unit.name} up to 6" to a clear destination. It works like a short teleport and still must end clear of enemies and terrain.${progress}`;
   }
   if (uiState.mode === "disengage" && unit) {
     return `Disengage ${unit.name} — models that can't clear engagement range are destroyed. Can't shoot/charge next phase unless supply exceeds engaged enemies.${progress}`;
@@ -258,6 +301,15 @@ function getModeText() {
   if (uiState.mode === "force_field" && unit) {
     return `Solid-Field Projectors — place a Force Field token within 8". Size 2 or lower units cannot cross it, while Size 3+ units break it.${progress}`;
   }
+  if (uiState.mode === "place_creep" && unit) {
+    return `Creep Spread — place a Creep Tumor within 6". It creates a 6" creep aura, and enemies that finish a move, run, deploy, or disengage within 1" of the token displace it.${progress}`;
+  }
+  if (uiState.mode === "omega_transfer" && unit) {
+    return `Omega Network — choose an emergence point within 3" of a different friendly Omega Worm. The unit must start near one worm and emerge clear of enemies and terrain.${progress}`;
+  }
+  if (uiState.mode === "omega_recall" && unit) {
+    return `Omega Recall — ${unit.name} is returning to reserves through a friendly Omega Worm it is touching. This uses the unit's Movement activation.${progress}`;
+  }
   if (uiState.mode === "use_medpack" && unit) {
     return `Medpack — click another friendly biological unit within 4". Healing scales with nearby Medic models.${progress}`;
   }
@@ -265,25 +317,31 @@ function getModeText() {
     const range = unit.abilities?.includes("a_13_flash_grenade_launcher") ? 16 : 12;
     return `Optical Flare — click an enemy within ${range}". It loses 4" of ranged weapon range this round and cannot use Long Range.${progress}`;
   }
+  if (uiState.mode === "guardian_shield" && unit) {
+    return `Guardian Shield — ${unit.name} projects a 4" shield this round. Ranged attacks targeting friendly units inside it lose 1 die from the attack pool.${progress}`;
+  }
+  if (uiState.mode === "stimpack" && unit) {
+    return `Stimpack — ${unit.name} takes 2 non-lethal damage, gains +3 Speed, and gains temporary Precision on ranged and melee attacks for the rest of the round.${progress}`;
+  }
   if (uiState.mode === "declare_ranged" && unit) {
     const wpn = unit.rangedWeapons?.[0];
     const rangeInfo = wpn ? ` ${wpn.name}: ${wpn.rangeInches}" range, ${wpn.hitTarget}+ to hit.` : "";
-    return `Ranged Attack — click a red-highlighted enemy in range.${rangeInfo} Attack resolves in Combat Phase.${progress}`;
+    return `Ranged Attack — click a red-highlighted enemy in range.${rangeInfo} The attack resolves immediately on this activation.${progress}`;
   }
   if (uiState.mode === "declare_charge" && unit) {
-    return `Charge — click an enemy within 8". In Combat Phase, ${unit.name} will pile in and fight in melee. Charge distance = Speed + 1D6.${progress}`;
+    return `Charge — click an enemy within 8". ${unit.name} rolls Speed + 1D6 to connect, then resolves the charge attack immediately if successful.${progress}`;
   }
 
   // Phase-specific guidance when no mode is active
   if (state.phase === "movement") {
     if (checklist.remaining.length > 0) {
-      return `Movement Phase: Deploy reserves or Move/Hold battlefield units. Some units can also use movement abilities like Force Field placement.${progress}`;
+      return `Movement Phase: Deploy reserves or Move/Hold battlefield units. Some units can also use movement abilities like Force Field placement, spreading creep, or warping in through a friendly Power Field.${progress}`;
     }
     return `All units moved. Pass to start the Assault Phase.${progress}`;
   }
   if (state.phase === "assault") {
     if (checklist.remaining.length > 0) {
-      return `Assault Phase: Declare Ranged Attacks, Charges, Run to reposition, or Hold. Attacks resolve in Combat Phase.${progress}`;
+      return `Assault Phase: Declare Ranged Attacks, Charges, Run to reposition, or Hold. Ranged attacks and successful charges resolve on the acting unit's activation.${progress}`;
     }
     return `All units assigned. Pass to start Combat.${progress}`;
   }
@@ -314,6 +372,8 @@ function rerender() {
     onClearTimelineFocus: clearTimelineFocus,
     onTimelineGlossaryTerm: handleTimelineGlossaryTerm,
     onToggleActionBarCompact: handleActionBarToggle,
+    canUndo: () => store?.canUndo?.() && !uiState.locked,
+    getUndoDepth: () => store?.getHistoryDepth?.() ?? 0,
     buildActionButtons,
     buildCardButtons,
     getModeText,
@@ -492,8 +552,9 @@ function renderSetupModal() {
   root.querySelector("#setupStartBtn")?.addEventListener("click", startConfiguredBattle);
 }
 
-function showError(message) {
+function showError(message, extra = {}) {
   uiState.lastError = message;
+  recordDiagnosticEntry("ui_error", message, extra);
   pushToastNotification(message, "error");
   rerender();
   window.clearTimeout(showError.timer);
@@ -501,6 +562,95 @@ function showError(message) {
     uiState.lastError = null;
     rerender();
   }, 4200);
+}
+
+function recordDiagnosticEntry(kind, message, extra = {}) {
+  const state = store?.getState?.() ?? null;
+  const selectedUnit = state && uiState.selectedUnitId ? state.units[uiState.selectedUnitId] ?? null : null;
+  const hoveredUnit = state && uiState.hoveredUnitId ? state.units[uiState.hoveredUnitId] ?? null : null;
+  uiState.diagnosticHistory.push({
+    kind,
+    message,
+    round: state?.round ?? null,
+    phase: state?.phase ?? null,
+    activePlayer: state?.activePlayer ?? null,
+    mode: uiState.mode ?? null,
+    selectedUnitId: selectedUnit?.id ?? null,
+    selectedUnitName: selectedUnit?.name ?? null,
+    hoveredUnitId: hoveredUnit?.id ?? null,
+    hoveredUnitName: hoveredUnit?.name ?? null,
+    timestamp: new Date().toISOString(),
+    ...extra
+  });
+  if (uiState.diagnosticHistory.length > 300) {
+    uiState.diagnosticHistory = uiState.diagnosticHistory.slice(-300);
+  }
+}
+
+function exportTextFile(filename, content, mimeType = "text/plain") {
+  const blob = new Blob([content], { type: `${mimeType};charset=utf-8` });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function buildDiagnosticLogText() {
+  const state = store.getState();
+  const objectiveSnapshot = getObjectiveControlSnapshot(state);
+  const lines = [];
+  lines.push("StarCraft TMG Diagnostic Log");
+  lines.push(`Exported: ${new Date().toISOString()}`);
+  lines.push(`Mission: ${state.mission?.name ?? state.mission?.id ?? "Unknown"}`);
+  lines.push(`Deployment: ${state.deployment?.name ?? state.deployment?.id ?? "Unknown"}`);
+  lines.push(`Round: ${state.round}`);
+  lines.push(`Phase: ${state.phase}`);
+  lines.push(`Active Player: ${state.activePlayer === "playerA" ? "Blue" : "Red"}`);
+  lines.push(`Winner: ${state.winner ? (state.winner === "playerA" ? "Blue" : "Red") : "None"}`);
+  lines.push("");
+  lines.push("Objectives");
+  Object.values(objectiveSnapshot).forEach(result => {
+    const control = result.controller ? (result.controller === "playerA" ? "Blue" : "Red") : (result.contested ? "Contested" : "Uncontrolled");
+    lines.push(`- ${String(result.objectiveId).toUpperCase()}: ${control} | Supply ${result.playerASupply}-${result.playerBSupply}`);
+  });
+  lines.push("");
+  lines.push("Game Log");
+  state.log.forEach((entry, index) => {
+    lines.push(`${index + 1}. [R${entry.round} ${String(entry.phase).toUpperCase()} ${String(entry.type).toUpperCase()}] ${entry.text}`);
+  });
+  lines.push("");
+  lines.push("UI Diagnostics");
+  if (!uiState.diagnosticHistory.length) {
+    lines.push("None.");
+  } else {
+    uiState.diagnosticHistory.forEach((entry, index) => {
+      lines.push(`${index + 1}. [${entry.timestamp}] ${entry.message}`);
+      lines.push(`   Context: round ${entry.round ?? "?"}, phase ${entry.phase ?? "?"}, active ${entry.activePlayer === "playerA" ? "Blue" : entry.activePlayer === "playerB" ? "Red" : "?"}, mode ${entry.mode ?? "none"}`);
+      if (entry.selectedUnitName) lines.push(`   Selected Unit: ${entry.selectedUnitName}${entry.selectedUnitId ? ` (${entry.selectedUnitId})` : ""}`);
+      if (entry.hoveredUnitName) lines.push(`   Hovered Unit: ${entry.hoveredUnitName}${entry.hoveredUnitId ? ` (${entry.hoveredUnitId})` : ""}`);
+      if (entry.detail) lines.push(`   Detail: ${entry.detail}`);
+      if (entry.failedAction) lines.push(`   Action: ${entry.failedAction}`);
+    });
+  }
+  lines.push("");
+  lines.push("Current Battlefield Units");
+  Object.values(state.units)
+    .filter(unit => unit.status?.location === "battlefield")
+    .sort((a, b) => a.owner.localeCompare(b.owner) || a.name.localeCompare(b.name))
+    .forEach(unit => {
+      const alive = unit.modelIds.filter(id => unit.models[id]?.alive).length;
+      const leader = unit.models[unit.leadingModelId];
+      const statuses = Object.entries(unit.status ?? {})
+        .filter(([, value]) => value === true)
+        .map(([key]) => key)
+        .join(", ");
+      lines.push(`- ${unit.owner === "playerA" ? "Blue" : "Red"} | ${unit.name} | ${alive} models | ${unit.currentSupplyValue} supply | ${leader?.x != null && leader?.y != null ? `(${leader.x.toFixed(1)}, ${leader.y.toFixed(1)})` : "off-board"}${statuses ? ` | status: ${statuses}` : ""}`);
+    });
+  return lines.join("\r\n");
 }
 
 function pushToastNotification(message, tone = "info", durationMs = 5200, options = {}) {
@@ -671,6 +821,118 @@ function getWeaponName(state, payload) {
   return weaponPool?.find(weapon => weapon.id === payload.weaponId)?.name ?? payload.weaponId ?? "attack profile";
 }
 
+function getWeaponProfile(state, payload) {
+  const attacker = state.units[payload.attackerId];
+  if (!attacker) return null;
+  const weaponPool = payload.mode === "melee" ? attacker.meleeWeapons : attacker.rangedWeapons;
+  return weaponPool?.find(weapon => weapon.id === payload.weaponId) ?? null;
+}
+
+function getAliveModelCount(unit) {
+  if (!unit?.modelIds?.length) return 0;
+  return unit.modelIds.filter(id => unit.models?.[id]?.alive).length;
+}
+
+function formatStoryRange(payload, weapon) {
+  if (!weapon) return payload.mode === "melee" ? "Melee" : "—";
+  if (payload.mode === "melee") return "Melee";
+  const baseRange = weapon.rangeInches != null ? `${weapon.rangeInches}"` : null;
+  const longRange = weapon.longRangeInches ?? weapon.longRange ?? null;
+  if (baseRange && longRange) return `${baseRange} + ${longRange}" LR`;
+  return baseRange ?? "—";
+}
+
+function renderStoryFactLine(items) {
+  const facts = (items ?? []).filter(item => item?.value != null && item.value !== "");
+  if (!facts.length) return "";
+  return `
+    <div class="story-fact-line">
+      ${facts.map(item => `
+        <span class="story-fact">
+          <span class="story-fact-label">${escapeHtml(item.label)}</span>
+          <span class="story-fact-value">${escapeHtml(item.value)}</span>
+        </span>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderStoryUnitSummary(label, unit, lines, chips = [], accent = "") {
+  if (!unit) return "";
+  return `
+    <div class="story-unit-summary ${accent}">
+      <div class="story-unit-summary-header">
+        <div class="story-unit-summary-label">${escapeHtml(label)}</div>
+        <div class="story-unit-summary-name">${escapeHtml(unit.name)}</div>
+      </div>
+      ${lines.map(renderStoryFactLine).join("")}
+      ${chips.length ? `<div class="story-note-row">${chips.map(chip => `<span class="story-chip">${escapeHtml(chip)}</span>`).join("")}</div>` : ""}
+    </div>
+  `;
+}
+
+function renderStoryResolutionLine(steps) {
+  const filteredSteps = (steps ?? []).filter(Boolean);
+  if (!filteredSteps.length) return "";
+  return `
+    <div class="story-resolution-line" aria-label="Combat resolution">
+      ${filteredSteps.map((step, index) => `
+        ${index ? '<span class="story-resolution-arrow" aria-hidden="true">&rarr;</span>' : ""}
+        <div class="story-resolution-step ${step.accent ?? ""}">
+          <span class="story-resolution-label">${escapeHtml(step.label)}</span>
+          <span class="story-resolution-value">${escapeHtml(step.value)}</span>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderStoryCompactSection(title, items, accent = "") {
+  if (!items?.length) return "";
+  return `
+    <div class="story-compact-section ${accent}">
+      <div class="story-section-title">${escapeHtml(title)}</div>
+      <div class="story-compact-list">
+        ${items.map(item => `<div class="story-compact-item">${escapeHtml(item)}</div>`).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function getCombatOutcomeSummary(payload, attacker, target) {
+  if (payload.failedReason) {
+    return String(payload.failedReason);
+  }
+
+  const prevented = [];
+  if (payload.saved) prevented.push(`${payload.saved} save${payload.saved === 1 ? "" : "s"}`);
+  if (payload.evade?.saved) prevented.push(`${payload.evade.saved} evade`);
+  if (payload.dodge?.prevented) prevented.push(`${payload.dodge.prevented} dodge`);
+
+  let primary = "";
+  if (payload.casualties > 0) {
+    primary = `${target} lost ${payload.casualties} model(s) after ${payload.totalDamage} damage got through.`;
+  } else if (payload.totalDamage > 0) {
+    primary = `${target} took ${payload.totalDamage} damage, but it was not enough to remove a model.`;
+  } else if (prevented.length) {
+    primary = `${target} turned the attack away with ${prevented.join(", ")}, so no damage got through.`;
+  } else {
+    primary = `${attacker} committed the attack, but it did not convert into damage.`;
+  }
+
+  if (payload.mode === "melee") {
+    return payload.totalDamage > 0
+      ? `${primary} Check the engagement line before the next combat activation.`
+      : `${primary} With no melee damage dealt, both sides can stay tied up for later combat activations.`;
+  }
+
+  if (payload.casualties > 0) {
+    return `${primary} That loss can immediately change return fire and objective pressure.`;
+  }
+
+  return primary;
+}
+
 function renderStorySection(title, items, accent = "") {
   if (!items?.length) return "";
   return `
@@ -806,124 +1068,149 @@ function buildPhaseTeachingHtml(config) {
 }
 
 function buildCombatPayloadBlock(payload, state) {
-  const attacker = getUnitName(state, payload.attackerId);
-  const target = getUnitName(state, payload.targetId);
-  const weapon = getWeaponName(state, payload);
+  const attackerUnit = state.units[payload.attackerId] ?? null;
+  const targetUnit = state.units[payload.targetId] ?? null;
+  const attacker = attackerUnit?.name ?? getUnitName(state, payload.attackerId);
+  const target = targetUnit?.name ?? getUnitName(state, payload.targetId);
+  const weaponProfile = getWeaponProfile(state, payload);
+  const weapon = weaponProfile?.name ?? getWeaponName(state, payload);
   const actionLabel = payload.mode === "overwatch"
     ? "Overwatch"
     : payload.mode === "melee"
       ? "Charge Attack"
       : "Ranged Attack";
-  const casualtiesAccent = payload.casualties > 0 ? "impact" : "";
+  const attackerAlive = getAliveModelCount(attackerUnit);
+  const attackerTotal = attackerUnit?.modelIds?.length ?? attackerAlive;
+  const targetAlive = getAliveModelCount(targetUnit);
+  const targetTotal = targetUnit?.modelIds?.length ?? targetAlive;
+  const attacksPerModel = weaponProfile
+    ? (payload.mode === "melee"
+      ? weaponProfile.attacksPerModel ?? weaponProfile.shotsPerModel ?? 1
+      : weaponProfile.shotsPerModel ?? weaponProfile.attacksPerModel ?? 1)
+    : null;
+  const attackerLines = [
+    [
+      { label: "Weapon", value: weapon },
+      { label: "Models", value: attackerTotal ? `${attackerAlive}/${attackerTotal}` : null },
+      { label: "Pool", value: payload.attempts }
+    ],
+    [
+      { label: "Hit", value: weaponProfile?.hitTarget != null ? `${weaponProfile.hitTarget}+` : null },
+      { label: "Wound", value: weaponProfile?.woundTarget != null ? `${weaponProfile.woundTarget}+` : null },
+      { label: "Damage", value: payload.damagePerHit ?? weaponProfile?.damage ?? null },
+      { label: "Range", value: formatStoryRange(payload, weaponProfile) }
+    ]
+  ];
+  if (payload.mode === "melee") {
+    attackerLines.push([
+      { label: "Fight", value: payload.fightingRank != null ? payload.fightingRank : null },
+      { label: "Support", value: payload.supportingRank != null ? payload.supportingRank : null },
+      { label: "Assigned", value: payload.assignedModels != null ? payload.assignedModels : null }
+    ]);
+  } else if (attacksPerModel != null && attackerAlive) {
+    attackerLines[0][2] = { label: "Pool", value: `${attackerAlive}x${attacksPerModel} -> ${payload.attempts}` };
+  }
+
+  const defenderDefense = targetUnit?.defense ?? {};
+  const defenderLines = [
+    [
+      { label: "Models", value: targetTotal ? `${targetAlive}/${targetTotal}` : null },
+      { label: "Tough", value: defenderDefense.toughness ?? null },
+      { label: "Armor", value: defenderDefense.armorSave != null ? `${defenderDefense.armorSave}+` : null },
+      { label: "Evade", value: defenderDefense.evadeTarget != null ? `${defenderDefense.evadeTarget}+` : "—" }
+    ]
+  ];
+  const defenderExtras = [];
+  if (defenderDefense.invulnerableSave != null) defenderExtras.push({ label: "Invuln", value: `${defenderDefense.invulnerableSave}+` });
+  if (defenderDefense.dodge != null) defenderExtras.push({ label: "Dodge", value: defenderDefense.dodge });
+  if (defenderExtras.length) defenderLines.push(defenderExtras);
+
+  const defenderChips = [
+    targetUnit?.status?.engaged ? "Engaged" : "",
+    targetUnit?.status?.hidden ? "Hidden" : "",
+    targetUnit?.status?.burrowed ? "Burrowed" : "",
+    targetUnit?.abilities?.includes?.("flying") || targetUnit?.tags?.includes?.("Flying") ? "Flying" : "",
+    payload.highGround ? "High Ground" : "",
+    payload.objectiveDefenseBonus ? `Objective Armor +${payload.objectiveDefenseBonus}` : "",
+    payload.ancillaryCarapace ? "Ancillary Carapace" : ""
+  ].filter(Boolean);
+
+  const attackerChips = [
+    payload.primaryTargetFocus ? "Primary Target" : "",
+    payload.visible === false ? "Indirect Fire" : "",
+    payload.longRangePenalty ? "Long Range Penalty" : ""
+  ].filter(Boolean);
+
   const chips = [
     actionLabel,
-    payload.visible === false ? "Indirect Fire" : "",
-    payload.longRangePenalty ? "Long Range Penalty" : "",
     payload.antiEvade ? `Anti-Evade ${payload.antiEvade}` : "",
+    payload.precision ? `Precision +${payload.precision}` : "",
     payload.automaticHits ? `Hits ${payload.automaticHits.count}` : "",
+    payload.surge?.applied ? `Surge ${payload.surge.applied}` : "",
+    payload.criticalHit?.applied ? `Crit ${payload.criticalHit.applied}` : "",
+    payload.burstFire?.bonusAttacks ? `Burst +${payload.burstFire.bonusAttacks}` : "",
+    payload.lockedIn ? `Locked In +${payload.lockedIn}` : "",
+    payload.guardianShield?.reducedBy ? `Guardian Shield -${payload.guardianShield.reducedBy}` : "",
+    payload.pointDefenseLaser?.reducedBy ? `PDL -${payload.pointDefenseLaser.reducedBy}` : "",
+    payload.evade?.saved ? `Evade ${payload.evade.saved}` : "",
+    payload.dodge?.prevented ? `Dodge ${payload.dodge.prevented}` : "",
+    payload.lifeSupport?.reducedBy ? `Life Support -${payload.lifeSupport.reducedBy}` : "",
+    payload.transfusion?.reducedBy ? `Transfusion -${payload.transfusion.reducedBy}` : "",
+    payload.zealousRound?.reducedBy ? `Zealous Round -${payload.zealousRound.reducedBy}` : "",
+    payload.concentratedFire?.cap ? `Concentrated ${payload.concentratedFire.cap}` : "",
     payload.damagePerHit && payload.damagePerHit > 1 ? `Damage ${payload.damagePerHit}` : "",
-    payload.primaryTargetFocus ? "Primary Target" : ""
+    payload.impact?.hits ? `Impact ${payload.impact.hits}` : ""
   ].filter(Boolean);
 
-  const statGrid = `
-    <div class="story-stat-grid">
-      ${renderStoryStat("Attacks", payload.attempts)}
-      ${renderStoryStat("Hits", payload.hits)}
-      ${payload.precision ? renderStoryStat("Precision", payload.precision, "success") : ""}
-      ${payload.automaticHits ? renderStoryStat("Auto Hits", payload.automaticHits.count, "impact") : ""}
-      ${renderStoryStat("Wounds", payload.wounds)}
-      ${payload.criticalHit?.applied ? renderStoryStat("Crit", payload.criticalHit.applied, "impact") : ""}
-      ${payload.surge?.applied ? renderStoryStat("Surge", payload.surge.applied, "impact") : ""}
-      ${payload.dodge?.prevented ? renderStoryStat("Dodge", payload.dodge.prevented, "success") : ""}
-      ${renderStoryStat("Saves", payload.saved)}
-      ${payload.evade?.saved ? renderStoryStat("Evade", payload.evade.saved, "success") : ""}
-      ${renderStoryStat("Damage", payload.totalDamage, payload.totalDamage > 0 ? "impact" : "")}
-      ${renderStoryStat("Casualties", payload.casualties, casualtiesAccent)}
-      ${payload.fightingRank != null ? renderStoryStat("Fight Rank", payload.fightingRank, "success") : ""}
-      ${payload.supportingRank != null ? renderStoryStat("Support", payload.supportingRank, "success") : ""}
-      ${payload.assignedModels != null ? renderStoryStat("Assigned", payload.assignedModels, "success") : ""}
-    </div>
-  `;
-
-  const notes = [];
-  if (payload.impact) {
-    notes.push(payload.impact.preventedByHidden
-      ? `Impact was negated because ${target} stayed hidden.`
-      : `Impact rolled ${payload.impact.attempts} dice, landed ${payload.impact.hits} hits, and caused ${payload.impact.casualties} casualties before the main attack.`);
-  }
-  if (payload.surge?.applied) {
-    notes.push(`Surge rolled ${payload.surge.roll} on ${payload.surge.dice} and turned ${payload.surge.applied} wound(s) into bypassed armour against ${payload.surge.matchedTags.join("/")}.`);
-  }
-  if (payload.automaticHits?.count) {
-    notes.push(`Hits added ${payload.automaticHits.count} automatic armour-pool hit(s) at ${payload.automaticHits.damage} damage each, and they did not roll to wound or generate Surge.`);
-  }
-  if (payload.criticalHit?.applied) {
-    notes.push(`Critical Hit pushed ${payload.criticalHit.applied} wound(s) straight past armour.`);
-  }
-  if (payload.dodge?.prevented) {
-    notes.push(`${target} used Dodge to cancel ${payload.dodge.prevented} bypassed hit(s).`);
-  }
-  if (payload.evade?.saved) {
-    notes.push(`${target} avoided ${payload.evade.saved} hit(s) on ${payload.evade.target}+ evade.`);
-  }
-  if (payload.ancillaryCarapace) {
-    notes.push(`${target} improved its armour roll with Ancillary Carapace.`);
-  }
-  if (payload.objectiveDefenseBonus) {
-    notes.push(`${target} gained +${payload.objectiveDefenseBonus} armour from objective positioning.`);
-  }
-  if (payload.burstFire?.bonusAttacks) {
-    notes.push(`${attacker} gained +${payload.burstFire.bonusAttacks} attacks from Burst Fire at close range.`);
-  }
-  if (payload.lockedIn) {
-    notes.push(`${attacker} gained +${payload.lockedIn} attacks because ${target} was stationary.`);
-  }
-  if (payload.lifeSupport?.reducedBy) {
-    notes.push(`Life Support reduced the damage that got through by ${payload.lifeSupport.reducedBy}.`);
-  }
-  if (payload.zealousRound?.reducedBy) {
-    notes.push(`Zealous Round reduced the damage that got through by ${payload.zealousRound.reducedBy} and activated ${target}.`);
-  }
-  if (payload.concentratedFire?.cap) {
-    notes.push(
-      payload.concentratedFire.discardedDamage > 0
+  const ruleEffects = [
+    payload.impact
+      ? (payload.impact.preventedByHidden
+        ? "Impact was shut off because the defender stayed hidden."
+        : `Impact added ${payload.impact.hits} hit(s) before the main attack.`)
+      : null,
+    payload.precision ? `Precision converted ${payload.precision} miss(es) into armour-pool hits.` : null,
+    payload.stimpack?.precisionBonus ? `Stimpack supplied +${payload.stimpack.precisionBonus} temporary Precision.` : null,
+    payload.automaticHits?.count ? `Hits added ${payload.automaticHits.count} automatic hit(s) at ${payload.automaticHits.damage} damage each.` : null,
+    payload.surge?.applied ? `Surge pushed ${payload.surge.applied} wound(s) past armour.` : null,
+    payload.criticalHit?.applied ? `Critical Hit pushed ${payload.criticalHit.applied} wound(s) past armour.` : null,
+    payload.guardianShield?.reducedBy ? `Guardian Shield removed ${payload.guardianShield.reducedBy} die before hit rolls.` : null,
+    payload.pointDefenseLaser?.reducedBy ? `Point Defense Laser removed ${payload.pointDefenseLaser.reducedBy} dice, then spent the drone.` : null,
+    payload.dodge?.prevented ? `Dodge cancelled ${payload.dodge.prevented} bypassed hit(s).` : null,
+    payload.evade?.saved ? `Evade avoided ${payload.evade.saved} hit(s) after armour results were known.` : null,
+    payload.lifeSupport?.reducedBy ? `Life Support reduced final damage by ${payload.lifeSupport.reducedBy}.` : null,
+    payload.transfusion?.reducedBy ? `Transfusion reduced final damage by ${payload.transfusion.reducedBy}.` : null,
+    payload.zealousRound?.reducedBy ? `Zealous Round reduced final damage by ${payload.zealousRound.reducedBy}.` : null,
+    payload.concentratedFire?.cap
+      ? (payload.concentratedFire.discardedDamage > 0
         ? `Concentrated Fire capped casualties at ${payload.concentratedFire.cap} and discarded ${payload.concentratedFire.discardedDamage} excess damage.`
-        : `Concentrated Fire capped casualties at ${payload.concentratedFire.cap}.`
-    );
-  }
-
-  const ruleNotes = [
-    `Attack order here is: hit rolls, wound rolls, armour-pool effects, saves, then damage.`,
-    payload.precision ? `Precision moved ${payload.precision} failed hit dice straight into the armour pool, so those dice counted as hits without rolling to wound.` : null,
-    payload.automaticHits?.count ? `Hits adds automatic armour-pool hits. Those dice skip the hit and wound steps and do not generate Surge.` : null,
-    payload.surge?.applied ? `Surge happens after wounds are created. Matching wounds are pushed past armour before normal saves are rolled.` : null,
-    payload.criticalHit?.applied ? `Critical Hit bypasses armour by moving wounds straight toward damage before save rolls.` : null,
-    payload.dodge?.prevented ? `Dodge cancels a limited number of bypass-armour hits before damage is applied.` : null,
-    payload.evade?.saved ? `Evade happens after armour results are known, letting the defender avoid hits that would otherwise deal damage.` : null,
-    payload.visible === false ? `Indirect Fire let this attack ignore line of sight for targeting.` : null,
-    payload.longRangePenalty ? `Long Range extended the shot beyond base range, but the attack paid a hit penalty to do it.` : null,
-    payload.burstFire?.bonusAttacks ? `Burst Fire increases attack volume when the target is inside the weapon's close-range band.` : null,
-    payload.lockedIn ? `Locked In adds attacks because the target counted as stationary when this shot was resolved.` : null,
-    payload.antiEvade ? `Anti-Evade makes the defender's evade roll harder.` : null,
-    payload.fightingRank != null ? `Only models in fighting rank, plus models supporting them from base contact, were allowed to contribute to this melee batch.` : null
+        : `Concentrated Fire capped casualties at ${payload.concentratedFire.cap}.`)
+      : null,
+    payload.fightingRank != null ? `Only ${payload.fightingRank} fighting and ${payload.supportingRank ?? 0} supporting models contributed to this melee pool.` : null
   ].filter(Boolean);
 
-  const nextStepNotes = [
-    payload.casualties > 0 ? `${target} lost ${payload.casualties} model(s), so its supply and board presence may have changed immediately.` : `${target} kept all of its models alive through this exchange.`,
-    payload.mode === "melee"
-      ? (payload.totalDamage > 0 ? `This was a melee resolution, so the result can change who stays engaged and who can strike back next.` : `No damage got through in melee, so the units may stay tied up for later combat activations.`)
-      : `This attack was queued from Assault and resolved in Combat, so the next important step is the next combat activation or reaction already in queue.`
-  ].filter(Boolean);
+  const resolutionLine = renderStoryResolutionLine([
+    { label: "Attacks", value: payload.attempts },
+    { label: "Hits", value: payload.hits, accent: payload.hits > 0 ? "success" : "" },
+    { label: "Wounds", value: payload.wounds, accent: payload.wounds > 0 ? "success" : "" },
+    { label: "Saves", value: payload.saved, accent: payload.saved > 0 ? "success" : "" },
+    { label: "Damage", value: payload.totalDamage, accent: payload.totalDamage > 0 ? "impact" : "" },
+    { label: "Casualties", value: payload.casualties, accent: payload.casualties > 0 ? "impact" : "" }
+  ]);
+
+  const outcomeSummary = getCombatOutcomeSummary(payload, attacker, target);
 
   return `
     <div class="story-lead"><strong>${escapeHtml(attacker)}</strong> resolved a ${escapeHtml(actionLabel.toLowerCase())} into <strong>${escapeHtml(target)}</strong> with <strong>${escapeHtml(weapon)}</strong>.</div>
-    ${statGrid}
-    <div class="story-note-row">
+    <div class="story-combat-context">
+      ${renderStoryUnitSummary("Attacker", attackerUnit, attackerLines, attackerChips, "attacker")}
+      ${renderStoryUnitSummary("Defender", targetUnit, defenderLines, defenderChips, "defender")}
+    </div>
+    ${resolutionLine}
+    <div class="story-note-row story-relevant-factors">
       ${chips.map(chip => `<span class="story-chip">${escapeHtml(chip)}</span>`).join("")}
     </div>
-    ${renderStorySection("What Happened", notes)}
-    ${renderStorySection("Why It Worked", ruleNotes, "teaching")}
-    ${renderStorySection("What This Means", nextStepNotes, "next")}
+    <div class="story-outcome ${payload.casualties > 0 || payload.totalDamage > 0 ? "impact" : "success"}">${escapeHtml(outcomeSummary)}</div>
+    ${renderStoryCompactSection("Key Rule Effects", ruleEffects, "teaching")}
   `;
 }
 
@@ -934,6 +1221,7 @@ function getCombatPayloadGlossaryTerms(payload) {
     payload.surge?.applied ? "Surge" : null,
     payload.automaticHits ? "Hits" : null,
     payload.precision ? "Precision" : null,
+    payload.stimpack?.precisionBonus ? "Stimpack" : null,
     payload.criticalHit?.applied ? "Critical Hit" : null,
     payload.dodge?.prevented ? "Dodge" : null,
     payload.evade?.saved ? "Evade" : null,
@@ -941,9 +1229,12 @@ function getCombatPayloadGlossaryTerms(payload) {
     payload.longRangePenalty ? "Long Range" : null,
     payload.burstFire?.bonusAttacks ? "Burst Fire" : null,
     payload.lockedIn ? "Locked In" : null,
+    payload.guardianShield?.reducedBy ? "Guardian Shield" : null,
+    payload.pointDefenseLaser?.reducedBy ? "Point Defense Laser" : null,
     payload.antiEvade ? "Anti-Evade" : null,
     payload.concentratedFire?.cap ? "Concentrated Fire" : null,
     payload.lifeSupport?.reducedBy ? "Life Support" : null,
+    payload.transfusion?.reducedBy ? "Transfusion" : null,
     payload.zealousRound?.reducedBy ? "Zealous Round" : null,
     payload.fightingRank != null ? "Fighting Rank" : null,
     payload.supportingRank != null ? "Supporting Rank" : null
@@ -951,9 +1242,9 @@ function getCombatPayloadGlossaryTerms(payload) {
 }
 
 function buildStoryBlock(text) {
-  const combatMatch = text.match(/^(.*?) (attacks|fires overwatch at|charges) (.*?) with (.*?): (\d+) attacks, (\d+) hits(?: \(including (\d+) Precision\))?, (\d+) wounds(?:, Critical Hit (\d+) bypassed armour)?(?:, Surge (.*?) rolled (\d+) vs (.*?) -> (\d+) bypassed armour)?(?:, Dodge prevented (\d+) bypassed hits)?, (\d+) saves(?: \((cover)\))?(?:, (\d+) evade saves on (\d+)\+)?(?:, indirect fire without line of sight)?(?:, long range penalty applied)?(?:, Burst Fire \+(\d+))?(?:, Locked In \+(\d+))?(?:, Anti-Evade (\d+))?(?:, Pierce damage (\d+))?(?:, Zealous Round reduced damage by (\d+))?(?:, Concentrated Fire cap (\d+)(?: \(discarded (\d+) damage\))?)?(?:, Fighting Rank (\d+), Supporting Rank (\d+), Assigned Models (\d+)(?:, Primary Target Focus)?)?, (\d+) casualties\.$/);
+  const combatMatch = text.match(/^(.*?) (attacks|fires overwatch at|charges) (.*?) with (.*?): (\d+) attacks, (\d+) hits(?: \(including (\d+) Precision\))?, (\d+) wounds(?:, Critical Hit (\d+) bypassed armour)?(?:, Surge (.*?) rolled (\d+) vs (.*?) -> (\d+) bypassed armour)?(?:, Dodge prevented (\d+) bypassed hits)?, (\d+) saves(?: \((cover)\))?(?:, (\d+) evade saves on (\d+)\+)?(?:, indirect fire without line of sight)?(?:, long range penalty applied)?(?:, Burst Fire \+(\d+))?(?:, Locked In \+(\d+))?(?:, Anti-Evade (\d+))?(?:, Pierce damage (\d+))?(?:, Transfusion reduced damage by (\d+))?(?:, Zealous Round reduced damage by (\d+))?(?:, Concentrated Fire cap (\d+)(?: \(discarded (\d+) damage\))?)?(?:, Fighting Rank (\d+), Supporting Rank (\d+), Assigned Models (\d+)(?:, Primary Target Focus)?)?, (\d+) casualties\.$/);
   if (combatMatch) {
-      const [, attacker, verb, target, weapon, attacks, hits, precisionApplied, wounds, criticalApplied, surgeDie, surgeRoll, surgeTags, surgeApplied, dodgePrevented, saves, cover, evadeSaved, evadeTarget, burstFireBonus, lockedInBonus, antiEvade, pierceDamage, zealousRoundReduced, concentratedFireCap, concentratedFireDiscarded, fightingRank, supportingRank, assignedModels, casualties] = combatMatch;
+      const [, attacker, verb, target, weapon, attacks, hits, precisionApplied, wounds, criticalApplied, surgeDie, surgeRoll, surgeTags, surgeApplied, dodgePrevented, saves, cover, evadeSaved, evadeTarget, burstFireBonus, lockedInBonus, antiEvade, pierceDamage, transfusionReduced, zealousRoundReduced, concentratedFireCap, concentratedFireDiscarded, fightingRank, supportingRank, assignedModels, casualties] = combatMatch;
       const longRangeApplied = text.includes("long range penalty applied");
       const indirectFireApplied = text.includes("indirect fire without line of sight");
       const primaryTargetFocus = text.includes("Primary Target Focus");
@@ -969,6 +1260,7 @@ function buildStoryBlock(text) {
           ${surgeApplied ? renderStoryStat("Surge", surgeApplied, Number(surgeApplied) > 0 ? "impact" : "") : ""}
           ${burstFireBonus ? renderStoryStat("Burst", burstFireBonus, "success") : ""}
           ${lockedInBonus ? renderStoryStat("Locked In", lockedInBonus, "success") : ""}
+          ${transfusionReduced ? renderStoryStat("Transfusion", transfusionReduced, "success") : ""}
           ${zealousRoundReduced ? renderStoryStat("Zealous", zealousRoundReduced, "success") : ""}
           ${fightingRank ? renderStoryStat("Fight Rank", fightingRank, "success") : ""}
           ${supportingRank ? renderStoryStat("Support", supportingRank, "success") : ""}
@@ -988,6 +1280,7 @@ function buildStoryBlock(text) {
           ${longRangeApplied ? '<span class="story-chip">Long Range Penalty</span>' : ""}
           ${burstFireBonus ? `<span class="story-chip">Burst Fire +${escapeHtml(burstFireBonus)}</span>` : ""}
           ${lockedInBonus ? `<span class="story-chip">Locked In +${escapeHtml(lockedInBonus)}</span>` : ""}
+          ${transfusionReduced ? `<span class="story-chip">Transfusion -${escapeHtml(transfusionReduced)} damage</span>` : ""}
           ${zealousRoundReduced ? `<span class="story-chip">Zealous Round -${escapeHtml(zealousRoundReduced)} damage</span>` : ""}
           ${fightingRank ? `<span class="story-chip">Fighting Rank ${escapeHtml(fightingRank)}</span>` : ""}
           ${supportingRank ? `<span class="story-chip">Supporting Rank ${escapeHtml(supportingRank)}</span>` : ""}
@@ -1158,6 +1451,37 @@ function buildStoryBlock(text) {
     `;
   }
 
+  const guardianShieldMatch = text.match(/^(.*?) activates Guardian Shield: ranged attacks targeting friendly units within (\d+)" lose 1 die from the attack pool this round\.$/);
+  if (guardianShieldMatch) {
+    const [, source, radius] = guardianShieldMatch;
+    return `
+      <div class="story-lead"><strong>${escapeHtml(source)}</strong> raises <strong>Guardian Shield</strong>.</div>
+      <div class="story-outcome success">Ranged attacks targeting friendly units within ${escapeHtml(radius)}" lose 1 die from the attack pool for the rest of the round.</div>
+      <div class="story-note-row">
+        <span class="story-chip">${escapeHtml(radius)}" Radius</span>
+        <span class="story-chip">Attack Pool -1</span>
+        <span class="story-chip">Until End of Round</span>
+      </div>
+      ${renderStorySection("Why It Worked", ["Guardian Shield is a temporary defensive field. It reduces the size of incoming ranged attack pools, but it does not help in melee."], "teaching")}
+    `;
+  }
+
+  const stimpackMatch = text.match(/^(.*?) uses Stimpack: non-lethal damage (\d+) \((\d+) applied\), Speed \+(\d+), Precision \+(\d+) on ranged and melee weapons this round\.$/);
+  if (stimpackMatch) {
+    const [, source, nonLethal, applied, speedBonus, precisionBonus] = stimpackMatch;
+    return `
+      <div class="story-lead"><strong>${escapeHtml(source)}</strong> uses <strong>Stimpack</strong>.</div>
+      <div class="story-stat-grid">
+        ${renderStoryStat("Non-Lethal", nonLethal, "warning")}
+        ${renderStoryStat("Applied", applied, Number(applied) > 0 ? "warning" : "")}
+        ${renderStoryStat("Speed", `+${speedBonus}`, "success")}
+        ${renderStoryStat("Precision", `+${precisionBonus}`, "impact")}
+      </div>
+      <div class="story-outcome warning">${escapeHtml(source)} pushes harder this round at the cost of non-lethal self-damage.</div>
+      ${renderStorySection("Why It Worked", ["Stimpack trades durability for tempo. It boosts movement immediately and adds temporary Precision to the unit's attacks for the rest of the round."], "teaching")}
+    `;
+  }
+
   const lifeSupportMatch = text.match(/^(.*?) gains Life Support: (.*?) reduce incoming damage by (\d+)\.$/);
   if (lifeSupportMatch) {
     const [, target, sources, reducedBy] = lifeSupportMatch;
@@ -1168,6 +1492,20 @@ function buildStoryBlock(text) {
         <span class="story-chip">${escapeHtml(sources)}</span>
       </div>
       ${renderStorySection("Why It Worked", [`Life Support reduces damage after the attack gets through, which can keep models alive even after hits and failed saves are already known.`], "teaching")}
+    `;
+  }
+
+  const transfusionMatch = text.match(/^(.*?) uses Transfusion on (.*?), reducing incoming damage by (\d+)\.$/);
+  if (transfusionMatch) {
+    const [, source, target, reducedBy] = transfusionMatch;
+    return `
+      <div class="story-lead"><strong>${escapeHtml(source)}</strong> reacts to protect <strong>${escapeHtml(target)}</strong>.</div>
+      <div class="story-outcome success">Transfusion reduces the incoming damage by ${escapeHtml(reducedBy)} before it is allocated.</div>
+      <div class="story-note-row">
+        <span class="story-chip">Within 4"</span>
+        <span class="story-chip">Friendly Biological Target</span>
+      </div>
+      ${renderStorySection("Why It Worked", ["Transfusion is a Queen reaction that protects another nearby friendly biological unit when it suffers damage."], "teaching")}
     `;
   }
 
@@ -1930,7 +2268,26 @@ function describeTacticalCard(card) {
   return `Phase: ${card.phase}. Target: ${card.target.replace(/_/g, " ")}. Modifiers: ${modifierText || "none"}. Timings: ${timingText}. Duration: ${durationText}.`;
 }
 
-function describeTacticalCardForModal(card, targetName = null) {
+  function describeTacticalCardForModal(card, targetName = null) {
+    const targetLabel = targetName ? `${targetName}` : "the target";
+    if (card.id === "observer" || card.id === "overseer") {
+    return `${targetLabel} gains a 6" detection field for the rest of the round and still gains +1" speed. Hidden or burrowed enemies inside that field are revealed for targeting and lose stealth-based protection. Rule timing: play this in the ${card.phase} phase before the unit repositions or hunts concealed enemies.`;
+  }
+    if (card.id === "warp_prism") {
+      return `${targetLabel} becomes a mobile 6" warp field for the rest of the round and gains +2" speed. Friendly Protoss reserve units can warp in through that field if they stay clear of enemies. Rule timing: play this in the ${card.phase} phase before you need a new warp-in point or a repositioned power anchor.`;
+    }
+    if (card.id === "malignant_creep" || card.id === "accelerating_creep") {
+      return `${targetLabel} gains +2" speed and projects a temporary 6" creep field for the rest of the round. Friendly Zerg units moving through that field can benefit from creep movement support, so this card creates a short-lived lane for faster repositioning. Rule timing: play this in the ${card.phase} phase before several Zerg moves can use the same lane.`;
+    }
+    if (card.id === "hatchery") {
+      return `${targetLabel} gains +1" speed and becomes a temporary 6" hatchery field for the rest of the round. Friendly Zerg reserve units can deploy through that field instead of only using the board edge if they still stay clear of enemy models. Rule timing: play this in the ${card.phase} phase before you want a forward reserve-entry point.`;
+    }
+    if (card.id === "barracks" || card.id === "barracks_proxy") {
+      return `${targetLabel} gains +1" speed and becomes a temporary 6" Terran infantry deployment field for the rest of the round. Friendly Terran infantry reserves can deploy through that field if they stay clear of enemies, which turns the target into a forward rally point. Rule timing: play this in the ${card.phase} phase before reinforcements need a new landing point.`;
+    }
+    if (card.id === "nexus" || card.id === "overcharged_nexus") {
+      return `${targetLabel} gains +1" speed and projects a temporary 6" power field for the rest of the round. Friendly Protoss reserves can warp in through that field, so the card shifts where your reinforcements can arrive on the battlefield. Rule timing: play this in the ${card.phase} phase before you need a new warp anchor.`;
+    }
   const modifiers = card.effect?.modifiers ?? [];
   const duration = card.effect?.duration ?? null;
   const durationText = duration?.eventType === "combat_attack_resolved"
@@ -2029,12 +2386,59 @@ function buildActionButtons() {
       rerender();
     }, unit.status.engaged, "Unit is engaged. Disengage before moving."));
 
+    if (unit.abilities?.includes("blink")) {
+      buttons.unshift(actionButton("Blink", "secondary", () => {
+        beginBlinkInteraction(uiState);
+        computeLegalDestinations();
+        rerender();
+      }, unit.status.engaged || unit.status.burrowed, unit.status.burrowed ? "Burrowed units cannot Blink." : "Unit is engaged. Blink cannot end in enemy engagement."));
+    }
+
+    if (unit.abilities?.includes("psionic_transfer")) {
+      buttons.unshift(actionButton("Transfer", "secondary", () => {
+        beginPsionicTransferInteraction(uiState);
+        computeLegalDestinations();
+        rerender();
+      }, unit.status.engaged || unit.status.burrowed, unit.status.burrowed ? "Burrowed units cannot use Psionic Transfer." : "Unit is engaged. Psionic Transfer cannot end in enemy engagement."));
+    }
+
     if (unit.abilities?.includes("solid_field_projectors")) {
       buttons.unshift(actionButton("Force Field", "secondary", () => {
         beginForceFieldInteraction(uiState);
         uiState.legalDestinations = [];
         rerender();
       }));
+    }
+
+    if (unitCanSourceCreep(unit)) {
+      buttons.unshift(actionButton("Creep", "secondary", () => {
+        beginCreepInteraction(uiState);
+        uiState.legalDestinations = [];
+        rerender();
+      }));
+    }
+
+    if (canUseOmegaWormNetwork(unit)) {
+      buttons.unshift(actionButton("Omega Network", "secondary", () => {
+        beginOmegaTransferInteraction(uiState);
+        uiState.legalDestinations = [];
+        rerender();
+      }, unit.status.engaged, "Unit must be unengaged to use the Omega Worm network."));
+
+      const omegaRecallValidation = validateOmegaRecall(state, "playerA", unit.id);
+      buttons.unshift(actionButton("Return To Worm", "secondary", () => {
+        const result = store.dispatch({
+          type: "OMEGA_RECALL",
+          payload: { playerId: "playerA", unitId: unit.id }
+        });
+        if (!result.ok) showError(result.message);
+        else {
+          cancelCurrentInteraction(uiState);
+          uiState.legalDestinations = [];
+          autoSelectNextUnit();
+          rerender();
+        }
+      }, !omegaRecallValidation.ok, omegaRecallValidation.message ?? "This unit cannot return to an Omega Worm right now."));
     }
 
     if (unit.abilities?.includes("stabilize_wounds")) {
@@ -2047,6 +2451,38 @@ function buildActionButtons() {
         beginOpticalFlareInteraction(uiState);
         uiState.legalDestinations = [];
         rerender();
+      }));
+    }
+
+    if (unit.abilities?.includes("guardian_shield")) {
+      buttons.unshift(actionButton("Guardian Shield", "secondary", () => {
+        const result = store.dispatch({
+          type: "ACTIVATE_GUARDIAN_SHIELD",
+          payload: { playerId: "playerA", unitId: unit.id }
+        });
+        if (!result.ok) showError(result.message);
+        else {
+          cancelCurrentInteraction(uiState);
+          uiState.legalDestinations = [];
+          autoSelectNextUnit();
+          rerender();
+        }
+      }));
+    }
+
+    if (unit.abilities?.includes("stimpack_drill")) {
+      buttons.unshift(actionButton("Stimpack", "warn", () => {
+        const result = store.dispatch({
+          type: "ACTIVATE_STIMPACK",
+          payload: { playerId: "playerA", unitId: unit.id }
+        });
+        if (!result.ok) showError(result.message);
+        else {
+          cancelCurrentInteraction(uiState);
+          uiState.legalDestinations = [];
+          autoSelectNextUnit();
+          rerender();
+        }
       }));
     }
 
@@ -2179,8 +2615,14 @@ function computeDeployEntryPoint(state, point) {
   return { x: point.x, y: state.board.heightInches };
 }
 
-function canDeepStrike(unit) {
-  return unit.abilities?.includes("deep_strike");
+function canDeployDirectlyFromBoard(state, unit) {
+  return canUseBoardEntryDeploy(state, "playerA", unit);
+}
+
+function getLegalDeployOption(point) {
+  return (uiState.legalDestinations ?? []).find(destination =>
+    Math.abs(destination.x - point.x) <= 0.01 && Math.abs(destination.y - point.y) <= 0.01
+  ) ?? null;
 }
 
 function maybeSnapPoint(state, point) {
@@ -2202,8 +2644,10 @@ function handleBoardClick(point) {
   if (!unit || state.activePlayer !== "playerA") return;
 
   if (uiState.mode === "deploy") {
-    const entryPoint = canDeepStrike(unit) ? snappedPoint : computeDeployEntryPoint(state, snappedPoint);
-    const path = canDeepStrike(unit) ? [entryPoint, entryPoint] : [entryPoint, snappedPoint];
+    const deployOption = getLegalDeployOption(snappedPoint);
+    const boardEntryDeploy = canDeployDirectlyFromBoard(state, unit);
+    const entryPoint = deployOption?.entryPoint ?? (boardEntryDeploy ? snappedPoint : computeDeployEntryPoint(state, snappedPoint));
+    const path = boardEntryDeploy ? [entryPoint, entryPoint] : [entryPoint, snappedPoint];
     const result = store.dispatch({
       type: "DEPLOY_UNIT",
       payload: {
@@ -2227,6 +2671,42 @@ function handleBoardClick(point) {
       payload: {
         playerId: "playerA", unitId: unit.id, leadingModelId: unit.leadingModelId,
         path, modelPlacements: autoArrangeModels(state, unit.id, snappedPoint)
+      }
+    });
+    if (!result.ok) return showError(result.message);
+    cancelCurrentInteraction(uiState);
+    uiState.legalDestinations = [];
+    autoSelectNextUnit();
+    rerender();
+    return;
+  }
+
+  if (uiState.mode === "blink") {
+    const result = store.dispatch({
+      type: "BLINK_UNIT",
+      payload: {
+        playerId: "playerA",
+        unitId: unit.id,
+        point: snappedPoint,
+        modelPlacements: autoArrangeModels(state, unit.id, snappedPoint)
+      }
+    });
+    if (!result.ok) return showError(result.message);
+    cancelCurrentInteraction(uiState);
+    uiState.legalDestinations = [];
+    autoSelectNextUnit();
+    rerender();
+    return;
+  }
+
+  if (uiState.mode === "psionic_transfer") {
+    const result = store.dispatch({
+      type: "PSIONIC_TRANSFER_UNIT",
+      payload: {
+        playerId: "playerA",
+        unitId: unit.id,
+        point: snappedPoint,
+        modelPlacements: autoArrangeModels(state, unit.id, snappedPoint)
       }
     });
     if (!result.ok) return showError(result.message);
@@ -2272,6 +2752,41 @@ function handleBoardClick(point) {
     return;
   }
 
+  if (uiState.mode === "place_creep") {
+    const result = store.dispatch({
+      type: "PLACE_CREEP",
+      payload: {
+        playerId: "playerA",
+        unitId: unit.id,
+        point: snappedPoint
+      }
+    });
+    if (!result.ok) return showError(result.message);
+    cancelCurrentInteraction(uiState);
+    uiState.legalDestinations = [];
+    autoSelectNextUnit();
+    rerender();
+    return;
+  }
+
+  if (uiState.mode === "omega_transfer") {
+    const result = store.dispatch({
+      type: "OMEGA_TRANSFER",
+      payload: {
+        playerId: "playerA",
+        unitId: unit.id,
+        point: snappedPoint,
+        modelPlacements: autoArrangeModels(state, unit.id, snappedPoint)
+      }
+    });
+    if (!result.ok) return showError(result.message);
+    cancelCurrentInteraction(uiState);
+    uiState.legalDestinations = [];
+    autoSelectNextUnit();
+    rerender();
+    return;
+  }
+
   if (uiState.mode === "disengage") {
     const leader = unit.models[unit.leadingModelId];
     const path = [{ x: leader.x, y: leader.y }, snappedPoint];
@@ -2307,7 +2822,13 @@ function handleModelClick(unitId) {
       type: "DECLARE_RANGED_ATTACK",
       payload: { playerId: "playerA", unitId: selected.id, targetId: clickedUnit.id }
     });
-    if (!result.ok) { showError(result.message); return; }
+    if (!result.ok) {
+      showError(result.message, {
+        detail: result.detail ?? null,
+        failedAction: "DECLARE_RANGED_ATTACK"
+      });
+      return;
+    }
     cancelCurrentInteraction(uiState);
     uiState.legalDestinations = [];
     autoSelectNextUnit();
@@ -2320,7 +2841,13 @@ function handleModelClick(unitId) {
       type: "DECLARE_CHARGE",
       payload: { playerId: "playerA", unitId: selected.id, targetId: clickedUnit.id }
     });
-    if (!result.ok) { showError(result.message); return; }
+    if (!result.ok) {
+      showError(result.message, {
+        detail: result.detail ?? null,
+        failedAction: "DECLARE_CHARGE"
+      });
+      return;
+    }
     cancelCurrentInteraction(uiState);
     uiState.legalDestinations = [];
     autoSelectNextUnit();
@@ -2363,6 +2890,10 @@ function handleModelHover(unitId) {
 }
 
 async function maybeRunBot() {
+  if (uiState.suppressNextBotRun) {
+    uiState.suppressNextBotRun = false;
+    return;
+  }
   if (uiState.locked) return;
   if (uiState.activeStoryModal || uiState.storyModalQueue.length) return;
   if (uiState.pendingCombatChoice) return;
@@ -2397,11 +2928,14 @@ function resetUiForLoadedState(nextState) {
   uiState.boardHighlights = [];
   uiState.aftermathNarrative = null;
   uiState.compactActionBar = false;
+  uiState.suppressNextBotRun = false;
+  uiState.suppressNextBoardNarration = false;
   uiState.lastObjectiveSnapshot = getObjectiveControlSnapshot(nextState);
   uiState.pendingPass = false;
   uiState.storyModalQueue = [];
   uiState.activeStoryModal = null;
   uiState.activeGlossaryTerm = null;
+  uiState.diagnosticHistory = [];
   uiState.shownPhaseTeachingKeys = new Set();
   uiState.pendingCombatChoice = null;
   cancelCurrentInteraction(uiState);
@@ -2412,6 +2946,51 @@ function resetUiForLoadedState(nextState) {
 
 function resetGame() {
   resetUiForLoadedState(buildInitialState());
+}
+
+function clearTransientUiState() {
+  uiState.pendingPass = false;
+  uiState.lastError = null;
+  uiState.notifications = [];
+  uiState.storyModalQueue = [];
+  uiState.activeStoryModal = null;
+  uiState.activeGlossaryTerm = null;
+  uiState.pendingCombatChoice = null;
+  uiState.hoveredUnitId = null;
+  uiState.hoveredObjectiveId = null;
+  uiState.hoveredCombatQueueIndex = null;
+  uiState.selectedCombatQueueIndex = null;
+  uiState.boardHighlights = [];
+  uiState.aftermathNarrative = null;
+  uiState.timelineFocusedKey = null;
+  cancelCurrentInteraction(uiState);
+  uiState.legalDestinations = [];
+  uiState.previewPath = null;
+  uiState.previewUnit = null;
+}
+
+function undoLastStep() {
+  if (!store?.canUndo?.() || uiState.locked) return;
+  clearTransientUiState();
+  uiState.suppressNextBotRun = true;
+  uiState.suppressNextBoardNarration = true;
+  const result = store.undo();
+  if (!result.ok) {
+    uiState.suppressNextBotRun = false;
+    uiState.suppressNextBoardNarration = false;
+    showError(result.message);
+    return;
+  }
+  const nextState = store.getState();
+  uiState.lastSeenLogCount = nextState.log.length;
+  uiState.lastObjectiveSnapshot = getObjectiveControlSnapshot(nextState);
+  if (uiState.selectedUnitId && !nextState.units[uiState.selectedUnitId]) {
+    uiState.selectedUnitId = null;
+  }
+  if (nextState.activePlayer === "playerA") {
+    autoSelectNextUnit();
+  }
+  rerender();
 }
 
 function openSetupModal() {
@@ -2496,16 +3075,20 @@ function exportSaveFile() {
   const state = store.getState();
   const payload = { version: 1, exportedAt: new Date().toISOString(), state };
   const content = JSON.stringify(payload, null, 2);
-  const blob = new Blob([content], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `starcraft-grid-save-${sanitizeSaveFilenamePart(state.mission.id ?? "mission")}.json`;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
+  exportTextFile(`starcraft-grid-save-${sanitizeSaveFilenamePart(state.mission.id ?? "mission")}.json`, content, "application/json");
   pushToastNotification("Save exported.", "success");
+}
+
+function exportDiagnosticLogFile() {
+  const state = store.getState();
+  const content = buildDiagnosticLogText();
+  exportTextFile(
+    `starcraft-grid-log-r${state.round}-${sanitizeSaveFilenamePart(state.phase ?? "phase")}-${sanitizeSaveFilenamePart(state.mission?.id ?? "mission")}.txt`,
+    content
+  );
+  pushToastNotification("Diagnostic log exported.", "success", 5200, {
+    title: "Log Export"
+  });
 }
 
 function isValidImportedState(nextState) {
@@ -2546,7 +3129,9 @@ function controller() {
       document.getElementById("gridModeBtn").textContent = `Grid: ${state.rules.gridMode ? "On" : "Off"}`;
       rerender();
     },
+    onUndo: undoLastStep,
     onOpenArmyBuilder: openArmyBuilder,
+    onExportLog: exportDiagnosticLogFile,
     onExportSave: exportSaveFile,
     onImportSave: () => {
       const input = document.getElementById("importFileInput");
@@ -2584,8 +3169,10 @@ function updatePreviewFromPoint(point) {
   const unit = getSelectedUnit(state);
   if (!unit) return;
   if (uiState.mode === "deploy") {
-    const entryPoint = canDeepStrike(unit) ? snappedPoint : computeDeployEntryPoint(state, snappedPoint);
-    uiState.previewPath = { path: canDeepStrike(unit) ? [entryPoint, entryPoint] : [entryPoint, snappedPoint], state };
+    const deployOption = getLegalDeployOption(snappedPoint);
+    const boardEntryDeploy = canDeployDirectlyFromBoard(state, unit);
+    const entryPoint = deployOption?.entryPoint ?? (boardEntryDeploy ? snappedPoint : computeDeployEntryPoint(state, snappedPoint));
+    uiState.previewPath = { path: boardEntryDeploy ? [entryPoint, entryPoint] : [entryPoint, snappedPoint], state };
     uiState.previewUnit = { unitId: unit.id, leader: snappedPoint, placements: autoArrangeModels(state, unit.id, snappedPoint) };
   }
   if (uiState.mode === "move" || uiState.mode === "disengage" || uiState.mode === "run") {
@@ -2593,9 +3180,21 @@ function updatePreviewFromPoint(point) {
     uiState.previewPath = { path: [{ x: leader.x, y: leader.y }, snappedPoint], state };
     uiState.previewUnit = { unitId: unit.id, leader: snappedPoint, placements: autoArrangeModels(state, unit.id, snappedPoint) };
   }
+  if (uiState.mode === "blink" || uiState.mode === "psionic_transfer") {
+    uiState.previewPath = null;
+    uiState.previewUnit = { unitId: unit.id, leader: snappedPoint, placements: autoArrangeModels(state, unit.id, snappedPoint) };
+  }
   if (uiState.mode === "force_field") {
     uiState.previewPath = null;
     uiState.previewUnit = { kind: "force_field", leader: snappedPoint };
+  }
+  if (uiState.mode === "place_creep") {
+    uiState.previewPath = null;
+    uiState.previewUnit = { kind: "creep", leader: snappedPoint };
+  }
+  if (uiState.mode === "omega_transfer") {
+    uiState.previewPath = null;
+    uiState.previewUnit = { unitId: unit.id, leader: snappedPoint, placements: autoArrangeModels(state, unit.id, snappedPoint) };
   }
 }
 
@@ -2751,6 +3350,14 @@ function scheduleBoardHighlightPrune() {
 function updateBoardHighlights(state, events) {
   const now = Date.now();
   const currentSnapshot = getObjectiveControlSnapshot(state);
+  if (uiState.suppressNextBoardNarration) {
+    uiState.suppressNextBoardNarration = false;
+    uiState.boardHighlights = [];
+    uiState.aftermathNarrative = null;
+    uiState.lastObjectiveSnapshot = currentSnapshot;
+    scheduleBoardHighlightPrune();
+    return;
+  }
   pruneBoardHighlights();
   let sequenceOffset = 0;
   const objectiveNarratives = [];
@@ -2767,6 +3374,18 @@ function updateBoardHighlights(state, events) {
   };
 
   for (const event of events ?? []) {
+    if (event.type === "creep_displaced") {
+      const unit = state.units[event.payload?.unitId] ?? null;
+      const point = getBoardHighlightPointForUnit(unit);
+      queueAftermathHighlight({
+        kind: "unit",
+        unitId: event.payload?.unitId ?? null,
+        tone: "attention",
+        label: "Tumor Cleared",
+        point,
+        expiresAt: now + 2600
+      }, { stepMs: 120 });
+    }
     if (event.type === "combat_attack_resolved") {
       combatEvents.push(event);
       const payload = event.payload ?? {};
@@ -2912,6 +3531,11 @@ function wirePreviewEvents() {
 function wireKeyboardShortcuts() {
   document.addEventListener("keydown", event => {
     if (event.target.tagName === "INPUT" || event.target.tagName === "TEXTAREA") return;
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
+      event.preventDefault();
+      undoLastStep();
+      return;
+    }
     if (uiState.activeStoryModal && ["Escape", "Enter", " "].includes(event.key)) {
       event.preventDefault();
       dismissStoryModal();

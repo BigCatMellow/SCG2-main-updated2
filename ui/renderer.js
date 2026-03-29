@@ -29,6 +29,20 @@ export function renderAll(state, uiState, handlers) {
   passBtn.textContent = uiState.pendingPass ? "Confirm Pass" : "Pass";
   passBtn.className = uiState.pendingPass ? "btn warn pass-confirm-flash" : "btn primary";
 
+  const undoDepth = typeof handlers.getUndoDepth === "function" ? handlers.getUndoDepth() : 0;
+  const canUndo = typeof handlers.canUndo === "function" ? handlers.canUndo() : false;
+  const undoLabel = undoDepth > 0 ? `Undo (${undoDepth})` : "Undo";
+  const undoBtn = document.getElementById("undoBtn");
+  const undoToolbarBtn = document.getElementById("undoToolbarBtn");
+  if (undoBtn) {
+    undoBtn.disabled = !canUndo;
+    undoBtn.textContent = undoLabel;
+  }
+  if (undoToolbarBtn) {
+    undoToolbarBtn.disabled = !canUndo;
+    undoToolbarBtn.textContent = undoLabel;
+  }
+
   const actionBar = document.getElementById("actionBar");
   const actionBarToggleBtn = document.getElementById("actionBarToggleBtn");
   if (actionBar) {

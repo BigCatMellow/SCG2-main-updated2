@@ -116,8 +116,8 @@ test('veteran of tarsonis improves armour while within 3 inches of an objective'
     armyB: [{ id: 'red_marines_1', templateId: 'marine_squad' }],
     firstPlayerMarkerHolder: 'playerA'
   });
-  placeUnitAt(state, 'blue_marauder_1', 18, 10);
-  placeUnitAt(state, 'red_marines_1', 24, 10);
+  placeUnitAt(state, 'blue_marauder_1', 18, 18);
+  placeUnitAt(state, 'red_marines_1', 18, 24);
 
   state.combatQueue.push({ type: 'ranged_attack', attackerId: 'red_marines_1', targetId: 'blue_marauder_1' });
   resolveCombatPhase(state, { rng: () => 0.45 });

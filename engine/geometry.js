@@ -56,7 +56,11 @@ export function pointInsideRect(point, rect) {
 }
 
 export function pointInsideDifficultTerrain(point, terrainList = []) {
-  return terrainList.some(terrain => terrain.kind === "cover" && pointInsideRect(point, terrain.rect));
+  return terrainList.some(terrain => ["cover", "elevated_cover"].includes(terrain.kind) && pointInsideRect(point, terrain.rect));
+}
+
+export function pointInsideTerrainKind(point, terrainList = [], kinds = []) {
+  return terrainList.some(terrain => kinds.includes(terrain.kind) && pointInsideRect(point, terrain.rect));
 }
 
 export function sampleSegment(segmentStart, segmentEnd, step = 0.2) {

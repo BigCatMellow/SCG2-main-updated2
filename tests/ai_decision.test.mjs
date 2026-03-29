@@ -61,3 +61,50 @@ test('assault AI declares charge for melee-focused units in range', () => {
   assert.equal(action.payload.unitId, 'blue_zealots_1');
   assert.equal(action.payload.targetId, 'red_marines_1');
 });
+
+test('movement AI preserves a lead by holding ranged defenders on owned objectives', () => {
+  const state = createInitialGameState({
+    missionId: 'take_and_hold',
+    deploymentId: 'crossfire',
+    armyA: [{ id: 'blue_marines_1', templateId: 'marine_squad' }],
+    armyB: [{ id: 'red_zerglings_1', templateId: 'zergling_squad' }],
+    firstPlayerMarkerHolder: 'playerA'
+  });
+
+  state.phase = 'movement';
+  state.round = 4;
+  state.activePlayer = 'playerA';
+  state.players.playerA.vp = 6;
+  state.players.playerB.vp = 2;
+  placeUnit(state, 'blue_marines_1', 18, 18);
+  placeUnit(state, 'red_zerglings_1', 30, 30);
+
+  const action = chooseAction(state, 'playerA');
+
+  assert.equal(action.type, 'HOLD_UNIT');
+  assert.equal(action.payload.unitId, 'blue_marines_1');
+});
+
+test('movement AI pressures enemy objectives when behind on the scoreboard', () => {
+  const state = createInitialGameState({
+    missionId: 'take_and_hold',
+    deploymentId: 'crossfire',
+    armyA: [{ id: 'blue_zealots_1', templateId: 'zealot_squad' }],
+    armyB: [{ id: 'red_marines_1', templateId: 'marine_squad' }],
+    firstPlayerMarkerHolder: 'playerA'
+  });
+
+  state.phase = 'movement';
+  state.round = 4;
+  state.activePlayer = 'playerA';
+  state.players.playerA.vp = 1;
+  state.players.playerB.vp = 4;
+  placeUnit(state, 'blue_zealots_1', 8, 18);
+  placeUnit(state, 'red_marines_1', 18, 18);
+
+  const action = chooseAction(state, 'playerA');
+
+  assert.equal(action.type, 'MOVE_UNIT');
+  assert.equal(action.payload.unitId, 'blue_zealots_1');
+  assert.ok(action.payload.path.at(-1).x > 8);
+});

@@ -10,9 +10,11 @@ const RULE_NOTE_COPY = {
   combat_shield: "Improves melee survivability by enabling evade-style defense in close combat.",
   concentrated_fire: "Caps casualties and discards excess damage beyond the cap.",
   critical_hit: "Pushes wounds past armour before save rolls are made.",
+  detection: "Reveals hidden or burrowed enemies within range, denying some stealth protection.",
   dodge: "Cancels a limited number of hits that already bypassed armour.",
   evade: "Late defensive roll that can avoid hits after armour results are known.",
   flying: "Ignores many ground movement and line-of-sight restrictions, but does not control objectives.",
+  guardian_shield: "Can activate a nearby ranged-defense field for the rest of the round.",
   hallucination: "Supports nearby units with extra ranged defense.",
   hidden: "Harder to target at range until revealed.",
   impact: "Rolls charge impact dice before the main melee attack resolves.",
@@ -25,7 +27,9 @@ const RULE_NOTE_COPY = {
   pinpoint: "Allows ranged attacks into engaged enemy units.",
   pierce: "Increases damage against matching target tags.",
   precision: "Moves failed hit dice straight into the armour pool.",
+  point_defense_laser: "Can sacrifice itself to strip dice from a nearby ranged attack.",
   solid_field_projectors: "Can place a force field that blocks smaller units.",
+  stimpack_drill: "Can trade non-lethal damage for extra speed and temporary Precision.",
   surge: "Converts matching wounds into hits that bypass armour.",
   veteran_of_tarsonis: "Improves armour while near an objective.",
   zealous_round: "Trades an unused activation for immediate damage reduction."
@@ -94,6 +98,54 @@ function renderRuleNoteList(notes) {
    ══════════════════════════════════════════════════════════════ */
 
 function describeCardEffect(card) {
+  if (card.id === "observer" || card.id === "overseer") {
+    return {
+      effectText: '+1 Speed, 6" mobile detection field',
+      durationText: "for this round",
+      phaseText: `Play during ${titleCase(card.phase)} Phase`,
+      targetText: "Target: friendly battlefield unit"
+    };
+  }
+  if (card.id === "warp_prism") {
+    return {
+      effectText: '+2 Speed, 6" mobile warp field',
+      durationText: "for this round",
+      phaseText: `Play during ${titleCase(card.phase)} Phase`,
+      targetText: "Target: friendly battlefield unit"
+    };
+  }
+  if (card.id === "malignant_creep" || card.id === "accelerating_creep") {
+    return {
+      effectText: '+2 Speed, 6" mobile creep field',
+      durationText: "for this round",
+      phaseText: `Play during ${titleCase(card.phase)} Phase`,
+      targetText: "Target: friendly battlefield unit"
+    };
+  }
+  if (card.id === "hatchery") {
+    return {
+      effectText: '+1 Speed, 6" Zerg reserve-entry field',
+      durationText: "for this round",
+      phaseText: `Play during ${titleCase(card.phase)} Phase`,
+      targetText: "Target: friendly battlefield unit"
+    };
+  }
+  if (card.id === "barracks" || card.id === "barracks_proxy") {
+    return {
+      effectText: '+1 Speed, 6" Terran infantry reserve-entry field',
+      durationText: "for this round",
+      phaseText: `Play during ${titleCase(card.phase)} Phase`,
+      targetText: "Target: friendly battlefield unit"
+    };
+  }
+  if (card.id === "nexus" || card.id === "overcharged_nexus") {
+    return {
+      effectText: '+1 Speed, 6" mobile power field',
+      durationText: "for this round",
+      phaseText: `Play during ${titleCase(card.phase)} Phase`,
+      targetText: "Target: friendly battlefield unit"
+    };
+  }
   const mods = card.effect?.modifiers ?? [];
   const parts = [];
   for (const mod of mods) {
@@ -137,6 +189,42 @@ function describeCardEffect(card) {
 }
 
 function describeCardTeaching(card) {
+  if (card.id === "observer" || card.id === "overseer") {
+    return {
+      timing: "Play it in Movement before the target unit repositions into reveal range or before you need to expose hidden and burrowed enemies for the rest of the round.",
+      bestUse: "Best used when concealed enemy units are shaping the fight and you need a mobile detection bubble to strip away their stealth protection."
+    };
+  }
+  if (card.id === "warp_prism") {
+    return {
+      timing: "Play it in Movement before you want to reposition the target and create a fresh warp-in point for Protoss reserves.",
+      bestUse: "Best used when a new power anchor on the board will unlock a stronger warp-in location than your static pylons can provide."
+    };
+  }
+  if (card.id === "malignant_creep" || card.id === "accelerating_creep") {
+    return {
+      timing: "Play it in Movement before a Zerg unit needs to cross open ground or stretch a reposition farther than normal.",
+      bestUse: "Best used when a temporary creep lane will help multiple Zerg moves this round, not just the original target's first step."
+    };
+  }
+  if (card.id === "hatchery") {
+    return {
+      timing: "Play it in Movement before you want a safer mid-board reserve entry point for incoming Zerg units.",
+      bestUse: "Best used when a forward Zerg unit has already claimed space and can anchor a temporary hatchery field for reserves."
+    };
+  }
+  if (card.id === "barracks" || card.id === "barracks_proxy") {
+    return {
+      timing: "Play it in Movement before Terran infantry reserves need a forward drop point away from your board edge.",
+      bestUse: "Best used when a frontline Terran unit has already taken ground and can anchor a proxy field that changes where reinforcements arrive."
+    };
+  }
+  if (card.id === "nexus" || card.id === "overcharged_nexus") {
+    return {
+      timing: "Play it in Movement before you need a fresh Protoss power anchor beyond your standing pylons.",
+      bestUse: "Best used when shifting your warp threat to a different lane matters more than a simple speed buff."
+    };
+  }
   const mods = card.effect?.modifiers ?? [];
   const affectsSpeed = mods.some(mod => mod.key === "unit.speed");
   const affectsHit = mods.some(mod => mod.key === "weapon.hitTarget");

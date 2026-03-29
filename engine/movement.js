@@ -6,8 +6,11 @@ import { refreshAllSupply } from "./supply.js";
 import { getModifiedValue } from "./effects.js";
 import { applyBurrowedActivationEffects, removeStealthStatuses } from "./statuses.js";
 import { getBlockingForceFieldCrossings, removeForceFieldsCrossedByUnit } from "./force_fields.js";
+import { creepNegatesDifficultTerrain, getCreepMovementBonus, removeDisplacedCreepTumors } from "./creep.js";
 
 const ENGAGEMENT_RANGE = 1;
+const BLINK_RANGE = 6;
+const PSIONIC_TRANSFER_RANGE = 6;
 
 function getMovementBonus(unit) {
   let bonus = 0;
@@ -127,6 +130,9 @@ function getMovementCost(state, unit, path) {
   if (isFlyingUnit(unit)) {
     return state.rules?.gridMode ? gridDistance(path[0], path[path.length - 1]) : pathLength(path);
   }
+  if (creepNegatesDifficultTerrain(state, unit, path)) {
+    return state.rules?.gridMode ? gridDistance(path[0], path[path.length - 1]) : pathLength(path);
+  }
   if (state.rules?.gridMode) return gridDistance(path[0], path[path.length - 1]);
   return pathTravelCost(path, state.board.terrain);
 }
@@ -167,7 +173,7 @@ export function validateMove(state, playerId, unitId, leadingModelId, path, mode
     unitId: unit.id,
     key: "unit.speed",
     baseValue: unit.speed
-  }).value + getMovementBonus(unit);
+  }).value + getMovementBonus(unit) + getCreepMovementBonus(state, unit, path);
   const travelCost = getMovementCost(state, unit, path);
   if (travelCost - modifiedSpeed > 1e-6) return { ok: false, code: "TOO_FAR", message: `${unit.name} can only move ${modifiedSpeed}" (difficult terrain costs extra movement).` };
   const ignore = new Set(unit.modelIds);
@@ -198,11 +204,100 @@ export function resolveMove(state, playerId, unitId, leadingModelId, path, model
   removeForceFieldsCrossedByUnit(state, unit, path);
   updateUnitEngagementStatus(state);
   refreshAllSupply(state);
+  const displacedCreep = removeDisplacedCreepTumors(state, unit, "moves");
   const removedText = coherency.removedModelIds.length ? ` ${coherency.removedModelIds.length} model(s) removed during placement.` : "";
   const coherencyText = coherency.outOfCoherency ? " Out of coherency." : "";
   appendLog(state, "action", `${unit.name} moves ${pathLength(path).toFixed(1)}".${brokeStealth ? " Hidden/Burrowed removed." : ""}${removedText}${coherencyText}`);
   endActivationAndPassTurn(state);
-  return { ok: true, state, events: [{ type: "unit_moved", payload: { unitId } }] };
+  return {
+    ok: true,
+    state,
+    events: [
+      { type: "unit_moved", payload: { unitId } },
+      ...displacedCreep.map(zone => ({ type: "creep_displaced", payload: { unitId, creepId: zone.id } }))
+    ]
+  };
+}
+
+function validateTeleportReposition(state, playerId, unitId, point, modelPlacements, { range, abilityName, label }) {
+  const shared = validateShared(state, playerId, unitId);
+  if (!shared.ok) return shared;
+  const unit = shared.unit;
+  if (state.phase !== "movement") return { ok: false, code: "WRONG_PHASE", message: `${label} is only available in the Movement Phase.` };
+  if (unit.status.location !== "battlefield") return { ok: false, code: "NOT_ON_BATTLEFIELD", message: "Unit is not on the battlefield." };
+  if (!unit.abilities?.includes(abilityName)) return { ok: false, code: "NO_ABILITY", message: `${unit.name} cannot use ${label}.` };
+  if (unit.status.burrowed) return { ok: false, code: "BURROWED", message: `Burrowed units cannot use ${label}.` };
+  const leader = getModel(unit, unit.leadingModelId);
+  if (leader.x == null || leader.y == null) return { ok: false, code: "INVALID_LEADER", message: "Leading model must be on the battlefield." };
+  if (distance(leader, point) > range + 1e-6) return { ok: false, code: "OUT_OF_RANGE", message: `${label} must end within ${range}".` };
+  if (!pointInBoard(point, state.board, unit.base.radiusInches)) return { ok: false, code: "OFF_BOARD", message: "Leading model must end fully on the battlefield." };
+  if (!isFlyingUnit(unit) && circleOverlapsTerrain(point, unit.base.radiusInches, state.board.terrain)) return { ok: false, code: "TERRAIN_OVERLAP", message: "Destination overlaps impassable terrain." };
+  if (overlappingModelsAtPoint(state, unit, point, new Set(unit.modelIds))) return { ok: false, code: "BASE_OVERLAP", message: "Destination overlaps another base." };
+  if (pointWithinEnemyGroundEngagement(state, unit, point)) return { ok: false, code: "ENDS_ENGAGED", message: `${label} cannot end within 1" of an enemy ground unit.` };
+  const placements = modelPlacements ?? autoArrangeModels(state, unitId, point);
+  return { ok: true, derived: { end: point, placements } };
+}
+
+function resolveTeleportReposition(state, playerId, unitId, point, modelPlacements, { range, abilityName, label, eventType }) {
+  const validation = validateTeleportReposition(state, playerId, unitId, point, modelPlacements, { range, abilityName, label });
+  if (!validation.ok) return validation;
+  const unit = state.units[unitId];
+  applyBurrowedActivationEffects(state, unit);
+  const leader = unit.models[unit.leadingModelId];
+  const start = { x: leader.x, y: leader.y };
+  leader.x = validation.derived.end.x;
+  leader.y = validation.derived.end.y;
+  const coherency = applyModelPlacementsAndResolveCoherency(state, unitId, validation.derived.placements);
+  const brokeStealth = removeStealthStatuses(unit);
+  unit.status.stationary = false;
+  markUnitActivatedForMovement(state, unitId);
+  refreshEngagement(state);
+  refreshAllSupply(state);
+  const displacedCreep = removeDisplacedCreepTumors(state, unit, `${label.toLowerCase()}s`);
+  appendLog(state, "action", `${unit.name} uses ${label} to reposition ${distance(start, validation.derived.end).toFixed(1)}".${brokeStealth ? " Hidden/Burrowed removed." : ""}${coherency.outOfCoherency ? " Out of coherency." : ""}`);
+  endActivationAndPassTurn(state);
+  return {
+    ok: true,
+    state,
+    events: [
+      { type: eventType, payload: { unitId, point: validation.derived.end } },
+      ...displacedCreep.map(zone => ({ type: "creep_displaced", payload: { unitId, creepId: zone.id } }))
+    ]
+  };
+}
+
+export function validateBlink(state, playerId, unitId, point, modelPlacements = null) {
+  return validateTeleportReposition(state, playerId, unitId, point, modelPlacements, {
+    range: BLINK_RANGE,
+    abilityName: "blink",
+    label: "Blink"
+  });
+}
+
+export function resolveBlink(state, playerId, unitId, point, modelPlacements = null) {
+  return resolveTeleportReposition(state, playerId, unitId, point, modelPlacements, {
+    range: BLINK_RANGE,
+    abilityName: "blink",
+    label: "Blink",
+    eventType: "unit_blinked"
+  });
+}
+
+export function validatePsionicTransfer(state, playerId, unitId, point, modelPlacements = null) {
+  return validateTeleportReposition(state, playerId, unitId, point, modelPlacements, {
+    range: PSIONIC_TRANSFER_RANGE,
+    abilityName: "psionic_transfer",
+    label: "Psionic Transfer"
+  });
+}
+
+export function resolvePsionicTransfer(state, playerId, unitId, point, modelPlacements = null) {
+  return resolveTeleportReposition(state, playerId, unitId, point, modelPlacements, {
+    range: PSIONIC_TRANSFER_RANGE,
+    abilityName: "psionic_transfer",
+    label: "Psionic Transfer",
+    eventType: "unit_psionic_transfer"
+  });
 }
 
 export function validateDisengage(state, playerId, unitId, leadingModelId, path, modelPlacements = null) {
@@ -220,7 +315,7 @@ export function validateDisengage(state, playerId, unitId, leadingModelId, path,
     unitId: unit.id,
     key: "unit.speed",
     baseValue: unit.speed
-  }).value + getMovementBonus(unit);
+  }).value + getMovementBonus(unit) + getCreepMovementBonus(state, unit, path);
   const travelCost = getMovementCost(state, unit, path);
   if (travelCost - modifiedSpeed > 1e-6) return { ok: false, code: "TOO_FAR", message: `${unit.name} can only move ${modifiedSpeed}" (difficult terrain costs extra movement).` };
   const ignore = new Set(unit.modelIds);
@@ -280,9 +375,17 @@ export function resolveDisengage(state, playerId, unitId, leadingModelId, path, 
   removeForceFieldsCrossedByUnit(state, unit, path);
   updateUnitEngagementStatus(state);
   refreshAllSupply(state);
+  const displacedCreep = removeDisplacedCreepTumors(state, unit, "disengages");
   appendLog(state, "action", `${unit.name} disengages.${brokeStealth ? " Hidden/Burrowed removed." : ""}${validation.derived.tacticalMass ? " Tactical Mass ignores the next-Assault penalty." : " Cannot Ranged Attack or Charge next Assault."}${coherency.outOfCoherency ? " Out of coherency." : ""}`);
   endActivationAndPassTurn(state);
-  return { ok: true, state, events: [{ type: "unit_disengaged", payload: { unitId } }] };
+  return {
+    ok: true,
+    state,
+    events: [
+      { type: "unit_disengaged", payload: { unitId } },
+      ...displacedCreep.map(zone => ({ type: "creep_displaced", payload: { unitId, creepId: zone.id } }))
+    ]
+  };
 }
 
 export function refreshEngagement(state) {

@@ -55,6 +55,7 @@
             <div id="selectedUnitBrief" class="unit-brief"></div>
             <button id="actionBarToggleBtn" class="btn secondary btn-sm" type="button">Compact</button>
             <div id="actionButtons" class="action-btn-row"></div>
+            <button id="undoBtn" class="btn secondary" type="button">Undo</button>
             <button id="passBtn" class="btn primary">Pass Phase</button>
           </div>
         </div>
@@ -80,8 +81,10 @@
         <!-- Toolbar tucked at bottom of right sidebar -->
         <div class="toolbar-row">
           <button id="gridModeBtn" class="btn secondary btn-sm">Grid: On</button>
+          <button id="undoToolbarBtn" class="btn secondary btn-sm">Undo</button>
           <button id="armyBuilderBtn" class="btn secondary btn-sm">Army Builder</button>
-          <button id="exportBtn" class="btn secondary btn-sm">Export</button>
+          <button id="exportLogBtn" class="btn secondary btn-sm">Log TXT</button>
+          <button id="exportBtn" class="btn secondary btn-sm">Save JSON</button>
           <button id="importBtn" class="btn secondary btn-sm">Load</button>
           <input id="importFileInput" type="file" accept="application/json" hidden />
           <input id="armyImportFileInput" type="file" accept="application/json" hidden />

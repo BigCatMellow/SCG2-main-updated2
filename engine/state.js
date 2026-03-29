@@ -6,8 +6,8 @@ function createTerrain() {
   return [
     { id: "t1", kind: "blocker", impassable: true, rect: { minX: 11, minY: 14, maxX: 15, maxY: 18 } },
     { id: "t2", kind: "blocker", impassable: true, rect: { minX: 21, minY: 18, maxX: 25, maxY: 22 } },
-    { id: "t3", kind: "cover", impassable: false, rect: { minX: 15, minY: 7, maxX: 20, maxY: 11 } },
-    { id: "t4", kind: "cover", impassable: false, rect: { minX: 16, minY: 24, maxX: 22, maxY: 28 } }
+    { id: "t3", kind: "grass", impassable: false, rect: { minX: 15, minY: 7, maxX: 20, maxY: 11 } },
+    { id: "t4", kind: "elevated_cover", impassable: false, rect: { minX: 16, minY: 24, maxX: 22, maxY: 28 } }
   ];
 }
 
@@ -53,7 +53,8 @@ export function createInitialGameState({
     board: {
       widthInches: deployment.boardWidthInches,
       heightInches: deployment.boardHeightInches,
-      terrain: createTerrain()
+      terrain: createTerrain(),
+      creepZones: []
     },
     rules: {
       gridMode: Boolean(rules?.gridMode)

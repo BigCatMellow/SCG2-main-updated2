@@ -1,10 +1,28 @@
-import { distance, pointInsideRect, sampleSegment } from "./geometry.js";
+import { distance, pointInsideRect, pointInsideTerrainKind, sampleSegment } from "./geometry.js";
 
 const HIDDEN_REVEAL_RANGE = 4;
+const DETECTION_RANGE = 6;
 const SUPPORT_REACTION_RANGE = 4;
 
 function isFlyingUnit(unit) {
   return unit?.tags?.includes("Flying") || unit?.abilities?.includes("flying");
+}
+
+function getTerrainModels(unit) {
+  return Object.values(unit?.models ?? {}).filter(model => model.alive && model.x != null && model.y != null);
+}
+
+export function isUnitInsideTerrainKinds(state, unit, kinds = []) {
+  const terrain = state?.board?.terrain ?? [];
+  return getTerrainModels(unit).some(model => pointInsideTerrainKind(model, terrain, kinds));
+}
+
+export function isUnitInGrass(state, unit) {
+  return isUnitInsideTerrainKinds(state, unit, ["grass"]);
+}
+
+export function isUnitOnElevatedCover(state, unit) {
+  return isUnitInsideTerrainKinds(state, unit, ["elevated_cover"]);
 }
 
 export function weaponHasKeyword(weapon, keyword) {
@@ -49,6 +67,54 @@ export function areUnitsWithinRevealRange(attacker, target, revealRange = HIDDEN
   return distance(attackerPoint, targetPoint) <= revealRange + 1e-6;
 }
 
+export function canUnitDetectTarget(detector, target, detectionRange = DETECTION_RANGE) {
+  if (!detector?.abilities?.includes("detection")) return false;
+  const detectorPoint = getLeaderPoint(detector);
+  const targetPoint = getLeaderPoint(target);
+  if (!detectorPoint || !targetPoint) return false;
+  return distance(detectorPoint, targetPoint) <= detectionRange + 1e-6;
+}
+
+function getEffectZoneCenter(state, effect) {
+  if (effect?.target?.scope === "unit") {
+    return getLeaderPoint(state.units?.[effect.target.unitId]);
+  }
+  return effect?.zone?.center ?? null;
+}
+
+export function getDetectionZones(state, playerId = null) {
+  return (state.effects ?? [])
+    .filter(effect => effect?.zone?.kind === "detection_field")
+    .map(effect => {
+      const center = getEffectZoneCenter(state, effect);
+      if (!center) return null;
+      return {
+        id: `detection_zone_${effect.id}`,
+        owner: effect.source?.owner ?? null,
+        source: effect.name ?? "Detection Field",
+        center,
+        radius: effect.zone?.radius ?? DETECTION_RANGE
+      };
+    })
+    .filter(Boolean)
+    .filter(zone => !playerId || zone.owner === playerId);
+}
+
+export function isUnitDetected(state, viewerPlayerId, target) {
+  if (!target?.status?.hidden && !target?.status?.burrowed) return false;
+  const unitDetection = Object.values(state.units).some(unit =>
+    unit.owner === viewerPlayerId
+    && unit.status?.location === "battlefield"
+    && canUnitDetectTarget(unit, target)
+  );
+  if (unitDetection) return true;
+  const targetPoint = getLeaderPoint(target);
+  if (!targetPoint) return false;
+  return getDetectionZones(state, viewerPlayerId).some(zone =>
+    distance(zone.center, targetPoint) <= (zone.radius ?? DETECTION_RANGE) + 1e-6
+  );
+}
+
 export function hasLineOfSight(state, attacker, target) {
   const attackerPoint = getLeaderPoint(attacker);
   const targetPoint = getLeaderPoint(target);
@@ -63,35 +129,73 @@ export function hasLineOfSight(state, attacker, target) {
   return true;
 }
 
+function isTargetConcealedByGrass(state, attacker, target) {
+  if (!isUnitInGrass(state, target)) return false;
+  if (isUnitDetected(state, attacker?.owner, target)) return false;
+  if (isUnitInGrass(state, attacker)) return false;
+  return !areUnitsWithinRevealRange(attacker, target);
+}
+
 export function isTargetHiddenFromUnit(state, attacker, target) {
   if (!target?.status?.hidden) return false;
+  if (isUnitDetected(state, attacker?.owner, target)) return false;
   return !areUnitsWithinRevealRange(attacker, target);
 }
 
 export function canTargetWithRangedWeapon(state, attacker, target, weapon) {
+  const attackerPoint = getLeaderPoint(attacker);
+  const targetPoint = getLeaderPoint(target);
+  const targetDistance = attackerPoint && targetPoint ? distance(attackerPoint, targetPoint) : null;
   if (attacker?.status?.engaged && hasBulkyWeapon(weapon)) {
-    return { ok: false, reason: "Bulky weapons cannot be used while the attacker is engaged." };
+    return {
+      ok: false,
+      reason: "Bulky weapons cannot be used while the attacker is engaged.",
+      detail: attackerPoint && targetPoint
+        ? `Attacker is engaged, and ${weapon?.name ?? "this weapon"} has Bulky. Range to target was ${targetDistance.toFixed(1)}".`
+        : `${weapon?.name ?? "This weapon"} has Bulky and cannot fire while the attacker is engaged.`
+    };
   }
 
   if (target?.status?.engaged && !hasPinpointWeapon(weapon)) {
-    return { ok: false, reason: "Engaged enemy units can only be targeted by ranged attacks with Pinpoint." };
+    return {
+      ok: false,
+      reason: "Engaged enemy units can only be targeted by ranged attacks with Pinpoint.",
+      detail: `${target?.name ?? "The target"} is engaged in melee, and ${weapon?.name ?? "this weapon"} does not have Pinpoint.`
+    };
   }
 
   if (isTargetHiddenFromUnit(state, attacker, target)) {
-    return { ok: false, reason: "Target is hidden beyond 4 inches." };
+    return {
+      ok: false,
+      reason: "Target is hidden beyond 4 inches.",
+      detail: `${target?.name ?? "The target"} is Hidden, not detected, and ${targetDistance != null ? `is ${targetDistance.toFixed(1)}" away` : "is outside reveal distance"}. Hidden targets can only be revealed for normal targeting within ${HIDDEN_REVEAL_RANGE}".`
+    };
+  }
+
+  if (isTargetConcealedByGrass(state, attacker, target)) {
+    return {
+      ok: false,
+      reason: "Target is concealed in grass beyond 4 inches.",
+      detail: `${target?.name ?? "The target"} is in grass, ${attacker?.name ?? "the attacker"} is not, no Detection is active, and the units are ${targetDistance != null ? `${targetDistance.toFixed(1)}"` : "more than 4\""} apart. Grass concealment blocks this shot beyond ${HIDDEN_REVEAL_RANGE}".`
+    };
   }
 
   const visible = hasLineOfSight(state, attacker, target);
   if (!visible && !hasIndirectFire(weapon)) {
-    return { ok: false, reason: "Target is not visible." };
+    return {
+      ok: false,
+      reason: "Target is not visible.",
+      detail: `${target?.name ?? "The target"} is outside line of sight from ${attacker?.name ?? "the attacker"}, and ${weapon?.name ?? "this weapon"} does not have Indirect Fire.`
+    };
   }
 
-  return { ok: true, visible };
+  return { ok: true, visible, detail: visible ? "Target is visible." : "Target is not visible, but Indirect Fire allows the attack." };
 }
 
 export function targetGetsEvadeOpportunity(state, attacker, target, weapon, isMelee, visible) {
   if (target?.defense?.evadeTarget == null) return false;
-  if (target?.status?.hidden || target?.status?.burrowed) return true;
+  if ((target?.status?.hidden || target?.status?.burrowed) && !isUnitDetected(state, attacker?.owner, target)) return true;
+  if (!isMelee && isUnitInGrass(state, target) && !isUnitDetected(state, attacker?.owner, target)) return true;
   if (!isMelee && target?.abilities?.includes("lurking") && target?.status?.stationary && !target?.status?.lurkingUsedThisRound) return true;
   if (isMelee && target?.abilities?.includes("combat_shield")) return true;
   if (!isMelee && Object.values(state.units).some(unit => {

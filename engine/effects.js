@@ -48,6 +48,7 @@ function applyModifier(currentValue, modifier) {
 
 export function addEffect(state, effect) {
   const withDefaults = {
+    ...effect,
     id: effect.id ?? nextEffectId(),
     name: effect.name ?? "Unnamed Effect",
     source: effect.source ?? { kind: "system", id: "unknown" },

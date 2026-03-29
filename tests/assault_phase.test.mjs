@@ -9,6 +9,7 @@ import { passPhase } from '../engine/activation.js';
 import { dispatch } from '../engine/reducer.js';
 import { getLegalActionsForUnit } from '../engine/legal_actions.js';
 import { autoArrangeModels } from '../engine/coherency.js';
+import { chooseAction } from '../ai/bot.js';
 
 function buildState() {
   const state = createInitialGameState({
@@ -64,6 +65,85 @@ test('assault run moves unit and marks assault activation', () => {
   assert.equal(run.ok, true);
   assert.equal(state.units.blue_marines_1.status.assaultActivated, true);
   assert.equal(state.units.blue_marines_1.models[state.units.blue_marines_1.leadingModelId].x, 10);
+});
+
+test('movement AI uses medpack on a wounded nearby ally before repositioning', () => {
+  const state = createInitialGameState({
+    missionId: 'take_and_hold',
+    deploymentId: 'crossfire',
+    armyA: [
+      { id: 'blue_medic_1', templateId: 'medic_t1' },
+      { id: 'blue_queen_1', templateId: 'queen' }
+    ],
+    armyB: [{ id: 'red_zerglings_1', templateId: 'zergling_squad' }],
+    firstPlayerMarkerHolder: 'playerA'
+  });
+  state.phase = 'movement';
+  state.round = 1;
+  state.activePlayer = 'playerA';
+  state.players.playerA.hand = [];
+  placeLeaderAt(state, 'blue_medic_1', 12, 18);
+  placeLeaderAt(state, 'blue_queen_1', 14, 18);
+  placeLeaderAt(state, 'red_zerglings_1', 30, 18);
+  state.units.blue_queen_1.models[state.units.blue_queen_1.leadingModelId].woundsRemaining = 2;
+  state.units.blue_queen_1.status.movementActivated = true;
+
+  const action = chooseAction(state, 'playerA');
+
+  assert.equal(action.type, 'USE_MEDPACK');
+  assert.equal(action.payload.unitId, 'blue_medic_1');
+  assert.equal(action.payload.targetId, 'blue_queen_1');
+});
+
+test('movement AI activates guardian shield when clustered allies are exposed', () => {
+  const state = createInitialGameState({
+    missionId: 'take_and_hold',
+    deploymentId: 'crossfire',
+    armyA: [
+      { id: 'blue_sentry_1', templateId: 'sentry' },
+      { id: 'blue_marines_1', templateId: 'marine_squad' },
+      { id: 'blue_marines_2', templateId: 'marine_squad' }
+    ],
+    armyB: [{ id: 'red_marines_1', templateId: 'marine_squad' }],
+    firstPlayerMarkerHolder: 'playerA'
+  });
+  state.phase = 'movement';
+  state.round = 1;
+  state.activePlayer = 'playerA';
+  state.players.playerA.hand = [];
+  placeLeaderAt(state, 'blue_sentry_1', 16, 18);
+  placeLeaderAt(state, 'blue_marines_1', 18, 18);
+  placeLeaderAt(state, 'blue_marines_2', 17, 20);
+  placeLeaderAt(state, 'red_marines_1', 24, 18);
+  state.units.blue_marines_1.status.movementActivated = true;
+  state.units.blue_marines_2.status.movementActivated = true;
+
+  const action = chooseAction(state, 'playerA');
+
+  assert.equal(action.type, 'ACTIVATE_GUARDIAN_SHIELD');
+  assert.equal(action.payload.unitId, 'blue_sentry_1');
+});
+
+test('movement AI advances out of its home edge instead of idling in the deployment zone', () => {
+  const state = createInitialGameState({
+    missionId: 'take_and_hold',
+    deploymentId: 'crossfire',
+    armyA: [{ id: 'blue_marines_1', templateId: 'marine_squad' }],
+    armyB: [{ id: 'red_marines_1', templateId: 'marine_squad' }],
+    firstPlayerMarkerHolder: 'playerA'
+  });
+  state.phase = 'movement';
+  state.round = 1;
+  state.activePlayer = 'playerA';
+  state.players.playerA.hand = [];
+  placeLeaderAt(state, 'blue_marines_1', 4, 18);
+  placeLeaderAt(state, 'red_marines_1', 30, 18);
+
+  const action = chooseAction(state, 'playerA');
+
+  assert.equal(action.type, 'MOVE_UNIT');
+  assert.equal(action.payload.unitId, 'blue_marines_1');
+  assert.ok(action.payload.path.at(-1).x > 4);
 });
 
 
@@ -181,6 +261,30 @@ test('hidden target beyond 4 inches cannot be declared as a ranged attack target
   assert.match(declareResult.message, /hidden/i);
 });
 
+test('nearby detection reveals a hidden target for ranged declarations', () => {
+  const state = createInitialGameState({
+    missionId: 'take_and_hold',
+    deploymentId: 'crossfire',
+    armyA: [
+      { id: 'blue_marines_1', templateId: 'marine_squad' },
+      { id: 'blue_omega_worm_1', templateId: 'omega_worm' }
+    ],
+    armyB: [{ id: 'red_zealots_1', templateId: 'zealot_squad' }],
+    firstPlayerMarkerHolder: 'playerA'
+  });
+  beginRound(state);
+  placeLeaderAt(state, 'blue_marines_1', 5, 5);
+  placeLeaderAt(state, 'blue_omega_worm_1', 10, 5);
+  placeLeaderAt(state, 'red_zealots_1', 11, 5);
+  state.units.red_zealots_1.status.hidden = true;
+  advanceToNextPhase(state);
+
+  const declareResult = resolveDeclareRangedAttack(state, 'playerA', 'blue_marines_1', 'red_zealots_1');
+
+  assert.equal(declareResult.ok, true);
+  assert.equal(state.lastCombatReport[0].targetId, 'red_zealots_1');
+});
+
 test('bulky ranged weapons cannot be declared while engaged', () => {
   const state = createInitialGameState({
     missionId: 'take_and_hold',
@@ -280,6 +384,146 @@ test('flying units ignore blocker paths and enemy ground engagement while moving
 
   assert.equal(result.ok, true);
   assert.equal(result.state.units.blue_marines_1.status.engaged, false);
+});
+
+test('stalker can blink during movement and spends its activation', () => {
+  const state = createInitialGameState({
+    missionId: 'take_and_hold',
+    deploymentId: 'crossfire',
+    armyA: [{ id: 'blue_stalker_1', templateId: 'stalker' }],
+    armyB: [{ id: 'red_marines_1', templateId: 'marine_squad' }],
+    firstPlayerMarkerHolder: 'playerA'
+  });
+  beginRound(state);
+  placeLeaderAt(state, 'blue_stalker_1', 8, 8);
+  placeLeaderAt(state, 'red_marines_1', 24, 24);
+
+  const actions = getLegalActionsForUnit(state, 'playerA', 'blue_stalker_1');
+  assert.equal(actions.some(action => action.type === 'BLINK_UNIT' && action.enabled), true);
+
+  const result = dispatch(state, {
+    type: 'BLINK_UNIT',
+    payload: {
+      playerId: 'playerA',
+      unitId: 'blue_stalker_1',
+      point: { x: 13.5, y: 8 },
+      modelPlacements: autoArrangeModels(state, 'blue_stalker_1', { x: 13.5, y: 8 })
+    }
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.state.units.blue_stalker_1.models[result.state.units.blue_stalker_1.leadingModelId].x, 13.5);
+  assert.equal(result.state.units.blue_stalker_1.status.movementActivated, true);
+  assert.ok(result.events.some(event => event.type === 'unit_blinked'));
+});
+
+test('adept can use psionic transfer during movement and spends its activation', () => {
+  const state = createInitialGameState({
+    missionId: 'take_and_hold',
+    deploymentId: 'crossfire',
+    armyA: [{ id: 'blue_adept_1', templateId: 'adept' }],
+    armyB: [{ id: 'red_marines_1', templateId: 'marine_squad' }],
+    firstPlayerMarkerHolder: 'playerA'
+  });
+  beginRound(state);
+  placeLeaderAt(state, 'blue_adept_1', 8, 8);
+  placeLeaderAt(state, 'red_marines_1', 24, 24);
+
+  const actions = getLegalActionsForUnit(state, 'playerA', 'blue_adept_1');
+  assert.equal(actions.some(action => action.type === 'PSIONIC_TRANSFER_UNIT' && action.enabled), true);
+
+  const result = dispatch(state, {
+    type: 'PSIONIC_TRANSFER_UNIT',
+    payload: {
+      playerId: 'playerA',
+      unitId: 'blue_adept_1',
+      point: { x: 13.5, y: 8 },
+      modelPlacements: autoArrangeModels(state, 'blue_adept_1', { x: 13.5, y: 8 })
+    }
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.state.units.blue_adept_1.models[result.state.units.blue_adept_1.leadingModelId].x, 13.5);
+  assert.equal(result.state.units.blue_adept_1.status.movementActivated, true);
+  assert.ok(result.events.some(event => event.type === 'unit_psionic_transfer'));
+});
+
+test('blink cannot end within enemy engagement range', () => {
+  const state = createInitialGameState({
+    missionId: 'take_and_hold',
+    deploymentId: 'crossfire',
+    armyA: [{ id: 'blue_stalker_1', templateId: 'stalker' }],
+    armyB: [{ id: 'red_marines_1', templateId: 'marine_squad' }],
+    firstPlayerMarkerHolder: 'playerA'
+  });
+  beginRound(state);
+  placeLeaderAt(state, 'blue_stalker_1', 8, 8);
+  placeLeaderAt(state, 'red_marines_1', 15.8, 8);
+
+  const result = dispatch(state, {
+    type: 'BLINK_UNIT',
+    payload: {
+      playerId: 'playerA',
+      unitId: 'blue_stalker_1',
+      point: { x: 13.9, y: 8 },
+      modelPlacements: autoArrangeModels(state, 'blue_stalker_1', { x: 13.9, y: 8 })
+    }
+  });
+
+  assert.equal(result.ok, false);
+  assert.match(result.message, /cannot end within 1"/i);
+});
+
+test('sentry can activate guardian shield during movement', () => {
+  const state = createInitialGameState({
+    missionId: 'take_and_hold',
+    deploymentId: 'crossfire',
+    armyA: [{ id: 'blue_sentry_1', templateId: 'sentry' }],
+    armyB: [{ id: 'red_marines_1', templateId: 'marine_squad' }],
+    firstPlayerMarkerHolder: 'playerA'
+  });
+  beginRound(state);
+  placeLeaderAt(state, 'blue_sentry_1', 10, 10);
+  placeLeaderAt(state, 'red_marines_1', 24, 24);
+
+  const actions = getLegalActionsForUnit(state, 'playerA', 'blue_sentry_1');
+  assert.equal(actions.some(action => action.type === 'ACTIVATE_GUARDIAN_SHIELD' && action.enabled), true);
+
+  const result = dispatch(state, {
+    type: 'ACTIVATE_GUARDIAN_SHIELD',
+    payload: { playerId: 'playerA', unitId: 'blue_sentry_1' }
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.state.units.blue_sentry_1.status.movementActivated, true);
+  assert.equal(result.state.effects.some(effect => effect.zone?.kind === 'guardian_shield_field' && effect.target?.unitId === 'blue_sentry_1'), true);
+  assert.ok(result.state.log.some(entry => entry.text.includes('Guardian Shield')));
+});
+
+test('marine t2 can activate stimpack during movement', () => {
+  const state = createInitialGameState({
+    missionId: 'take_and_hold',
+    deploymentId: 'crossfire',
+    armyA: [{ id: 'blue_marines_1', templateId: 'marine_t2' }],
+    armyB: [{ id: 'red_zealots_1', templateId: 'zealot_squad' }],
+    firstPlayerMarkerHolder: 'playerA'
+  });
+  beginRound(state);
+  placeLeaderAt(state, 'blue_marines_1', 10, 10);
+  placeLeaderAt(state, 'red_zealots_1', 24, 24);
+
+  const actions = getLegalActionsForUnit(state, 'playerA', 'blue_marines_1');
+  assert.equal(actions.some(action => action.type === 'ACTIVATE_STIMPACK' && action.enabled), true);
+
+  const result = dispatch(state, {
+    type: 'ACTIVATE_STIMPACK',
+    payload: { playerId: 'playerA', unitId: 'blue_marines_1' }
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.state.units.blue_marines_1.status.movementActivated, true);
+  assert.equal(result.state.effects.some(effect => effect.name === 'Stimpack' && effect.target?.unitId === 'blue_marines_1'), true);
+  assert.ok(result.state.log.some(entry => entry.text.includes('uses Stimpack')));
 });
 
 test('burrow-capable units can burrow as an activation in movement', () => {
@@ -422,6 +666,276 @@ test('burrowed regen does not restore destroyed models', () => {
   assert.equal(result.ok, true);
   assert.equal(result.state.units.blue_roach_1.models[roach.modelIds[0]].alive, false);
   assert.equal(result.state.units.blue_roach_1.models[roach.modelIds[1]].woundsRemaining, 3);
+});
+
+test('omega worm can deploy via deep strike and project creep from the battlefield', () => {
+  const state = createInitialGameState({
+    missionId: 'take_and_hold',
+    deploymentId: 'crossfire',
+    armyA: [{ id: 'blue_omega_worm_1', templateId: 'omega_worm' }],
+    armyB: [{ id: 'red_marines_1', templateId: 'marine_squad' }],
+    firstPlayerMarkerHolder: 'playerA'
+  });
+  beginRound(state);
+  placeLeaderAt(state, 'red_marines_1', 26, 20);
+
+  const result = dispatch(state, {
+    type: 'DEPLOY_UNIT',
+    payload: {
+      playerId: 'playerA',
+      unitId: 'blue_omega_worm_1',
+      leadingModelId: state.units.blue_omega_worm_1.leadingModelId,
+      entryPoint: { x: 11, y: 11 },
+      path: [{ x: 11, y: 11 }, { x: 11, y: 11 }],
+      modelPlacements: autoArrangeModels(state, 'blue_omega_worm_1', { x: 11, y: 11 })
+    }
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.state.units.blue_omega_worm_1.status.location, 'battlefield');
+  assert.equal(result.state.board.creepZones.length, 0);
+  const hasProjectedCreep = result.state.board.creepZones.length === 0
+    && result.state.units.blue_omega_worm_1.abilities.includes('source_of_creep');
+  assert.equal(hasProjectedCreep, true);
+});
+
+test('zerg battlefield units can transfer between friendly omega worms during movement', () => {
+  const state = createInitialGameState({
+    missionId: 'take_and_hold',
+    deploymentId: 'crossfire',
+    armyA: [
+      { id: 'blue_omega_worm_1', templateId: 'omega_worm' },
+      { id: 'blue_omega_worm_2', templateId: 'omega_worm' },
+      { id: 'blue_roaches_1', templateId: 'roach_t3' }
+    ],
+    armyB: [{ id: 'red_marines_1', templateId: 'marine_squad' }],
+    firstPlayerMarkerHolder: 'playerA'
+  });
+  beginRound(state);
+  placeLeaderAt(state, 'blue_omega_worm_1', 8, 8);
+  placeLeaderAt(state, 'blue_omega_worm_2', 24, 8);
+  placeLeaderAt(state, 'blue_roaches_1', 10, 8);
+  placeLeaderAt(state, 'red_marines_1', 32, 24);
+
+  const actions = getLegalActionsForUnit(state, 'playerA', 'blue_roaches_1');
+  assert.equal(actions.some(action => action.type === 'OMEGA_TRANSFER' && action.enabled), true);
+
+  const result = dispatch(state, {
+    type: 'OMEGA_TRANSFER',
+    payload: {
+      playerId: 'playerA',
+      unitId: 'blue_roaches_1',
+      point: { x: 21.5, y: 8 },
+      modelPlacements: autoArrangeModels(state, 'blue_roaches_1', { x: 21.5, y: 8 })
+    }
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.state.units.blue_roaches_1.models[result.state.units.blue_roaches_1.leadingModelId].x, 21.5);
+  assert.equal(result.state.units.blue_roaches_1.status.movementActivated, true);
+});
+
+test('low-supply zerg reserves can deploy through a friendly omega worm', () => {
+  const state = createInitialGameState({
+    missionId: 'take_and_hold',
+    deploymentId: 'crossfire',
+    armyA: [
+      { id: 'blue_omega_worm_1', templateId: 'omega_worm' },
+      { id: 'blue_zerglings_1', templateId: 'zergling_t2' }
+    ],
+    armyB: [{ id: 'red_marines_1', templateId: 'marine_squad' }],
+    firstPlayerMarkerHolder: 'playerA'
+  });
+  beginRound(state);
+  placeLeaderAt(state, 'blue_omega_worm_1', 14, 14);
+  placeLeaderAt(state, 'red_marines_1', 30, 30);
+
+  const result = dispatch(state, {
+    type: 'DEPLOY_UNIT',
+    payload: {
+      playerId: 'playerA',
+      unitId: 'blue_zerglings_1',
+      leadingModelId: state.units.blue_zerglings_1.leadingModelId,
+      entryPoint: { x: 16.05, y: 14 },
+      path: [{ x: 16.05, y: 14 }, { x: 18, y: 14 }],
+      modelPlacements: autoArrangeModels(state, 'blue_zerglings_1', { x: 18, y: 14 })
+    }
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.state.units.blue_zerglings_1.status.location, 'battlefield');
+  assert.ok(result.state.log.some(entry => /Omega Worm/i.test(entry.text)));
+});
+
+test('creep source units can place creep during movement', () => {
+  const state = createInitialGameState({
+    missionId: 'take_and_hold',
+    deploymentId: 'crossfire',
+    armyA: [{ id: 'blue_queen_1', templateId: 'queen' }],
+    armyB: [{ id: 'red_marines_1', templateId: 'marine_squad' }],
+    firstPlayerMarkerHolder: 'playerA'
+  });
+  beginRound(state);
+  placeLeaderAt(state, 'blue_queen_1', 8, 8);
+  placeLeaderAt(state, 'red_marines_1', 24, 24);
+
+  const actions = getLegalActionsForUnit(state, 'playerA', 'blue_queen_1');
+  assert.equal(actions.some(action => action.type === 'PLACE_CREEP' && action.enabled), true);
+
+  const result = dispatch(state, {
+    type: 'PLACE_CREEP',
+    payload: { playerId: 'playerA', unitId: 'blue_queen_1', point: { x: 12, y: 8 } }
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.state.board.creepZones.length, 1);
+  assert.equal(result.state.board.creepZones[0].owner, 'playerA');
+  assert.equal(result.state.board.creepZones[0].kind, 'creep_tumor');
+  assert.equal(result.state.units.blue_queen_1.status.movementActivated, true);
+});
+
+test('enemy movement within 1 inch displaces a creep tumor token', () => {
+  const state = createInitialGameState({
+    missionId: 'take_and_hold',
+    deploymentId: 'crossfire',
+    armyA: [{ id: 'blue_queen_1', templateId: 'queen' }],
+    armyB: [{ id: 'red_marines_1', templateId: 'marine_squad' }],
+    firstPlayerMarkerHolder: 'playerB'
+  });
+  beginRound(state);
+  placeLeaderAt(state, 'blue_queen_1', 10, 10);
+  placeLeaderAt(state, 'red_marines_1', 18, 10);
+  state.board.creepZones.push({
+    id: 'tumor_1',
+    kind: 'creep_tumor',
+    owner: 'playerA',
+    center: { x: 14, y: 10 },
+    radius: 6,
+    tokenRadius: 0.5
+  });
+
+  const result = dispatch(state, {
+    type: 'MOVE_UNIT',
+    payload: {
+      playerId: 'playerB',
+      unitId: 'red_marines_1',
+      leadingModelId: state.units.red_marines_1.leadingModelId,
+      path: [{ x: 18, y: 10 }, { x: 15.8, y: 10 }],
+      modelPlacements: autoArrangeModels(state, 'red_marines_1', { x: 15.8, y: 10 })
+    }
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.state.board.creepZones.some(zone => zone.id === 'tumor_1'), false);
+  assert.ok(result.events.some(event => event.type === 'creep_displaced'));
+  assert.ok(result.state.log.some(entry => /displaces it/i.test(entry.text)));
+});
+
+test('enemy deployment within 1 inch displaces a creep tumor token', () => {
+  const state = createInitialGameState({
+    missionId: 'take_and_hold',
+    deploymentId: 'crossfire',
+    armyA: [{ id: 'blue_marines_1', templateId: 'marine_squad' }],
+    armyB: [{ id: 'red_queen_1', templateId: 'queen' }],
+    firstPlayerMarkerHolder: 'playerA'
+  });
+  beginRound(state);
+  placeLeaderAt(state, 'red_queen_1', 24, 10);
+  state.board.creepZones.push({
+    id: 'tumor_2',
+    kind: 'creep_tumor',
+    owner: 'playerB',
+    center: { x: 2.2, y: 8 },
+    radius: 6,
+    tokenRadius: 0.5
+  });
+
+  const result = dispatch(state, {
+    type: 'DEPLOY_UNIT',
+    payload: {
+      playerId: 'playerA',
+      unitId: 'blue_marines_1',
+      leadingModelId: state.units.blue_marines_1.leadingModelId,
+      entryPoint: { x: 0, y: 8 },
+      path: [{ x: 0, y: 8 }, { x: 3.1, y: 8 }],
+      modelPlacements: autoArrangeModels(state, 'blue_marines_1', { x: 3.1, y: 8 })
+    }
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.state.board.creepZones.some(zone => zone.id === 'tumor_2'), false);
+  assert.ok(result.events.some(event => event.type === 'creep_displaced'));
+});
+
+test('protoss reserves can warp in through a friendly pylon power field', () => {
+  const state = createInitialGameState({
+    missionId: 'take_and_hold',
+    deploymentId: 'crossfire',
+    armyA: [
+      { id: 'blue_pylon_1', templateId: 'pylon' },
+      { id: 'blue_zealots_1', templateId: 'zealot_squad' }
+    ],
+    armyB: [{ id: 'red_marines_1', templateId: 'marine_squad' }],
+    firstPlayerMarkerHolder: 'playerA'
+  });
+  beginRound(state);
+  placeLeaderAt(state, 'blue_pylon_1', 14, 14);
+  placeLeaderAt(state, 'red_marines_1', 28, 28);
+
+  const actions = getLegalActionsForUnit(state, 'playerA', 'blue_zealots_1');
+  assert.equal(actions.some(action => action.type === 'DEPLOY_UNIT' && action.enabled), true);
+
+  const result = dispatch(state, {
+    type: 'DEPLOY_UNIT',
+    payload: {
+      playerId: 'playerA',
+      unitId: 'blue_zealots_1',
+      leadingModelId: state.units.blue_zealots_1.leadingModelId,
+      entryPoint: { x: 18, y: 14 },
+      path: [{ x: 18, y: 14 }, { x: 18, y: 14 }],
+      modelPlacements: autoArrangeModels(state, 'blue_zealots_1', { x: 18, y: 14 })
+    }
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.state.units.blue_zealots_1.status.location, 'battlefield');
+  assert.ok(result.state.log.some(entry => /Power Field/i.test(entry.text)));
+});
+
+test('friendly creep increases zerg movement allowance', () => {
+  const state = createInitialGameState({
+    missionId: 'take_and_hold',
+    deploymentId: 'crossfire',
+    armyA: [
+      { id: 'blue_queen_1', templateId: 'queen' },
+      { id: 'blue_roaches_1', templateId: 'roach_t3' }
+    ],
+    armyB: [{ id: 'red_marines_1', templateId: 'marine_squad' }],
+    firstPlayerMarkerHolder: 'playerA'
+  });
+  beginRound(state);
+  placeLeaderAt(state, 'blue_roaches_1', 12, 8);
+  placeLeaderAt(state, 'red_marines_1', 28, 28);
+  state.board.creepZones.push({
+    id: 'test_creep_patch',
+    kind: 'creep_patch',
+    owner: 'playerA',
+    center: { x: 15, y: 8 },
+    radius: 3.5
+  });
+
+  const moveResult = dispatch(state, {
+    type: 'MOVE_UNIT',
+    payload: {
+      playerId: 'playerA',
+      unitId: 'blue_roaches_1',
+      leadingModelId: state.units.blue_roaches_1.leadingModelId,
+      path: [{ x: 12, y: 8 }, { x: 19, y: 8 }],
+      modelPlacements: autoArrangeModels(state, 'blue_roaches_1', { x: 19, y: 8 })
+    }
+  });
+
+  assert.equal(moveResult.ok, true);
 });
 
 test('both players passing in assault now enters the combat phase', () => {
