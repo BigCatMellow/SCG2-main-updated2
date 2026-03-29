@@ -773,20 +773,25 @@ function getTimelineFocusPayload(entry, recentEntries, index, uiState) {
   const aftermath = uiState?.aftermathNarrative;
   if (!aftermath) return null;
   const latestCombatIndex = getLatestCombatEntryIndex(recentEntries);
+  const focusKey = `${entry.round}-${entry.phase}-${index}`;
 
   if (entry.type === "combat" && index === latestCombatIndex) {
     return {
+      focusKey,
       attackerId: aftermath.attackerId ?? null,
       targetId: aftermath.targetId ?? null,
-      objectiveIds: aftermath.objectiveIds ?? []
+      objectiveIds: aftermath.objectiveIds ?? [],
+      glossaryTerms: aftermath.glossaryTerms ?? []
     };
   }
 
   if (entry.type === "scoring" && latestCombatIndex >= 0 && index >= latestCombatIndex && (aftermath.objectiveIds?.length ?? 0)) {
     return {
+      focusKey,
       attackerId: aftermath.attackerId ?? null,
       targetId: aftermath.targetId ?? null,
-      objectiveIds: aftermath.objectiveIds ?? []
+      objectiveIds: aftermath.objectiveIds ?? [],
+      glossaryTerms: aftermath.glossaryTerms ?? []
     };
   }
 
@@ -813,6 +818,49 @@ function renderTimelineCauseEffect(causeEffect) {
           </div>
         `
         : ""}
+    </div>
+  `;
+}
+
+function getTimelineGlossaryDefinition(term) {
+  const exact = {
+    "Overwatch": "Overwatch is a reaction shot that happens during an enemy charge before the melee lands.",
+    "Impact": "Impact dice resolve after a successful charge and before the main melee attack.",
+    "Surge": "Surge turns matching wounds into hits that bypass armour after the wound step.",
+    "Hits": "Hits adds automatic armour-pool hits that skip hit and wound rolls.",
+    "Precision": "Precision lets failed hit dice still become armour-pool hits without rolling to wound.",
+    "Critical Hit": "Critical Hit pushes wounds past armour before saves are rolled.",
+    "Dodge": "Dodge cancels a limited number of bypassed hits before they become damage.",
+    "Evade": "Evade is a late defensive roll that can still avoid hits after armour results are known.",
+    "Indirect Fire": "Indirect Fire allows targeting without line of sight.",
+    "Long Range": "Long Range extends reach into an outer band, usually with a hit penalty.",
+    "Burst Fire": "Burst Fire adds extra attacks when the target is inside the close-range band.",
+    "Locked In": "Locked In adds attacks against a stationary target.",
+    "Anti-Evade": "Anti-Evade makes the defender's evade roll harder.",
+    "Concentrated Fire": "Concentrated Fire caps casualties and discards overflow damage.",
+    "Life Support": "Life Support reduces damage after the attack already got through.",
+    "Zealous Round": "Zealous Round spends an unused activation to reduce incoming damage immediately.",
+    "Fighting Rank": "Fighting Rank is the set of models actually close enough to contribute attacks in melee.",
+    "Supporting Rank": "Supporting Rank models assist from behind if they are linked to the front line."
+  };
+  return exact[term] ?? getRuleNote(term) ?? "This rule affected the exchange that was just highlighted.";
+}
+
+function renderTimelineGlossary(terms, uiState) {
+  const glossaryTerms = [...new Set((terms ?? []).filter(Boolean))];
+  if (!glossaryTerms.length) return "";
+  const activeTerm = glossaryTerms.includes(uiState?.activeGlossaryTerm) ? uiState.activeGlossaryTerm : glossaryTerms[0];
+  const definition = getTimelineGlossaryDefinition(activeTerm);
+  return `
+    <div class="log-glossary">
+      <div class="log-glossary-title">Rules In Play</div>
+      <div class="log-glossary-chip-row">
+        ${glossaryTerms.map(term => `<button class="log-glossary-chip ${term === activeTerm ? "active" : ""}" data-timeline-glossary="${escapeHtml(term)}">${escapeHtml(term)}</button>`).join("")}
+      </div>
+      <div class="log-glossary-definition">
+        <div class="log-glossary-term">${escapeHtml(activeTerm)}</div>
+        <div class="log-glossary-copy">${escapeHtml(definition)}</div>
+      </div>
     </div>
   `;
 }
@@ -1165,16 +1213,27 @@ export function renderLog(state, uiState = {}, handlers = {}) {
     const teaching = getLogTeachingCopy(entry);
     const causeEffect = buildTimelineCauseEffect(entry, recentEntries, index, uiState);
     const focusPayload = getTimelineFocusPayload(entry, recentEntries, index, uiState);
+    const focusKey = `${entry.round}-${entry.phase}-${index}`;
+    const showGlossary = focusPayload && uiState?.timelineFocusedKey === focusKey;
     div.className = `log-entry ${isCombat ? "log-combat" : ""} ${focusPayload ? "log-entry-focusable" : ""}`;
     div.innerHTML = `
       <div class="meta">R${entry.round} · ${titleCase(entry.phase)} · ${teaching.title}</div>
       <div class="log-body">${entry.text}</div>
       <div class="log-teaching"><span class="log-teaching-label">Why it matters:</span> ${teaching.why}</div>
       ${renderTimelineCauseEffect(causeEffect)}
+      ${showGlossary ? renderTimelineGlossary(focusPayload.glossaryTerms, uiState) : ""}
     `;
     if (focusPayload) {
       div.addEventListener("click", () => handlers.onLogEntryFocus?.(focusPayload));
       div.title = "Click to highlight this interaction on the board.";
+    }
+    if (showGlossary) {
+      div.querySelectorAll("[data-timeline-glossary]").forEach(button => {
+        button.addEventListener("click", event => {
+          event.stopPropagation();
+          handlers.onTimelineGlossaryTerm?.(button.getAttribute("data-timeline-glossary"));
+        });
+      });
     }
     panel.appendChild(div);
   });

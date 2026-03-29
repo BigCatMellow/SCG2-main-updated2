@@ -314,6 +314,24 @@ button { font: inherit; }
   border-top: 1px dashed rgba(146,177,212,.16);
   padding-top: 6px;
 }
+.battlefield-hint-rule-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.battlefield-hint-rule-chip {
+  border: 1px solid rgba(146,177,212,.24);
+  background: rgba(255,255,255,.04);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 11px;
+  cursor: pointer;
+}
+.battlefield-hint-rule-chip.active {
+  background: rgba(102,191,255,.16);
+  border-color: rgba(102,191,255,.45);
+}
 
 /* ── Floating action bar at bottom of board ── */
 .action-bar {
@@ -1180,6 +1198,54 @@ kbd { display: inline-block; padding: 0 3px; border-radius: 3px; background: rgb
   transform: translateY(-1px);
   border-color: rgba(126,184,255,.3);
   background: rgba(18,25,38,.94);
+}
+.log-glossary {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(146,177,212,.14);
+  display: grid;
+  gap: 8px;
+}
+.log-glossary-title {
+  color: var(--gold);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.log-glossary-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.log-glossary-chip {
+  border: 1px solid rgba(146,177,212,.24);
+  background: rgba(255,255,255,.04);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 11px;
+  cursor: pointer;
+}
+.log-glossary-chip.active {
+  background: rgba(102,191,255,.16);
+  border-color: rgba(102,191,255,.45);
+}
+.log-glossary-definition {
+  border-left: 3px solid rgba(102,191,255,.5);
+  padding-left: 10px;
+  display: grid;
+  gap: 4px;
+}
+.log-glossary-term {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+}
+.log-glossary-copy {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 /* ── Responsive ── */

@@ -111,6 +111,7 @@ const uiState = {
   selectedCombatQueueIndex: null,
   boardHighlights: [],
   aftermathNarrative: null,
+  timelineFocusedKey: null,
   compactActionBar: false,
   lastObjectiveSnapshot: null,
   pendingPass: false,
@@ -310,6 +311,8 @@ function rerender() {
     onCombatQueueHover: handleCombatQueueHover,
     onCombatQueueClick: handleCombatQueueClick,
     onLogEntryFocus: handleLogEntryFocus,
+    onClearTimelineFocus: clearTimelineFocus,
+    onTimelineGlossaryTerm: handleTimelineGlossaryTerm,
     onToggleActionBarCompact: handleActionBarToggle,
     buildActionButtons,
     buildCardButtons,
@@ -2621,15 +2624,21 @@ function handleCombatQueueClick(queueIndex) {
 
 function handleLogEntryFocus(focus) {
   if (!focus) return;
+  if (uiState.timelineFocusedKey && uiState.timelineFocusedKey === focus.focusKey) {
+    clearTimelineFocus();
+    return;
+  }
   const state = store.getState();
   const now = Date.now();
   pruneBoardHighlights();
   uiState.selectedCombatQueueIndex = null;
   uiState.hoveredCombatQueueIndex = null;
+  uiState.timelineFocusedKey = focus.focusKey ?? null;
   uiState.selectedUnitId = focus.attackerId ?? uiState.selectedUnitId;
   uiState.hoveredUnitId = focus.targetId ?? null;
   uiState.selectedObjectiveId = focus.objectiveIds?.[0] ?? null;
   uiState.hoveredObjectiveId = focus.objectiveIds?.[0] ?? null;
+  uiState.activeGlossaryTerm = focus.glossaryTerms?.[0] ?? null;
 
   const attacker = focus.attackerId ? state.units[focus.attackerId] : null;
   const target = focus.targetId ? state.units[focus.targetId] : null;
@@ -2666,6 +2675,23 @@ function handleLogEntryFocus(focus) {
     });
   }
   scheduleBoardHighlightPrune();
+  rerender();
+}
+
+function handleTimelineGlossaryTerm(term) {
+  uiState.activeGlossaryTerm = term;
+  rerender();
+}
+
+function clearTimelineFocus() {
+  uiState.timelineFocusedKey = null;
+  uiState.activeGlossaryTerm = null;
+  uiState.hoveredUnitId = null;
+  uiState.hoveredObjectiveId = null;
+  if ((uiState.selectedObjectiveId ?? null) && !(uiState.mode ?? null)) {
+    uiState.selectedObjectiveId = null;
+  }
+  pruneBoardHighlights();
   rerender();
 }
 
@@ -2849,6 +2875,7 @@ function updateBoardHighlights(state, events) {
       attackerId: payload.attackerId ?? null,
       targetId: payload.targetId ?? null,
       objectiveIds: Object.keys(currentSnapshot).filter(objectiveId => objectiveNarratives.some(copy => copy.startsWith(objectiveId.toUpperCase()))),
+      glossaryTerms: getCombatPayloadGlossaryTerms(payload),
       metrics,
       reason: `${attacker?.name ?? "The attacker"} finished its ${payload.mode === "melee" ? "melee attack" : payload.mode === "overwatch" ? "Overwatch attack" : "ranged attack"}, and ${resultSummary}`,
       teaching: objectiveNarratives.length

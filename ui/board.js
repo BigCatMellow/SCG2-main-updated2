@@ -8,6 +8,26 @@ import { validateDeploy } from "../engine/deployment.js";
 import { validatePlaceForceField } from "../engine/force_fields.js";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
+const TIMELINE_RULE_COPY = {
+  "Overwatch": "Reaction shot before the charge lands.",
+  "Impact": "Charge dice before the main melee swing.",
+  "Surge": "Matching wounds bypass armour after wound rolls.",
+  "Hits": "Automatic armour-pool hits that skip hit and wound rolls.",
+  "Precision": "Failed hit dice can still become armour-pool hits.",
+  "Critical Hit": "Some wounds skip armour before saves.",
+  "Dodge": "Cancels a limited number of bypassed hits.",
+  "Evade": "Late defensive roll after armour results are known.",
+  "Indirect Fire": "Can target without line of sight.",
+  "Long Range": "Extra reach with a penalty in the outer band.",
+  "Burst Fire": "Extra attacks at close range.",
+  "Locked In": "Extra attacks against stationary targets.",
+  "Anti-Evade": "Makes evade rolls harder.",
+  "Concentrated Fire": "Caps casualties and discards overflow damage.",
+  "Life Support": "Reduces damage after it gets through.",
+  "Zealous Round": "Trades an unused activation for damage reduction.",
+  "Fighting Rank": "Only front-line models actually contribute attacks.",
+  "Supporting Rank": "Linked rear models can assist the front line."
+};
 
 function el(name, attrs = {}) {
   const e = document.createElementNS(SVG_NS, name);
@@ -23,6 +43,15 @@ function snap(model) {
 
 function aliveCount(unit) {
   return unit.modelIds.filter(id => unit.models[id].alive).length;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 /* ── Board layers ── */
@@ -568,6 +597,44 @@ function renderBattlefieldHint(state, uiState, handlers) {
   const snapshot = getObjectiveControlSnapshot(state);
   const focusedObjectiveId = uiState.hoveredObjectiveId ?? uiState.selectedObjectiveId ?? null;
   const focusedQueueEntry = getFocusedCombatQueueEntry(state, uiState);
+  const timelineFocused = Boolean(uiState.timelineFocusedKey && uiState.aftermathNarrative);
+  if (!uiState.mode && !focusedObjectiveId && !focusedQueueEntry && timelineFocused) {
+    const glossaryTerms = uiState.aftermathNarrative?.glossaryTerms ?? [];
+    const activeTerm = glossaryTerms.includes(uiState.activeGlossaryTerm) ? uiState.activeGlossaryTerm : glossaryTerms[0];
+    const activeCopy = activeTerm ? (TIMELINE_RULE_COPY[activeTerm] ?? "This rule shaped the highlighted exchange.") : null;
+    hint.className = "battlefield-hint active aftermath";
+    hint.innerHTML = `
+      <div class="battlefield-hint-kicker">Timeline Focus</div>
+      <div class="battlefield-hint-head">
+        <div class="battlefield-hint-title">${uiState.aftermathNarrative?.title ?? "Focused interaction"}</div>
+        <button type="button" class="battlefield-hint-close" aria-label="Close timeline focus">×</button>
+      </div>
+      <div class="battlefield-hint-metrics">
+        ${(uiState.aftermathNarrative?.metrics ?? []).map(metric => `<span>${metric}</span>`).join("")}
+      </div>
+      <div class="battlefield-hint-copy">${uiState.aftermathNarrative?.reason ?? ""}</div>
+      <div class="battlefield-hint-copy secondary">${uiState.aftermathNarrative?.teaching ?? ""}</div>
+      ${glossaryTerms.length ? `
+        <div class="battlefield-hint-rule-row">
+          ${glossaryTerms.map(term => `<button type="button" class="battlefield-hint-rule-chip ${term === activeTerm ? "active" : ""}" data-board-glossary="${escapeHtml(term)}">${escapeHtml(term)}</button>`).join("")}
+        </div>
+      ` : ""}
+      ${activeTerm ? `<div class="battlefield-hint-copy secondary"><strong>${escapeHtml(activeTerm)}:</strong> ${escapeHtml(activeCopy)}</div>` : ""}
+    `;
+    hint.querySelectorAll("[data-board-glossary]").forEach(button => {
+      button.addEventListener("click", event => {
+        event.preventDefault();
+        event.stopPropagation();
+        handlers?.onTimelineGlossaryTerm?.(button.getAttribute("data-board-glossary"));
+      });
+    });
+    hint.querySelector(".battlefield-hint-close")?.addEventListener("click", event => {
+      event.preventDefault();
+      event.stopPropagation();
+      handlers?.onClearTimelineFocus?.();
+    });
+    return;
+  }
   if (!uiState.mode && focusedQueueEntry) {
     const weaponName = focusedQueueEntry.weapon?.name ?? (focusedQueueEntry.isCharge ? "melee attack" : "ranged attack");
     const likelyRules = [];
