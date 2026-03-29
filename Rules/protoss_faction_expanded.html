@@ -1,0 +1,1980 @@
+<div id="fac-main-content" style="max-width: 1400px; margin: 0 auto; width: 100%;">
+        
+        <div class="fac-category-wrapper">
+            <button class="fac-category-btn" onclick="window.toggleCategory('faction_cards')" style="border-left: 4px solid #22c55e;">
+                <span style="display:flex; align-items:center; gap:10px;"><i class="fa-solid fa-flag" style="color:#22c55e;"></i> FACTION CARDS (2)</span>
+                <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+            </button>
+            <div class="fac-category-body">
+                <div class="fac-item-wrapper">
+                    <button class="fac-item-btn" onclick="window.toggleItem('daelaam')">
+                        <div>
+                            <span style="color:white; font-size:14px;">Daelaam</span> <span style="background:#eab308; color:black; padding:1px 4px; border-radius:3px; font-size:9px; margin-left:8px;">UNIQUE</span>
+                            <div style="font-size:10px; color:#64748b; margin-top:2px; font-weight:normal;">Faction Card</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-item-body">
+        <div class="fac-unit-top">
+            <div class="fac-unit-art-col">
+                <div class="fac-unit-art">
+                    ART PLACEHOLDER
+                    
+                </div>
+            </div>
+            <div class="fac-unit-stats-col">
+                <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:15px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(234, 179, 8, 0.05); border:1px solid rgba(234, 179, 8, 0.3); border-left:4px solid #eab308; padding:10px 15px; border-radius:6px; max-width:240px;">
+            <span style="font-size:11px; color:#eab308; font-weight:bold; letter-spacing:0.5px;">RESOURCE</span>
+            <span style="font-size:16px; font-weight:900; color:#eab308;">+1 EN</span>
+        </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; background:#020617; border:1px solid #334155; border-left:4px solid #ef4444; padding:10px 15px; border-radius:6px; max-width:240px;">
+                <span style="font-size:11px; color:#94a3b8; font-weight:bold; letter-spacing:0.5px;">ELITE SLOT</span>
+                <span style="font-size:16px; font-weight:900; color:white;">1</span>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; background:#020617; border:1px solid #334155; border-left:4px solid #38bdf8; padding:10px 15px; border-radius:6px; max-width:240px;">
+                <span style="font-size:11px; color:#94a3b8; font-weight:bold; letter-spacing:0.5px;">CORE SLOT</span>
+                <span style="font-size:16px; font-weight:900; color:white;">3</span>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; background:#020617; border:1px solid #334155; border-left:4px solid #22c55e; padding:10px 15px; border-radius:6px; max-width:240px;">
+                <span style="font-size:11px; color:#94a3b8; font-weight:bold; letter-spacing:0.5px;">SUPPORT SLOT</span>
+                <span style="font-size:16px; font-weight:900; color:white;">1</span>
+            </div></div>
+            </div>
+        </div>
+        <h4 style="color:#94a3b8; font-size:11px; text-transform:uppercase; margin:10px 0 5px 0; border-bottom:1px solid #334155; padding-bottom:5px;">Card Abilities</h4>
+        
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('daelaam_ANYPHASE')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Any Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body">
+                <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:6px; margin-bottom:8px; border-left:3px solid #64748b;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                        <strong style="color:white; font-size:13px;">Dae’Uhl</strong>
+                        <span class="fac-act-pill pill-reaction" style="margin:0;">Reaction</span>
+                    </div>
+                    <span style="color:#cbd5e1; font-size:12px;">When a <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('friendly')">Friendly</span> Unit receives Damage, reduce the Total Damage by 2 (to a minimum of 1).</span>
+                </div>
+                </div>
+                </div>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('daelaam_MOVEMENTPHASE')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Movement Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body">
+                <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:6px; margin-bottom:8px; border-left:3px solid #64748b;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                        <strong style="color:white; font-size:13px;">Mass Recall</strong>
+                        <span class="fac-act-pill pill-active" style="margin:0;">Active</span>
+                    </div>
+                    <span style="color:#cbd5e1; font-size:12px;">Once per Game. <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('place')">Place</span> a Faction Indicator anywhere on the battlefield. All <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('friendly')">Friendly</span> <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('protoss')">Protoss</span> <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('units')">Units</span> <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('within')">Within</span> 6" of this Faction Indicator are removed from the battlefield and placed in <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('reserves')">Reserves</span>.</span>
+                </div>
+                </div>
+                </div>
+    </div>
+                </div>
+                <div class="fac-item-wrapper">
+                    <button class="fac-item-btn" onclick="window.toggleItem('khalai')">
+                        <div>
+                            <span style="color:white; font-size:14px;">Khalai</span> <span style="background:#eab308; color:black; padding:1px 4px; border-radius:3px; font-size:9px; margin-left:8px;">UNIQUE</span>
+                            <div style="font-size:10px; color:#64748b; margin-top:2px; font-weight:normal;">Faction Card</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-item-body">
+        <div class="fac-unit-top">
+            <div class="fac-unit-art-col">
+                <div class="fac-unit-art">
+                    ART PLACEHOLDER
+                    
+                </div>
+            </div>
+            <div class="fac-unit-stats-col">
+                <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:15px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(234, 179, 8, 0.05); border:1px solid rgba(234, 179, 8, 0.3); border-left:4px solid #eab308; padding:10px 15px; border-radius:6px; max-width:240px;">
+            <span style="font-size:11px; color:#eab308; font-weight:bold; letter-spacing:0.5px;">RESOURCE</span>
+            <span style="font-size:16px; font-weight:900; color:#eab308;">+1 EN</span>
+        </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; background:#020617; border:1px solid #334155; border-left:4px solid #a855f7; padding:10px 15px; border-radius:6px; max-width:240px;">
+                <span style="font-size:11px; color:#94a3b8; font-weight:bold; letter-spacing:0.5px;">HERO SLOT</span>
+                <span style="font-size:16px; font-weight:900; color:white;">1</span>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; background:#020617; border:1px solid #334155; border-left:4px solid #ef4444; padding:10px 15px; border-radius:6px; max-width:240px;">
+                <span style="font-size:11px; color:#94a3b8; font-weight:bold; letter-spacing:0.5px;">ELITE SLOT</span>
+                <span style="font-size:16px; font-weight:900; color:white;">2</span>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; background:#020617; border:1px solid #334155; border-left:4px solid #38bdf8; padding:10px 15px; border-radius:6px; max-width:240px;">
+                <span style="font-size:11px; color:#94a3b8; font-weight:bold; letter-spacing:0.5px;">CORE SLOT</span>
+                <span style="font-size:16px; font-weight:900; color:white;">3</span>
+            </div></div>
+            </div>
+        </div>
+        <h4 style="color:#94a3b8; font-size:11px; text-transform:uppercase; margin:10px 0 5px 0; border-bottom:1px solid #334155; padding-bottom:5px;">Card Abilities</h4>
+        
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('khalai_MOVEMENTPHASE')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Movement Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body">
+                <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:6px; margin-bottom:8px; border-left:3px solid #64748b;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                        <strong style="color:white; font-size:13px;">Pylon Warp-In</strong>
+                        <span class="fac-act-pill pill-active" style="margin:0;">Active</span>
+                    </div>
+                    <span style="color:#cbd5e1; font-size:12px;">If there is no <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('friendly')">Friendly</span> Pylon on the battlefield, <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('place')">place</span> a <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('friendly')">Friendly</span> Pylon Unit anywhere on the GROUND LEVEL of the battlefield more than 10" away from any <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('enemy')">Enemy</span> model. This Round, the Pylon is not eligible to use its <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('special abilities')">Special Abilities</span> (excluding Structure).</span>
+                </div>
+                
+                <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:6px; margin-bottom:8px; border-left:3px solid #64748b;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                        <strong style="color:white; font-size:13px;">Bound by the Khala</strong>
+                        <span class="fac-act-pill pill-active" style="margin:0;">Active</span>
+                    </div>
+                    <span style="color:#cbd5e1; font-size:12px;">At the end of the active Unit’s Activation, select one other <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('friendly')">Friendly</span> Unit eligible to Activate in the current Phase. Immediately Activate that Unit.</span>
+                </div>
+                </div>
+                </div>
+    </div>
+                </div></div>
+        </div>
+        
+        <div class="fac-category-wrapper">
+            <button class="fac-category-btn" onclick="window.toggleCategory('unit_cards')" style="border-left: 4px solid #38bdf8;">
+                <span style="display:flex; align-items:center; gap:10px;"><i class="fa-solid fa-users" style="color:#38bdf8;"></i> UNIT CARDS (7)</span>
+                <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+            </button>
+            <div class="fac-category-body">
+                <div class="fac-item-wrapper">
+                    <button class="fac-item-btn" onclick="window.toggleItem('adept')">
+                        <div>
+                            <span style="color:white; font-size:14px;">Adept</span> 
+                            <div style="font-size:10px; color:#64748b; margin-top:2px; font-weight:normal;">Core</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-item-body">
+        <div class="fac-unit-top">
+            <div class="fac-unit-art-col">
+                <div class="fac-unit-art">
+                    ART PLACEHOLDER
+                    
+                </div>
+            </div>
+            
+            <div class="fac-unit-stats-col">
+                <div class="sc-stat-grid">
+                    <div class="sc-stat-box"><span class="sc-stat-val">2</span><span class="sc-stat-label">SHLD</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">5/8</span><span class="sc-stat-label">SPD</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">5+</span><span class="sc-stat-label">EVA</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">5+</span><span class="sc-stat-label">ARM</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">3</span><span class="sc-stat-label">HP</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">2</span><span class="sc-stat-label">SIZ</span></div>
+                </div>
+                
+                <div class="fac-squad-container">
+                    <div class="fac-squad-label">SQUAD:</div>
+                    <div class="fac-squad-tiers">
+                        
+        <div style="display:inline-flex; border:1px solid #475569; border-radius:6px; overflow:hidden; background:#020617; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+            <div style="padding:4px 10px; text-align:center; border-right:1px solid #334155;">
+                <div style="font-size:12px; color:white; font-weight:bold;">1 - 2</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Models</div>
+            </div>
+            <div style="padding:4px 10px; text-align:center; background:#0f172a;">
+                <div style="font-size:12px; color:white; font-weight:bold;">0</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Supply</div>
+            </div>
+        </div>
+    
+        <div style="display:inline-flex; border:1px solid #475569; border-radius:6px; overflow:hidden; background:#020617; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+            <div style="padding:4px 10px; text-align:center; border-right:1px solid #334155;">
+                <div style="font-size:12px; color:white; font-weight:bold;">3 - 4</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Models</div>
+            </div>
+            <div style="padding:4px 10px; text-align:center; background:#0f172a;">
+                <div style="font-size:12px; color:white; font-weight:bold;">1</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Supply</div>
+            </div>
+        </div>
+    
+        <div style="display:inline-flex; border:1px solid #475569; border-radius:6px; overflow:hidden; background:#020617; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+            <div style="padding:4px 10px; text-align:center; border-right:1px solid #334155;">
+                <div style="font-size:12px; color:white; font-weight:bold;">-</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Models</div>
+            </div>
+            <div style="padding:4px 10px; text-align:center; background:#0f172a;">
+                <div style="font-size:12px; color:white; font-weight:bold;">0</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Supply</div>
+            </div>
+        </div>
+    
+                    </div>
+                    <div class="fac-pts-badge-large">PTS: 150/0</div>
+                </div>
+
+                <div style="font-size:11px; color:#cbd5e1; margin-top:5px;">
+                    <strong style="color:#f8fafc; font-weight:800; letter-spacing:0.5px;">TAGS:</strong> Biological, Light, Ground
+                </div>
+            </div>
+        </div>
+    <h4 style="color:#94a3b8; font-size:11px; text-transform:uppercase; margin:20px 0 5px 0; border-bottom:1px solid #334155; padding-bottom:5px;">Abilities</h4>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('adept_ANY_base')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Any Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Psionic Presence</strong> </div>
+                            <span class="fac-act-pill pill-passive">Passive</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">All Weapons of <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('friendly')">Friendly</span> <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('units')">Units</span> targeting an <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('enemy')">Enemy</span> Unit <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('within')">Within</span> 4" of this Unit’s Shade token gain <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('precision')">PRECISION</span> (1).</span>
+                    </div></div>
+                </div>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('adept_MOVEMENT_base')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Movement Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Psionic Transfer</strong> </div>
+                            <span class="fac-act-pill pill-active">Active
+(1 Psionic Energy)</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">Set a Shade token <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('wholly within')">Wholly Within</span> 12" of any model in this Unit. At the End of the Round, the <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('controlling player')">controlling player</span> may set all <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('models')">models</span> of this Unit in Coherency, treating the Shade token as <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('the leading model')">the Leading Model</span>. The Shade token has <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('displacement')">DISPLACEMENT</span>.</span>
+                    </div></div>
+                </div>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('adept_ASSAULT_base')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Assault Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="overflow-x:auto;"><table class="sc-weapon-table">
+                    <tbody><tr>
+                        <th class="col-name">NAME</th>
+                        <th class="col-stats">RNG</th>
+                        <th class="col-stats">TGT</th>
+                        <th class="col-stats">RoA</th>
+                        <th class="col-stats">HIT</th>
+                        <th class="col-stats">SURGE</th>
+                        <th class="col-stats">S.DIE</th>
+                        <th class="col-stats">DMG</th>
+                        <th class="col-keyword">KEYWORD</th>
+                        
+                    </tr><tr>
+                        <td class="col-name"><strong>Glaive Cannon<br><span style="font-size:8px; color:#64748b;">FOR -</span></strong></td>
+                        <td class="col-stats">8</td>
+                        <td class="col-stats">All</td>
+                        <td class="col-stats">2</td>
+                        <td class="col-stats">3+</td>
+                        <td class="col-stats" style="font-size:10px;">Light</td>
+                        <td class="col-stats" style="color:#ef4444; font-weight:bold;">D3+1</td>
+                        <td class="col-stats">1</td>
+                        <td class="col-keyword" style="color:#94a3b8; font-size:10px; line-height:1.4;"><span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('anti-evade')">ANTI-EVADE</span> (1) </td>
+                        
+                    </tr></tbody></table></div></div>
+                </div>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('adept_COMBAT_base')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Combat Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="overflow-x:auto;"><table class="sc-weapon-table">
+                    <tbody><tr>
+                        <th class="col-name">NAME</th>
+                        <th class="col-stats">RNG</th>
+                        <th class="col-stats">TGT</th>
+                        <th class="col-stats">RoA</th>
+                        <th class="col-stats">HIT</th>
+                        <th class="col-stats">SURGE</th>
+                        <th class="col-stats">S.DIE</th>
+                        <th class="col-stats">DMG</th>
+                        <th class="col-keyword">KEYWORD</th>
+                        
+                    </tr><tr>
+                        <td class="col-name"><strong>Strike<br><span style="font-size:8px; color:#64748b;">FOR -</span></strong></td>
+                        <td class="col-stats">E</td>
+                        <td class="col-stats">Ground</td>
+                        <td class="col-stats">1</td>
+                        <td class="col-stats">4+</td>
+                        <td class="col-stats" style="font-size:10px;">-</td>
+                        <td class="col-stats" style="color:#ef4444; font-weight:bold;">-</td>
+                        <td class="col-stats">1</td>
+                        <td class="col-keyword" style="color:#94a3b8; font-size:10px; line-height:1.4;"> </td>
+                        
+                    </tr></tbody></table></div></div>
+                </div><h4 style="color:#22c55e; font-size:11px; text-transform:uppercase; margin:20px 0 5px 0; border-bottom:1px solid #334155; padding-bottom:5px;">Upgrades</h4>
+                <div class="fac-phase-wrapper" style="border-color:var(--accent);">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('adept_ASSAULT_upg')" style="color:#86efac;">
+                        <span><i class="fa-solid fa-arrow-up-right-dots" style="margin-right:8px; color:var(--accent);"></i> Assault Phase - UPGRADES</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Resonating Glaives</strong> <span class="sc-pts-badge" style="margin-left:5px;">PTS: 20</span></div>
+                            <span class="fac-act-pill pill-active">Active
+(1 Psionic Energy)</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">This Unit's Glaive Cannon gains <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('buff')">BUFF</span> RoA (1).</span>
+                    </div><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Guidance</strong> <span class="sc-pts-badge" style="margin-left:5px;">PTS: 10</span></div>
+                            <span class="fac-act-pill pill-passive">Passive</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">This Unit's Glaive Cannon Ranged weapon gains <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('anti-evade')">ANTI-EVADE</span> (2).</span>
+                    </div></div>
+                </div>
+                <div class="fac-phase-wrapper" style="border-color:var(--accent);">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('adept_COMBAT_upg')" style="color:#86efac;">
+                        <span><i class="fa-solid fa-arrow-up-right-dots" style="margin-right:8px; color:var(--accent);"></i> Combat Phase - UPGRADES</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="overflow-x:auto;"><table class="sc-weapon-table">
+                    <tbody><tr>
+                        <th class="col-name">NAME</th>
+                        <th class="col-stats">RNG</th>
+                        <th class="col-stats">TGT</th>
+                        <th class="col-stats">RoA</th>
+                        <th class="col-stats">HIT</th>
+                        <th class="col-stats">SURGE</th>
+                        <th class="col-stats">S.DIE</th>
+                        <th class="col-stats">DMG</th>
+                        <th class="col-keyword">KEYWORD</th>
+                        <th class="col-stats">PTS</th>
+                    </tr><tr>
+                        <td class="col-name"><strong>Glaive Strike<br><span style="font-size:8px; color:#64748b;">FOR Strike</span></strong></td>
+                        <td class="col-stats">E</td>
+                        <td class="col-stats">Ground</td>
+                        <td class="col-stats">1</td>
+                        <td class="col-stats">4+</td>
+                        <td class="col-stats" style="font-size:10px;">Light</td>
+                        <td class="col-stats" style="color:#ef4444; font-weight:bold;">D3</td>
+                        <td class="col-stats">1</td>
+                        <td class="col-keyword" style="color:#94a3b8; font-size:10px; line-height:1.4;"><span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('pierce')">PIERCE</span> Light (2) </td>
+                        <td class="col-stats"><span class="sc-pts-badge">20</span></td>
+                    </tr></tbody></table></div></div>
+                </div></div>
+                </div>
+                <div class="fac-item-wrapper">
+                    <button class="fac-item-btn" onclick="window.toggleItem('artanis')">
+                        <div>
+                            <span style="color:white; font-size:14px;">Artanis</span> <span style="background:#eab308; color:black; padding:1px 4px; border-radius:3px; font-size:9px; margin-left:8px;">UNIQUE</span>
+                            <div style="font-size:10px; color:#64748b; margin-top:2px; font-weight:normal;">Hero</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-item-body">
+        <div class="fac-unit-top">
+            <div class="fac-unit-art-col">
+                <div class="fac-unit-art">
+                    ART PLACEHOLDER
+                    
+                </div>
+            </div>
+            
+            <div class="fac-unit-stats-col">
+                <div class="sc-stat-grid">
+                    <div class="sc-stat-box"><span class="sc-stat-val">4</span><span class="sc-stat-label">SHLD</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">7</span><span class="sc-stat-label">SPD</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">5+</span><span class="sc-stat-label">EVA</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">4+</span><span class="sc-stat-label">ARM</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">8</span><span class="sc-stat-label">HP</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">2</span><span class="sc-stat-label">SIZ</span></div>
+                </div>
+                
+                <div class="fac-squad-container">
+                    <div class="fac-squad-label">SQUAD:</div>
+                    <div class="fac-squad-tiers">
+                        
+        <div style="display:inline-flex; border:1px solid #475569; border-radius:6px; overflow:hidden; background:#020617; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+            <div style="padding:4px 10px; text-align:center; border-right:1px solid #334155;">
+                <div style="font-size:12px; color:white; font-weight:bold;">-</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Models</div>
+            </div>
+            <div style="padding:4px 10px; text-align:center; background:#0f172a;">
+                <div style="font-size:12px; color:white; font-weight:bold;">0</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Supply</div>
+            </div>
+        </div>
+    
+        <div style="display:inline-flex; border:1px solid #475569; border-radius:6px; overflow:hidden; background:#020617; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+            <div style="padding:4px 10px; text-align:center; border-right:1px solid #334155;">
+                <div style="font-size:12px; color:white; font-weight:bold;">1 - 1</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Models</div>
+            </div>
+            <div style="padding:4px 10px; text-align:center; background:#0f172a;">
+                <div style="font-size:12px; color:white; font-weight:bold;">1</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Supply</div>
+            </div>
+        </div>
+    
+        <div style="display:inline-flex; border:1px solid #475569; border-radius:6px; overflow:hidden; background:#020617; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+            <div style="padding:4px 10px; text-align:center; border-right:1px solid #334155;">
+                <div style="font-size:12px; color:white; font-weight:bold;">-</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Models</div>
+            </div>
+            <div style="padding:4px 10px; text-align:center; background:#0f172a;">
+                <div style="font-size:12px; color:white; font-weight:bold;">0</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Supply</div>
+            </div>
+        </div>
+    
+                    </div>
+                    <div class="fac-pts-badge-large">PTS: 250/0</div>
+                </div>
+
+                <div style="font-size:11px; color:#cbd5e1; margin-top:5px;">
+                    <strong style="color:#f8fafc; font-weight:800; letter-spacing:0.5px;">TAGS:</strong> Biological, Psionic, Ground, Unique
+                </div>
+            </div>
+        </div>
+    <h4 style="color:#94a3b8; font-size:11px; text-transform:uppercase; margin:20px 0 5px 0; border-bottom:1px solid #334155; padding-bottom:5px;">Abilities</h4>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('artanis_ANY_base')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Any Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Commander</strong> </div>
+                            <span class="fac-act-pill pill-passive">Passive</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">Treat this Unit’s Supply characteristic as increased by 1 for Controlling and Contesting <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('mission markers')">Mission Markers</span>, completing objectives, and resolving <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('disengage')">Disengage</span> checks.</span>
+                    </div></div>
+                </div>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('artanis_MOVEMENT_base')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Movement Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Phase Prism</strong> </div>
+                            <span class="fac-act-pill pill-passive">Passive</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">When <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('artanis')">Artanis</span> is nominated to <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('deploy')">deploy</span> from <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('reserves')">Reserves</span>, it may resolve the <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('place')">PLACE</span> (0) effect from another <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('friendly')">Friendly</span> Unit. That <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('friendly')">Friendly</span> Unit is removed from the battlefield and returned to <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('reserves')">Reserves</span>. <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('artanis')">Artanis</span>' Activation ends.</span>
+                    </div></div>
+                </div>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('artanis_ASSAULT_base')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Assault Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Hierarch’s Stand</strong> </div>
+                            <span class="fac-act-pill pill-reaction">Reaction
+(1 Psionic Energy)</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">When another <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('friendly')">Friendly</span> Unit <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('within')">Within</span> 8" is declared as the target of a <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('ranged attack')">Ranged Attack</span> and this Unit is a valid target, redirect the attack to this Unit. This Unit is eligible to make an Evade Roll against the redirected attack. This <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('special ability')">Special Ability</span> remains active until the End of the current Activation.</span>
+                    </div><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Lightning Dash</strong> </div>
+                            <span class="fac-act-pill pill-reaction">Reaction
+(1 Psionic Energy)</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">After this Unit resolves a successful <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('charge')">Charge</span> action, it may declare a second <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('charge')">Charge</span> action against a different <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('enemy')">Enemy</span> Unit, ignoring the restriction on Charging while <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('engaged')">Engaged</span>. The Devastating <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('charge')">Charge</span> ability does not trigger a second time.</span>
+                    </div><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Devastating Charge</strong> </div>
+                            <span class="fac-act-pill pill-passive">Passive</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">Immediately after this Unit completes a successful <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('charge')">Charge</span>, resolve the <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('impact')">IMPACT</span> (6) 4+ effect.</span>
+                    </div></div>
+                </div>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('artanis_COMBAT_base')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Combat Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="overflow-x:auto;"><table class="sc-weapon-table">
+                    <tbody><tr>
+                        <th class="col-name">NAME</th>
+                        <th class="col-stats">RNG</th>
+                        <th class="col-stats">TGT</th>
+                        <th class="col-stats">RoA</th>
+                        <th class="col-stats">HIT</th>
+                        <th class="col-stats">SURGE</th>
+                        <th class="col-stats">S.DIE</th>
+                        <th class="col-stats">DMG</th>
+                        <th class="col-keyword">KEYWORD</th>
+                        
+                    </tr><tr>
+                        <td class="col-name"><strong>Twilight Blades Strike<br><span style="font-size:8px; color:#64748b;">FOR -</span></strong></td>
+                        <td class="col-stats">E</td>
+                        <td class="col-stats">Ground</td>
+                        <td class="col-stats">2</td>
+                        <td class="col-stats">2+</td>
+                        <td class="col-stats" style="font-size:10px;">Armoured</td>
+                        <td class="col-stats" style="color:#ef4444; font-weight:bold;">D3</td>
+                        <td class="col-stats">3</td>
+                        <td class="col-keyword" style="color:#94a3b8; font-size:10px; line-height:1.4;"> </td>
+                        
+                    </tr><tr>
+                        <td class="col-name"><strong>Twilight Blades Sweep<br><span style="font-size:8px; color:#64748b;">FOR -</span></strong></td>
+                        <td class="col-stats">E</td>
+                        <td class="col-stats">Ground</td>
+                        <td class="col-stats">6</td>
+                        <td class="col-stats">2+</td>
+                        <td class="col-stats" style="font-size:10px;">Light</td>
+                        <td class="col-stats" style="color:#ef4444; font-weight:bold;">D3+1</td>
+                        <td class="col-stats">1</td>
+                        <td class="col-keyword" style="color:#94a3b8; font-size:10px; line-height:1.4;"> </td>
+                        
+                    </tr></tbody></table></div></div>
+                </div></div>
+                </div>
+                <div class="fac-item-wrapper">
+                    <button class="fac-item-btn" onclick="window.toggleItem('praetor_guard__zealot_')">
+                        <div>
+                            <span style="color:white; font-size:14px;">Praetor Guard (Zealot)</span> <span style="background:#eab308; color:black; padding:1px 4px; border-radius:3px; font-size:9px; margin-left:8px;">UNIQUE</span>
+                            <div style="font-size:10px; color:#64748b; margin-top:2px; font-weight:normal;">Elite</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-item-body">
+        <div class="fac-unit-top">
+            <div class="fac-unit-art-col">
+                <div class="fac-unit-art">
+                    ART PLACEHOLDER
+                    
+                </div>
+            </div>
+            
+            <div class="fac-unit-stats-col">
+                <div class="sc-stat-grid">
+                    <div class="sc-stat-box"><span class="sc-stat-val">3</span><span class="sc-stat-label">SHLD</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">4/7</span><span class="sc-stat-label">SPD</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">5+</span><span class="sc-stat-label">EVA</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">5+</span><span class="sc-stat-label">ARM</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">4</span><span class="sc-stat-label">HP</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">2</span><span class="sc-stat-label">SIZ</span></div>
+                </div>
+                
+                <div class="fac-squad-container">
+                    <div class="fac-squad-label">SQUAD:</div>
+                    <div class="fac-squad-tiers">
+                        
+        <div style="display:inline-flex; border:1px solid #475569; border-radius:6px; overflow:hidden; background:#020617; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+            <div style="padding:4px 10px; text-align:center; border-right:1px solid #334155;">
+                <div style="font-size:12px; color:white; font-weight:bold;">1 - 1</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Models</div>
+            </div>
+            <div style="padding:4px 10px; text-align:center; background:#0f172a;">
+                <div style="font-size:12px; color:white; font-weight:bold;">1</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Supply</div>
+            </div>
+        </div>
+    
+        <div style="display:inline-flex; border:1px solid #475569; border-radius:6px; overflow:hidden; background:#020617; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+            <div style="padding:4px 10px; text-align:center; border-right:1px solid #334155;">
+                <div style="font-size:12px; color:white; font-weight:bold;">2 - 3</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Models</div>
+            </div>
+            <div style="padding:4px 10px; text-align:center; background:#0f172a;">
+                <div style="font-size:12px; color:white; font-weight:bold;">2</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Supply</div>
+            </div>
+        </div>
+    
+        <div style="display:inline-flex; border:1px solid #475569; border-radius:6px; overflow:hidden; background:#020617; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+            <div style="padding:4px 10px; text-align:center; border-right:1px solid #334155;">
+                <div style="font-size:12px; color:white; font-weight:bold;">-</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Models</div>
+            </div>
+            <div style="padding:4px 10px; text-align:center; background:#0f172a;">
+                <div style="font-size:12px; color:white; font-weight:bold;">0</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Supply</div>
+            </div>
+        </div>
+    
+                    </div>
+                    <div class="fac-pts-badge-large">PTS: 280/0</div>
+                </div>
+
+                <div style="font-size:11px; color:#cbd5e1; margin-top:5px;">
+                    <strong style="color:#f8fafc; font-weight:800; letter-spacing:0.5px;">TAGS:</strong> Khalai, Biological, Light, Ground, Unique
+                </div>
+            </div>
+        </div>
+    <h4 style="color:#94a3b8; font-size:11px; text-transform:uppercase; margin:20px 0 5px 0; border-bottom:1px solid #334155; padding-bottom:5px;">Abilities</h4>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('praetor_guard__zealot__ANY_base')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Any Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Shield Overcharge</strong> </div>
+                            <span class="fac-act-pill pill-passive">Passive</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">This Unit gains <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('tough')">TOUGH</span> (2) on the first Armour Roll each Round.</span>
+                    </div></div>
+                </div>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('praetor_guard__zealot__MOVEMENT_base')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Movement Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Leg Enhancements</strong> </div>
+                            <span class="fac-act-pill pill-active">Active
+(1 Psionic Energy)</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">This Unit performs a 2" <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('move')">Move</span> action. This does not count towards its action limit.</span>
+                    </div></div>
+                </div>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('praetor_guard__zealot__ASSAULT_base')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Assault Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Charge</strong> </div>
+                            <span class="fac-act-pill pill-active">Active
+(1 Psionic Energy)</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">When determining <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('charge')">Charge</span> Distance for this Unit, roll 2D6 instead of D6 and use the higher result to add to the Unit’s Speed characteristic.</span>
+                    </div><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Devastating Charge</strong> </div>
+                            <span class="fac-act-pill pill-passive">Passive</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">Immediately after this Unit completes a successful <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('charge')">Charge</span>, resolve the <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('impact')">IMPACT</span> (3) 4+ effect.</span>
+                    </div></div>
+                </div>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('praetor_guard__zealot__COMBAT_base')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Combat Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="overflow-x:auto;"><table class="sc-weapon-table">
+                    <tbody><tr>
+                        <th class="col-name">NAME</th>
+                        <th class="col-stats">RNG</th>
+                        <th class="col-stats">TGT</th>
+                        <th class="col-stats">RoA</th>
+                        <th class="col-stats">HIT</th>
+                        <th class="col-stats">SURGE</th>
+                        <th class="col-stats">S.DIE</th>
+                        <th class="col-stats">DMG</th>
+                        <th class="col-keyword">KEYWORD</th>
+                        
+                    </tr><tr>
+                        <td class="col-name"><strong>Psi Blades<br><span style="font-size:8px; color:#64748b;">FOR -</span></strong></td>
+                        <td class="col-stats">E</td>
+                        <td class="col-stats">Ground</td>
+                        <td class="col-stats">4</td>
+                        <td class="col-stats">3+</td>
+                        <td class="col-stats" style="font-size:10px;">Light</td>
+                        <td class="col-stats" style="color:#ef4444; font-weight:bold;">D3</td>
+                        <td class="col-stats">1</td>
+                        <td class="col-keyword" style="color:#94a3b8; font-size:10px; line-height:1.4;"> </td>
+                        
+                    </tr></tbody></table></div><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Titan Killers</strong> </div>
+                            <span class="fac-act-pill pill-passive">Passive</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">When this Unit makes a Close Combat Attack, and the target is Size 3 or larger, the weapon’s Damage characteristic is treated as 2.</span>
+                    </div><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Precognition</strong> </div>
+                            <span class="fac-act-pill pill-passive">Passive</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">This Unit is eligible to make an Evade roll against all attacks targeting it.</span>
+                    </div></div>
+                </div></div>
+                </div>
+                <div class="fac-item-wrapper">
+                    <button class="fac-item-btn" onclick="window.toggleItem('pylon')">
+                        <div>
+                            <span style="color:white; font-size:14px;">Pylon</span> 
+                            <div style="font-size:10px; color:#64748b; margin-top:2px; font-weight:normal;">Other</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-item-body">
+        <div class="fac-unit-top">
+            <div class="fac-unit-art-col">
+                <div class="fac-unit-art">
+                    ART PLACEHOLDER
+                    
+                </div>
+            </div>
+            
+            <div class="fac-unit-stats-col">
+                <div class="sc-stat-grid">
+                    <div class="sc-stat-box"><span class="sc-stat-val">2</span><span class="sc-stat-label">SHLD</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">-</span><span class="sc-stat-label">SPD</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">-</span><span class="sc-stat-label">EVA</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">5+</span><span class="sc-stat-label">ARM</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">8</span><span class="sc-stat-label">HP</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">3</span><span class="sc-stat-label">SIZ</span></div>
+                </div>
+                
+                <div class="fac-squad-container">
+                    <div class="fac-squad-label">SQUAD:</div>
+                    <div class="fac-squad-tiers">
+                        
+        <div style="display:inline-flex; border:1px solid #475569; border-radius:6px; overflow:hidden; background:#020617; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+            <div style="padding:4px 10px; text-align:center; border-right:1px solid #334155;">
+                <div style="font-size:12px; color:white; font-weight:bold;">-</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Models</div>
+            </div>
+            <div style="padding:4px 10px; text-align:center; background:#0f172a;">
+                <div style="font-size:12px; color:white; font-weight:bold;">0</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Supply</div>
+            </div>
+        </div>
+    
+        <div style="display:inline-flex; border:1px solid #475569; border-radius:6px; overflow:hidden; background:#020617; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+            <div style="padding:4px 10px; text-align:center; border-right:1px solid #334155;">
+                <div style="font-size:12px; color:white; font-weight:bold;">1 - 1</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Models</div>
+            </div>
+            <div style="padding:4px 10px; text-align:center; background:#0f172a;">
+                <div style="font-size:12px; color:white; font-weight:bold;">0</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Supply</div>
+            </div>
+        </div>
+    
+        <div style="display:inline-flex; border:1px solid #475569; border-radius:6px; overflow:hidden; background:#020617; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+            <div style="padding:4px 10px; text-align:center; border-right:1px solid #334155;">
+                <div style="font-size:12px; color:white; font-weight:bold;">-</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Models</div>
+            </div>
+            <div style="padding:4px 10px; text-align:center; background:#0f172a;">
+                <div style="font-size:12px; color:white; font-weight:bold;">0</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Supply</div>
+            </div>
+        </div>
+    
+                    </div>
+                    <div class="fac-pts-badge-large">PTS: 0</div>
+                </div>
+
+                <div style="font-size:11px; color:#cbd5e1; margin-top:5px;">
+                    <strong style="color:#f8fafc; font-weight:800; letter-spacing:0.5px;">TAGS:</strong> Khalai, Armored, Ground
+                </div>
+            </div>
+        </div>
+    <h4 style="color:#94a3b8; font-size:11px; text-transform:uppercase; margin:20px 0 5px 0; border-bottom:1px solid #334155; padding-bottom:5px;">Abilities</h4>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('pylon_ANY_base')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Any Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Structure</strong> </div>
+                            <span class="fac-act-pill pill-passive">Passive</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">This Unit cannot be Activated in any Phase and cannot perform actions. Additionally, its <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('current supply value')">Current Supply Value</span> is treated as 0, and it can never Control or Contest <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('mission markers')">Mission Markers</span>, ignoring the standard Zero Supply Exception. This Unit cannot be a target of an ability, unless stated otherwise.</span>
+                    </div><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Khalai Ingenuity</strong> </div>
+                            <span class="fac-act-pill pill-passive">Passive</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">Once per Round, when a <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('friendly')">Friendly</span> Unit <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('within')">Within</span> 4" of this Pylon uses a <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('special ability')">Special Ability</span> that costs Psionic Energy, that ability’s PE cost is reduced by 1.</span>
+                    </div></div>
+                </div>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('pylon_MOVEMENT_base')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Movement Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Warp Conduit</strong> </div>
+                            <span class="fac-act-pill pill-passive">Passive</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">Once per Round, the <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('controlling player')">controlling player</span> may <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('deploy')">deploy</span> a Ground Unit from <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('reserves')">Reserves</span> using this Pylon base as the <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('entry edge')">Entry Edge</span>. This Unit's Activation ends.</span>
+                    </div></div>
+                </div></div>
+                </div>
+                <div class="fac-item-wrapper">
+                    <button class="fac-item-btn" onclick="window.toggleItem('sentry')">
+                        <div>
+                            <span style="color:white; font-size:14px;">Sentry</span> 
+                            <div style="font-size:10px; color:#64748b; margin-top:2px; font-weight:normal;">Support</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-item-body">
+        <div class="fac-unit-top">
+            <div class="fac-unit-art-col">
+                <div class="fac-unit-art">
+                    ART PLACEHOLDER
+                    
+                </div>
+            </div>
+            
+            <div class="fac-unit-stats-col">
+                <div class="sc-stat-grid">
+                    <div class="sc-stat-box"><span class="sc-stat-val">2</span><span class="sc-stat-label">SHLD</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">4/7</span><span class="sc-stat-label">SPD</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">6+</span><span class="sc-stat-label">EVA</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">5+</span><span class="sc-stat-label">ARM</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">4</span><span class="sc-stat-label">HP</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">1</span><span class="sc-stat-label">SIZ</span></div>
+                </div>
+                
+                <div class="fac-squad-container">
+                    <div class="fac-squad-label">SQUAD:</div>
+                    <div class="fac-squad-tiers">
+                        
+        <div style="display:inline-flex; border:1px solid #475569; border-radius:6px; overflow:hidden; background:#020617; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+            <div style="padding:4px 10px; text-align:center; border-right:1px solid #334155;">
+                <div style="font-size:12px; color:white; font-weight:bold;">1 - 1</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Models</div>
+            </div>
+            <div style="padding:4px 10px; text-align:center; background:#0f172a;">
+                <div style="font-size:12px; color:white; font-weight:bold;">0</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Supply</div>
+            </div>
+        </div>
+    
+        <div style="display:inline-flex; border:1px solid #475569; border-radius:6px; overflow:hidden; background:#020617; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+            <div style="padding:4px 10px; text-align:center; border-right:1px solid #334155;">
+                <div style="font-size:12px; color:white; font-weight:bold;">2 - 2</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Models</div>
+            </div>
+            <div style="padding:4px 10px; text-align:center; background:#0f172a;">
+                <div style="font-size:12px; color:white; font-weight:bold;">1</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Supply</div>
+            </div>
+        </div>
+    
+        <div style="display:inline-flex; border:1px solid #475569; border-radius:6px; overflow:hidden; background:#020617; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+            <div style="padding:4px 10px; text-align:center; border-right:1px solid #334155;">
+                <div style="font-size:12px; color:white; font-weight:bold;">-</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Models</div>
+            </div>
+            <div style="padding:4px 10px; text-align:center; background:#0f172a;">
+                <div style="font-size:12px; color:white; font-weight:bold;">0</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Supply</div>
+            </div>
+        </div>
+    
+                    </div>
+                    <div class="fac-pts-badge-large">PTS: 130/0</div>
+                </div>
+
+                <div style="font-size:11px; color:#cbd5e1; margin-top:5px;">
+                    <strong style="color:#f8fafc; font-weight:800; letter-spacing:0.5px;">TAGS:</strong> Light, Mechanical, Psionic, Ground
+                </div>
+            </div>
+        </div>
+    <h4 style="color:#94a3b8; font-size:11px; text-transform:uppercase; margin:20px 0 5px 0; border-bottom:1px solid #334155; padding-bottom:5px;">Abilities</h4>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('sentry_ANY_base')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Any Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Restoration</strong> </div>
+                            <span class="fac-act-pill pill-reaction">Reaction
+(1 Psionic Energy)</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">Use when a <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('friendly')">Friendly</span> Unit <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('within')">Within</span> 4" receives a <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('debuff')">DEBUFF</span>. Remove all DEBUFFS from it.</span>
+                    </div></div>
+                </div>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('sentry_MOVEMENT_base')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Movement Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Force Field</strong> </div>
+                            <span class="fac-act-pill pill-active">Active
+(1 Psionic Energy)</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">Set a Force Field token <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('within')">Within</span> 8" in an unoccupied space. <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('units')">Units</span> of Size 2 or lower cannot <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('move')">move</span> across Force Fields. <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('models')">Models</span> of Size 3 or more can <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('move')">move</span> over it, and it's then removed.</span>
+                    </div><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Guardian Shield</strong> </div>
+                            <span class="fac-act-pill pill-active">Active
+(1 Psionic Energy)</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">All Ranged Attacks targeting a <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('friendly')">Friendly</span> Unit <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('within')">Within</span> 4" (<span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('line of sight')">Line of Sight</span> is not required) are made with 1 fewer die in the Attack Pool.</span>
+                    </div></div>
+                </div>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('sentry_ASSAULT_base')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Assault Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="overflow-x:auto;"><table class="sc-weapon-table">
+                    <tbody><tr>
+                        <th class="col-name">NAME</th>
+                        <th class="col-stats">RNG</th>
+                        <th class="col-stats">TGT</th>
+                        <th class="col-stats">RoA</th>
+                        <th class="col-stats">HIT</th>
+                        <th class="col-stats">SURGE</th>
+                        <th class="col-stats">S.DIE</th>
+                        <th class="col-stats">DMG</th>
+                        <th class="col-keyword">KEYWORD</th>
+                        
+                    </tr><tr>
+                        <td class="col-name"><strong>Disruption Beam<br><span style="font-size:8px; color:#64748b;">FOR -</span></strong></td>
+                        <td class="col-stats">8</td>
+                        <td class="col-stats">All</td>
+                        <td class="col-stats">2</td>
+                        <td class="col-stats">2+</td>
+                        <td class="col-stats" style="font-size:10px;">-</td>
+                        <td class="col-stats" style="color:#ef4444; font-weight:bold;">-</td>
+                        <td class="col-stats">1</td>
+                        <td class="col-keyword" style="color:#94a3b8; font-size:10px; line-height:1.4;"><span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('instant')">INSTANT</span> </td>
+                        
+                    </tr></tbody></table></div></div>
+                </div>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('sentry_COMBAT_base')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Combat Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="overflow-x:auto;"><table class="sc-weapon-table">
+                    <tbody><tr>
+                        <th class="col-name">NAME</th>
+                        <th class="col-stats">RNG</th>
+                        <th class="col-stats">TGT</th>
+                        <th class="col-stats">RoA</th>
+                        <th class="col-stats">HIT</th>
+                        <th class="col-stats">SURGE</th>
+                        <th class="col-stats">S.DIE</th>
+                        <th class="col-stats">DMG</th>
+                        <th class="col-keyword">KEYWORD</th>
+                        
+                    </tr><tr>
+                        <td class="col-name"><strong>Beam<br><span style="font-size:8px; color:#64748b;">FOR -</span></strong></td>
+                        <td class="col-stats">E</td>
+                        <td class="col-stats">Ground</td>
+                        <td class="col-stats">2</td>
+                        <td class="col-stats">3+</td>
+                        <td class="col-stats" style="font-size:10px;">-</td>
+                        <td class="col-stats" style="color:#ef4444; font-weight:bold;">-</td>
+                        <td class="col-stats">1</td>
+                        <td class="col-keyword" style="color:#94a3b8; font-size:10px; line-height:1.4;"> </td>
+                        
+                    </tr></tbody></table></div></div>
+                </div><h4 style="color:#22c55e; font-size:11px; text-transform:uppercase; margin:20px 0 5px 0; border-bottom:1px solid #334155; padding-bottom:5px;">Upgrades</h4>
+                <div class="fac-phase-wrapper" style="border-color:var(--accent);">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('sentry_MOVEMENT_upg')" style="color:#86efac;">
+                        <span><i class="fa-solid fa-arrow-up-right-dots" style="margin-right:8px; color:var(--accent);"></i> Movement Phase - UPGRADES</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Solid-Field Projectors</strong> <span class="sc-pts-badge" style="margin-left:5px;">PTS: 20</span></div>
+                            <span class="fac-act-pill pill-active">Active
+(1 Psionic Energy)</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">Set a Force Field token <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('within')">Within</span> 8" in an unoccupied space. <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('units')">Units</span> of Size 2 or lower cannot <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('move')">move</span> across Force Fields. <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('models')">Models</span> of Size 3 or more can <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('move')">move</span> over it, and it's then removed.</span>
+                    </div></div>
+                </div>
+                <div class="fac-phase-wrapper" style="border-color:var(--accent);">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('sentry_ASSAULT_upg')" style="color:#86efac;">
+                        <span><i class="fa-solid fa-arrow-up-right-dots" style="margin-right:8px; color:var(--accent);"></i> Assault Phase - UPGRADES</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Hallucination</strong> <span class="sc-pts-badge" style="margin-left:5px;">PTS: 30</span></div>
+                            <span class="fac-act-pill pill-reaction">Reaction
+(0 Psionic Energy)</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">When an <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('enemy')">Enemy</span> Unit declares a <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('ranged attack')">Ranged Attack</span> against a <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('friendly')">Friendly</span> Unit <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('within')">Within</span> 4", the targeted <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('friendly')">Friendly</span> Unit is eligible to make an Evade Roll against that attack.</span>
+                    </div></div>
+                </div></div>
+                </div>
+                <div class="fac-item-wrapper">
+                    <button class="fac-item-btn" onclick="window.toggleItem('stalker')">
+                        <div>
+                            <span style="color:white; font-size:14px;">Stalker</span> 
+                            <div style="font-size:10px; color:#64748b; margin-top:2px; font-weight:normal;">Elite</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-item-body">
+        <div class="fac-unit-top">
+            <div class="fac-unit-art-col">
+                <div class="fac-unit-art">
+                    ART PLACEHOLDER
+                    
+                </div>
+            </div>
+            
+            <div class="fac-unit-stats-col">
+                <div class="sc-stat-grid">
+                    <div class="sc-stat-box"><span class="sc-stat-val">3</span><span class="sc-stat-label">SHLD</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">4/8</span><span class="sc-stat-label">SPD</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">6+</span><span class="sc-stat-label">EVA</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">4+</span><span class="sc-stat-label">ARM</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">6</span><span class="sc-stat-label">HP</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">3</span><span class="sc-stat-label">SIZ</span></div>
+                </div>
+                
+                <div class="fac-squad-container">
+                    <div class="fac-squad-label">SQUAD:</div>
+                    <div class="fac-squad-tiers">
+                        
+        <div style="display:inline-flex; border:1px solid #475569; border-radius:6px; overflow:hidden; background:#020617; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+            <div style="padding:4px 10px; text-align:center; border-right:1px solid #334155;">
+                <div style="font-size:12px; color:white; font-weight:bold;">-</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Models</div>
+            </div>
+            <div style="padding:4px 10px; text-align:center; background:#0f172a;">
+                <div style="font-size:12px; color:white; font-weight:bold;">0</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Supply</div>
+            </div>
+        </div>
+    
+        <div style="display:inline-flex; border:1px solid #475569; border-radius:6px; overflow:hidden; background:#020617; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+            <div style="padding:4px 10px; text-align:center; border-right:1px solid #334155;">
+                <div style="font-size:12px; color:white; font-weight:bold;">1 - 1</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Models</div>
+            </div>
+            <div style="padding:4px 10px; text-align:center; background:#0f172a;">
+                <div style="font-size:12px; color:white; font-weight:bold;">1</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Supply</div>
+            </div>
+        </div>
+    
+        <div style="display:inline-flex; border:1px solid #475569; border-radius:6px; overflow:hidden; background:#020617; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+            <div style="padding:4px 10px; text-align:center; border-right:1px solid #334155;">
+                <div style="font-size:12px; color:white; font-weight:bold;">2 - 2</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Models</div>
+            </div>
+            <div style="padding:4px 10px; text-align:center; background:#0f172a;">
+                <div style="font-size:12px; color:white; font-weight:bold;">2</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Supply</div>
+            </div>
+        </div>
+    
+                    </div>
+                    <div class="fac-pts-badge-large">PTS: 160/260</div>
+                </div>
+
+                <div style="font-size:11px; color:#cbd5e1; margin-top:5px;">
+                    <strong style="color:#f8fafc; font-weight:800; letter-spacing:0.5px;">TAGS:</strong> Armoured, Mechanical, Ground
+                </div>
+            </div>
+        </div>
+    <h4 style="color:#94a3b8; font-size:11px; text-transform:uppercase; margin:20px 0 5px 0; border-bottom:1px solid #334155; padding-bottom:5px;">Abilities</h4>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('stalker_ANY_base')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Any Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Squadron</strong> </div>
+                            <span class="fac-act-pill pill-passive">Passive</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">This Unit’s Horizontal Coherency is 4".</span>
+                    </div></div>
+                </div>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('stalker_MOVEMENT_base')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Movement Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Blink</strong> </div>
+                            <span class="fac-act-pill pill-active">Active
+(1 Psionic Energy)</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">Resolve the <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('place')">PLACE</span> (6) effect. <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('models')">Models</span> set by this effect cannot be set up <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('within')">Within</span> the <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('engagement range')">Engagement Range</span> of any <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('enemy')">Enemy</span> Unit.</span>
+                    </div></div>
+                </div>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('stalker_ASSAULT_base')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Assault Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="overflow-x:auto;"><table class="sc-weapon-table">
+                    <tbody><tr>
+                        <th class="col-name">NAME</th>
+                        <th class="col-stats">RNG</th>
+                        <th class="col-stats">TGT</th>
+                        <th class="col-stats">RoA</th>
+                        <th class="col-stats">HIT</th>
+                        <th class="col-stats">SURGE</th>
+                        <th class="col-stats">S.DIE</th>
+                        <th class="col-stats">DMG</th>
+                        <th class="col-keyword">KEYWORD</th>
+                        
+                    </tr><tr>
+                        <td class="col-name"><strong>Particle Disruptors<br><span style="font-size:8px; color:#64748b;">FOR -</span></strong></td>
+                        <td class="col-stats">12</td>
+                        <td class="col-stats">All</td>
+                        <td class="col-stats">4</td>
+                        <td class="col-stats">3+</td>
+                        <td class="col-stats" style="font-size:10px;">Armoured</td>
+                        <td class="col-stats" style="color:#ef4444; font-weight:bold;">D3</td>
+                        <td class="col-stats">2</td>
+                        <td class="col-keyword" style="color:#94a3b8; font-size:10px; line-height:1.4;"> </td>
+                        
+                    </tr></tbody></table></div></div>
+                </div>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('stalker_COMBAT_base')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Combat Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="overflow-x:auto;"><table class="sc-weapon-table">
+                    <tbody><tr>
+                        <th class="col-name">NAME</th>
+                        <th class="col-stats">RNG</th>
+                        <th class="col-stats">TGT</th>
+                        <th class="col-stats">RoA</th>
+                        <th class="col-stats">HIT</th>
+                        <th class="col-stats">SURGE</th>
+                        <th class="col-stats">S.DIE</th>
+                        <th class="col-stats">DMG</th>
+                        <th class="col-keyword">KEYWORD</th>
+                        
+                    </tr><tr>
+                        <td class="col-name"><strong>Stomp<br><span style="font-size:8px; color:#64748b;">FOR -</span></strong></td>
+                        <td class="col-stats">E</td>
+                        <td class="col-stats">Ground</td>
+                        <td class="col-stats">2</td>
+                        <td class="col-stats">5+</td>
+                        <td class="col-stats" style="font-size:10px;">-</td>
+                        <td class="col-stats" style="color:#ef4444; font-weight:bold;">-</td>
+                        <td class="col-stats">1</td>
+                        <td class="col-keyword" style="color:#94a3b8; font-size:10px; line-height:1.4;"> </td>
+                        
+                    </tr></tbody></table></div></div>
+                </div><h4 style="color:#22c55e; font-size:11px; text-transform:uppercase; margin:20px 0 5px 0; border-bottom:1px solid #334155; padding-bottom:5px;">Upgrades</h4>
+                <div class="fac-phase-wrapper" style="border-color:var(--accent);">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('stalker_ANY_upg')" style="color:#86efac;">
+                        <span><i class="fa-solid fa-arrow-up-right-dots" style="margin-right:8px; color:var(--accent);"></i> Any Phase - UPGRADES</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Path of Shadows</strong> <span class="sc-pts-badge" style="margin-left:5px;">PTS: 20/40</span></div>
+                            <span class="fac-act-pill pill-active">Active
+(1 Psionic Energy)</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">This Unit gains <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('hidden')">HIDDEN</span> <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('status')">Status</span> until it performs another action.</span>
+                    </div></div>
+                </div>
+                <div class="fac-phase-wrapper" style="border-color:var(--accent);">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('stalker_ASSAULT_upg')" style="color:#86efac;">
+                        <span><i class="fa-solid fa-arrow-up-right-dots" style="margin-right:8px; color:var(--accent);"></i> Assault Phase - UPGRADES</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Fury of the Nerazim</strong> <span class="sc-pts-badge" style="margin-left:5px;">PTS: 20/30</span></div>
+                            <span class="fac-act-pill pill-passive">Passive</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">When this Unit attacks an <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('enemy')">Enemy</span> Unit that has already been Activated during this Phase, its Particle Disruptors gain <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('instant')">INSTANT</span> for that attack.</span>
+                    </div></div>
+                </div></div>
+                </div>
+                <div class="fac-item-wrapper">
+                    <button class="fac-item-btn" onclick="window.toggleItem('zealot')">
+                        <div>
+                            <span style="color:white; font-size:14px;">Zealot</span> 
+                            <div style="font-size:10px; color:#64748b; margin-top:2px; font-weight:normal;">Core</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-item-body">
+        <div class="fac-unit-top">
+            <div class="fac-unit-art-col">
+                <div class="fac-unit-art">
+                    ART PLACEHOLDER
+                    
+                </div>
+            </div>
+            
+            <div class="fac-unit-stats-col">
+                <div class="sc-stat-grid">
+                    <div class="sc-stat-box"><span class="sc-stat-val">3</span><span class="sc-stat-label">SHLD</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">4/7</span><span class="sc-stat-label">SPD</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">5+</span><span class="sc-stat-label">EVA</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">5+</span><span class="sc-stat-label">ARM</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">4</span><span class="sc-stat-label">HP</span></div>
+                    <div class="sc-stat-box"><span class="sc-stat-val">2</span><span class="sc-stat-label">SIZ</span></div>
+                </div>
+                
+                <div class="fac-squad-container">
+                    <div class="fac-squad-label">SQUAD:</div>
+                    <div class="fac-squad-tiers">
+                        
+        <div style="display:inline-flex; border:1px solid #475569; border-radius:6px; overflow:hidden; background:#020617; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+            <div style="padding:4px 10px; text-align:center; border-right:1px solid #334155;">
+                <div style="font-size:12px; color:white; font-weight:bold;">1 - 1</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Models</div>
+            </div>
+            <div style="padding:4px 10px; text-align:center; background:#0f172a;">
+                <div style="font-size:12px; color:white; font-weight:bold;">1</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Supply</div>
+            </div>
+        </div>
+    
+        <div style="display:inline-flex; border:1px solid #475569; border-radius:6px; overflow:hidden; background:#020617; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+            <div style="padding:4px 10px; text-align:center; border-right:1px solid #334155;">
+                <div style="font-size:12px; color:white; font-weight:bold;">2 - 3</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Models</div>
+            </div>
+            <div style="padding:4px 10px; text-align:center; background:#0f172a;">
+                <div style="font-size:12px; color:white; font-weight:bold;">2</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Supply</div>
+            </div>
+        </div>
+    
+        <div style="display:inline-flex; border:1px solid #475569; border-radius:6px; overflow:hidden; background:#020617; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+            <div style="padding:4px 10px; text-align:center; border-right:1px solid #334155;">
+                <div style="font-size:12px; color:white; font-weight:bold;">-</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Models</div>
+            </div>
+            <div style="padding:4px 10px; text-align:center; background:#0f172a;">
+                <div style="font-size:12px; color:white; font-weight:bold;">0</div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase;">Supply</div>
+            </div>
+        </div>
+    
+                    </div>
+                    <div class="fac-pts-badge-large">PTS: 160/0</div>
+                </div>
+
+                <div style="font-size:11px; color:#cbd5e1; margin-top:5px;">
+                    <strong style="color:#f8fafc; font-weight:800; letter-spacing:0.5px;">TAGS:</strong> Biological, Light, Ground
+                </div>
+            </div>
+        </div>
+    <h4 style="color:#94a3b8; font-size:11px; text-transform:uppercase; margin:20px 0 5px 0; border-bottom:1px solid #334155; padding-bottom:5px;">Abilities</h4>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('zealot_ASSAULT_base')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Assault Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Charge</strong> </div>
+                            <span class="fac-act-pill pill-active">Active
+(1 Psionic Energy)</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">When determining <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('charge')">Charge</span> Distance for this Unit, roll 2D6 instead of D6 and use the higher result to add to the Unit’s Speed characteristic.</span>
+                    </div><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Devastating Charge</strong> </div>
+                            <span class="fac-act-pill pill-passive">Passive</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">Immediately after this Unit completes a successful <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('charge')">Charge</span>, resolve the <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('impact')">IMPACT</span> (3) 4+ effect.</span>
+                    </div></div>
+                </div>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('zealot_COMBAT_base')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Combat Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="overflow-x:auto;"><table class="sc-weapon-table">
+                    <tbody><tr>
+                        <th class="col-name">NAME</th>
+                        <th class="col-stats">RNG</th>
+                        <th class="col-stats">TGT</th>
+                        <th class="col-stats">RoA</th>
+                        <th class="col-stats">HIT</th>
+                        <th class="col-stats">SURGE</th>
+                        <th class="col-stats">S.DIE</th>
+                        <th class="col-stats">DMG</th>
+                        <th class="col-keyword">KEYWORD</th>
+                        
+                    </tr><tr>
+                        <td class="col-name"><strong>Psi Blades<br><span style="font-size:8px; color:#64748b;">FOR -</span></strong></td>
+                        <td class="col-stats">E</td>
+                        <td class="col-stats">Ground</td>
+                        <td class="col-stats">4</td>
+                        <td class="col-stats">3+</td>
+                        <td class="col-stats" style="font-size:10px;">Light</td>
+                        <td class="col-stats" style="color:#ef4444; font-weight:bold;">D3</td>
+                        <td class="col-stats">1</td>
+                        <td class="col-keyword" style="color:#94a3b8; font-size:10px; line-height:1.4;"> </td>
+                        
+                    </tr></tbody></table></div></div>
+                </div><h4 style="color:#22c55e; font-size:11px; text-transform:uppercase; margin:20px 0 5px 0; border-bottom:1px solid #334155; padding-bottom:5px;">Upgrades</h4>
+                <div class="fac-phase-wrapper" style="border-color:var(--accent);">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('zealot_ANY_upg')" style="color:#86efac;">
+                        <span><i class="fa-solid fa-arrow-up-right-dots" style="margin-right:8px; color:var(--accent);"></i> Any Phase - UPGRADES</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">My Life for Aiur</strong> <span class="sc-pts-badge" style="margin-left:5px;">PTS: 10</span></div>
+                            <span class="fac-act-pill pill-passive">Passive</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">When this Unit resolves <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('impact')">IMPACT</span>, each eligible model generates 1 additional <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('impact')">IMPACT</span> die.</span>
+                    </div></div>
+                </div>
+                <div class="fac-phase-wrapper" style="border-color:var(--accent);">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('zealot_MOVEMENT_upg')" style="color:#86efac;">
+                        <span><i class="fa-solid fa-arrow-up-right-dots" style="margin-right:8px; color:var(--accent);"></i> Movement Phase - UPGRADES</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Leg Enhancements</strong> <span class="sc-pts-badge" style="margin-left:5px;">PTS: 20</span></div>
+                            <span class="fac-act-pill pill-active">Active
+(1 Psionic Energy)</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">This Unit performs a 2" <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('move')">Move</span> action. This does not count towards its action limit.</span>
+                    </div></div>
+                </div>
+                <div class="fac-phase-wrapper" style="border-color:var(--accent);">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('zealot_ASSAULT_upg')" style="color:#86efac;">
+                        <span><i class="fa-solid fa-arrow-up-right-dots" style="margin-right:8px; color:var(--accent);"></i> Assault Phase - UPGRADES</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">Zealous Round</strong> <span class="sc-pts-badge" style="margin-left:5px;">PTS: 10</span></div>
+                            <span class="fac-act-pill pill-reaction">Reaction
+(0 Psionic Energy)</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">When this Unit is not Activated and receives Damage, the <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('controlling player')">controlling player</span> may count this Unit as Activated in this Phase (flip its Activation Marker) to reduce the Total Damage by 2.</span>
+                    </div></div>
+                </div>
+                <div class="fac-phase-wrapper" style="border-color:var(--accent);">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('zealot_COMBAT_upg')" style="color:#86efac;">
+                        <span><i class="fa-solid fa-arrow-up-right-dots" style="margin-right:8px; color:var(--accent);"></i> Combat Phase - UPGRADES</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body"><div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                            <div><strong style="color:white;">We Stand as One</strong> <span class="sc-pts-badge" style="margin-left:5px;">PTS: 20</span></div>
+                            <span class="fac-act-pill pill-passive">Passive</span>
+                        </div>
+                        <span style="color:#cbd5e1; font-size:11px;">When this Unit makes a Close Combat Attack, if the target is <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('engaged')">Engaged</span> with at least 1 other <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('friendly')">Friendly</span> Unit, this Unit's Close Combat Weapon gains <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('precision')">PRECISION</span> (2).</span>
+                    </div></div>
+                </div></div>
+                </div></div>
+        </div>
+        
+        <div class="fac-category-wrapper">
+            <button class="fac-category-btn" onclick="window.toggleCategory('tactical_cards')" style="border-left: 4px solid #ff9204;">
+                <span style="display:flex; align-items:center; gap:10px;"><i class="fa-solid fa-clone" style="color:#ff9204;"></i> TACTICAL CARDS (10)</span>
+                <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+            </button>
+            <div class="fac-category-body">
+                <div class="fac-item-wrapper">
+                    <button class="fac-item-btn" onclick="window.toggleItem('forge')">
+                        <div>
+                            <span style="color:white; font-size:14px;">Forge</span> 
+                            <div style="font-size:10px; color:#64748b; margin-top:2px; font-weight:normal;">30 Gas</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-item-body">
+        <div class="fac-unit-top">
+            <div class="fac-unit-art-col">
+                <div class="fac-unit-art">
+                    ART PLACEHOLDER
+                    
+                </div>
+            </div>
+            <div class="fac-unit-stats-col">
+                <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:15px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(234, 179, 8, 0.05); border:1px solid rgba(234, 179, 8, 0.3); border-left:4px solid #eab308; padding:10px 15px; border-radius:6px; max-width:240px;">
+            <span style="font-size:11px; color:#eab308; font-weight:bold; letter-spacing:0.5px;">RESOURCE</span>
+            <span style="font-size:16px; font-weight:900; color:#eab308;">+1 EN</span>
+        </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; background:#020617; border:1px solid #334155; border-left:4px solid #ef4444; padding:10px 15px; border-radius:6px; max-width:240px;">
+                <span style="font-size:11px; color:#94a3b8; font-weight:bold; letter-spacing:0.5px;">ELITE SLOT</span>
+                <span style="font-size:16px; font-weight:900; color:white;">1</span>
+            </div></div>
+            </div>
+        </div>
+        <h4 style="color:#94a3b8; font-size:11px; text-transform:uppercase; margin:10px 0 5px 0; border-bottom:1px solid #334155; padding-bottom:5px;">Card Abilities</h4>
+        
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('forge_ANYPHASE')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Any Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body">
+                <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:6px; margin-bottom:8px; border-left:3px solid #64748b;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                        <strong style="color:white; font-size:13px;">Ground Armor</strong>
+                        <span class="fac-act-pill pill-reaction" style="margin:0;">Reaction</span>
+                    </div>
+                    <span style="color:#cbd5e1; font-size:12px;">Use before a <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('friendly')">Friendly</span> Ground Unit makes an Armour Roll. That Unit gains <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('tough')">TOUGH</span> (1) for this roll.</span>
+                </div>
+                </div>
+                </div>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('forge_ASSAULTPHASE')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Assault Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body">
+                <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:6px; margin-bottom:8px; border-left:3px solid #64748b;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                        <strong style="color:white; font-size:13px;">Ground Weapons</strong>
+                        <span class="fac-act-pill pill-active" style="margin:0;">Active</span>
+                    </div>
+                    <span style="color:#cbd5e1; font-size:12px;">The active Ground Unit’s first Ranged Weapon used gains <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('critical hit')">CRITICAL HIT</span> (1).</span>
+                </div>
+                </div>
+                </div>
+    </div>
+                </div>
+                <div class="fac-item-wrapper">
+                    <button class="fac-item-btn" onclick="window.toggleItem('gate_chronoboosted')">
+                        <div>
+                            <span style="color:white; font-size:14px;">Gate Chronoboosted</span> <span style="background:#eab308; color:black; padding:1px 4px; border-radius:3px; font-size:9px; margin-left:8px;">UNIQUE</span>
+                            <div style="font-size:10px; color:#64748b; margin-top:2px; font-weight:normal;">40 Gas</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-item-body">
+        <div class="fac-unit-top">
+            <div class="fac-unit-art-col">
+                <div class="fac-unit-art">
+                    ART PLACEHOLDER
+                    
+                </div>
+            </div>
+            <div class="fac-unit-stats-col">
+                <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:15px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(234, 179, 8, 0.05); border:1px solid rgba(234, 179, 8, 0.3); border-left:4px solid #eab308; padding:10px 15px; border-radius:6px; max-width:240px;">
+            <span style="font-size:11px; color:#eab308; font-weight:bold; letter-spacing:0.5px;">RESOURCE</span>
+            <span style="font-size:16px; font-weight:900; color:#eab308;">+1 EN</span>
+        </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; background:#020617; border:1px solid #334155; border-left:4px solid #ef4444; padding:10px 15px; border-radius:6px; max-width:240px;">
+                <span style="font-size:11px; color:#94a3b8; font-weight:bold; letter-spacing:0.5px;">ELITE SLOT</span>
+                <span style="font-size:16px; font-weight:900; color:white;">1</span>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; background:#020617; border:1px solid #334155; border-left:4px solid #38bdf8; padding:10px 15px; border-radius:6px; max-width:240px;">
+                <span style="font-size:11px; color:#94a3b8; font-weight:bold; letter-spacing:0.5px;">CORE SLOT</span>
+                <span style="font-size:16px; font-weight:900; color:white;">1</span>
+            </div></div>
+            </div>
+        </div>
+        <h4 style="color:#94a3b8; font-size:11px; text-transform:uppercase; margin:10px 0 5px 0; border-bottom:1px solid #334155; padding-bottom:5px;">Card Abilities</h4>
+        
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('gate_chronoboosted_MOVEMENTPHASE')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Movement Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body">
+                <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:6px; margin-bottom:8px; border-left:3px solid #64748b;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                        <strong style="color:white; font-size:13px;">Zealous Charge</strong>
+                        <span class="fac-act-pill pill-active" style="margin:0;">Active</span>
+                    </div>
+                    <span style="color:#cbd5e1; font-size:12px;">The active Unit gains <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('buff')">BUFF</span> Speed (2).</span>
+                </div>
+                </div>
+                </div>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('gate_chronoboosted_COMBATPHASE')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Combat Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body">
+                <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:6px; margin-bottom:8px; border-left:3px solid #64748b;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                        <strong style="color:white; font-size:13px;">Quick Strikes</strong>
+                        <span class="fac-act-pill pill-active" style="margin:0;">Active</span>
+                    </div>
+                    <span style="color:#cbd5e1; font-size:12px;">The active Unit’s first Close Combat Weapon used gains <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('precision')">PRECISION</span> (2).</span>
+                </div>
+                </div>
+                </div>
+    </div>
+                </div>
+                <div class="fac-item-wrapper">
+                    <button class="fac-item-btn" onclick="window.toggleItem('gateway')">
+                        <div>
+                            <span style="color:white; font-size:14px;">Gateway</span> 
+                            <div style="font-size:10px; color:#64748b; margin-top:2px; font-weight:normal;">25 Gas</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-item-body">
+        <div class="fac-unit-top">
+            <div class="fac-unit-art-col">
+                <div class="fac-unit-art">
+                    ART PLACEHOLDER
+                    
+                </div>
+            </div>
+            <div class="fac-unit-stats-col">
+                <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:15px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(234, 179, 8, 0.05); border:1px solid rgba(234, 179, 8, 0.3); border-left:4px solid #eab308; padding:10px 15px; border-radius:6px; max-width:240px;">
+            <span style="font-size:11px; color:#eab308; font-weight:bold; letter-spacing:0.5px;">RESOURCE</span>
+            <span style="font-size:16px; font-weight:900; color:#eab308;">+1 EN</span>
+        </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; background:#020617; border:1px solid #334155; border-left:4px solid #38bdf8; padding:10px 15px; border-radius:6px; max-width:240px;">
+                <span style="font-size:11px; color:#94a3b8; font-weight:bold; letter-spacing:0.5px;">CORE SLOT</span>
+                <span style="font-size:16px; font-weight:900; color:white;">1</span>
+            </div></div>
+            </div>
+        </div>
+        <h4 style="color:#94a3b8; font-size:11px; text-transform:uppercase; margin:10px 0 5px 0; border-bottom:1px solid #334155; padding-bottom:5px;">Card Abilities</h4>
+        
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('gateway_COMBATPHASE')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Combat Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body">
+                <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:6px; margin-bottom:8px; border-left:3px solid #64748b;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                        <strong style="color:white; font-size:13px;">Quick Strikes</strong>
+                        <span class="fac-act-pill pill-active" style="margin:0;">Active</span>
+                    </div>
+                    <span style="color:#cbd5e1; font-size:12px;">The active Unit’s first Close Combat Weapon used gains <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('precision')">PRECISION</span> (2).</span>
+                </div>
+                </div>
+                </div>
+    </div>
+                </div>
+                <div class="fac-item-wrapper">
+                    <button class="fac-item-btn" onclick="window.toggleItem('nexus')">
+                        <div>
+                            <span style="color:white; font-size:14px;">Nexus</span> <span style="background:#eab308; color:black; padding:1px 4px; border-radius:3px; font-size:9px; margin-left:8px;">UNIQUE</span>
+                            <div style="font-size:10px; color:#64748b; margin-top:2px; font-weight:normal;">35 Gas</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-item-body">
+        <div class="fac-unit-top">
+            <div class="fac-unit-art-col">
+                <div class="fac-unit-art">
+                    ART PLACEHOLDER
+                    
+                </div>
+            </div>
+            <div class="fac-unit-stats-col">
+                <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:15px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(234, 179, 8, 0.05); border:1px solid rgba(234, 179, 8, 0.3); border-left:4px solid #eab308; padding:10px 15px; border-radius:6px; max-width:240px;">
+            <span style="font-size:11px; color:#eab308; font-weight:bold; letter-spacing:0.5px;">RESOURCE</span>
+            <span style="font-size:16px; font-weight:900; color:#eab308;">+1 EN</span>
+        </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; background:#020617; border:1px solid #334155; border-left:4px solid #38bdf8; padding:10px 15px; border-radius:6px; max-width:240px;">
+                <span style="font-size:11px; color:#94a3b8; font-weight:bold; letter-spacing:0.5px;">CORE SLOT</span>
+                <span style="font-size:16px; font-weight:900; color:white;">2</span>
+            </div></div>
+            </div>
+        </div>
+        <h4 style="color:#94a3b8; font-size:11px; text-transform:uppercase; margin:10px 0 5px 0; border-bottom:1px solid #334155; padding-bottom:5px;">Card Abilities</h4>
+        
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('nexus_ANYPHASE')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Any Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body">
+                <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:6px; margin-bottom:8px; border-left:3px solid #64748b;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                        <strong style="color:white; font-size:13px;">Ancient Pride</strong>
+                        <span class="fac-act-pill pill-active" style="margin:0;">Active</span>
+                    </div>
+                    <span style="color:#cbd5e1; font-size:12px;">The active Unit’s first Weapon used gains <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('instant')">INSTANT</span>.</span>
+                </div>
+                </div>
+                </div>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('nexus_MOVEMENTPHASE')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Movement Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body">
+                <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:6px; margin-bottom:8px; border-left:3px solid #64748b;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                        <strong style="color:white; font-size:13px;">Strategic Recall</strong>
+                        <span class="fac-act-pill pill-active" style="margin:0;">Active</span>
+                    </div>
+                    <span style="color:#cbd5e1; font-size:12px;">The active, <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('unengaged')">Unengaged</span> Ground Unit is placed in <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('reserves')">Reserves</span> instead of performing an action.</span>
+                </div>
+                </div>
+                </div>
+    </div>
+                </div>
+                <div class="fac-item-wrapper">
+                    <button class="fac-item-btn" onclick="window.toggleItem('observer')">
+                        <div>
+                            <span style="color:white; font-size:14px;">Observer</span> <span style="background:#eab308; color:black; padding:1px 4px; border-radius:3px; font-size:9px; margin-left:8px;">UNIQUE</span>
+                            <div style="font-size:10px; color:#64748b; margin-top:2px; font-weight:normal;">25 Gas</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-item-body">
+        <div class="fac-unit-top">
+            <div class="fac-unit-art-col">
+                <div class="fac-unit-art">
+                    ART PLACEHOLDER
+                    
+                </div>
+            </div>
+            <div class="fac-unit-stats-col">
+                <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:15px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(234, 179, 8, 0.05); border:1px solid rgba(234, 179, 8, 0.3); border-left:4px solid #eab308; padding:10px 15px; border-radius:6px; max-width:240px;">
+            <span style="font-size:11px; color:#eab308; font-weight:bold; letter-spacing:0.5px;">RESOURCE</span>
+            <span style="font-size:16px; font-weight:900; color:#eab308;">+1 EN</span>
+        </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; background:#020617; border:1px solid #334155; border-left:4px solid #22c55e; padding:10px 15px; border-radius:6px; max-width:240px;">
+                <span style="font-size:11px; color:#94a3b8; font-weight:bold; letter-spacing:0.5px;">SUPPORT SLOT</span>
+                <span style="font-size:16px; font-weight:900; color:white;">1</span>
+            </div></div>
+            </div>
+        </div>
+        <h4 style="color:#94a3b8; font-size:11px; text-transform:uppercase; margin:10px 0 5px 0; border-bottom:1px solid #334155; padding-bottom:5px;">Card Abilities</h4>
+        
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('observer_MOVEMENTPHASE')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Movement Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body">
+                <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:6px; margin-bottom:8px; border-left:3px solid #64748b;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                        <strong style="color:white; font-size:13px;">Surveillance</strong>
+                        <span class="fac-act-pill pill-active" style="margin:0;">Active</span>
+                    </div>
+                    <span style="color:#cbd5e1; font-size:12px;"><span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('place')">Place</span> a Faction Indicator anywhere on the battlefield. While <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('enemy')">Enemy</span> <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('units')">Units</span> are <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('within')">Within</span> 6" of this Faction Indicator, they lose <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('hidden')">HIDDEN</span>.</span>
+                </div>
+                </div>
+                </div>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('observer_ASSAULTPHASE')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Assault Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body">
+                <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:6px; margin-bottom:8px; border-left:3px solid #64748b;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                        <strong style="color:white; font-size:13px;">Gravitic Boosters</strong>
+                        <span class="fac-act-pill pill-reaction" style="margin:0;">Reaction</span>
+                    </div>
+                    <span style="color:#cbd5e1; font-size:12px;">Use after a <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('friendly')">Friendly</span> Unit rolls a D6 for <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('charge')">Charge</span> Distance. Add 1 to the <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('charge')">Charge</span> Distance for this Unit.</span>
+                </div>
+                </div>
+                </div>
+    </div>
+                </div>
+                <div class="fac-item-wrapper">
+                    <button class="fac-item-btn" onclick="window.toggleItem('overcharged_nexus')">
+                        <div>
+                            <span style="color:white; font-size:14px;">Overcharged Nexus</span> <span style="background:#eab308; color:black; padding:1px 4px; border-radius:3px; font-size:9px; margin-left:8px;">UNIQUE</span>
+                            <div style="font-size:10px; color:#64748b; margin-top:2px; font-weight:normal;">35 Gas</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-item-body">
+        <div class="fac-unit-top">
+            <div class="fac-unit-art-col">
+                <div class="fac-unit-art">
+                    ART PLACEHOLDER
+                    
+                </div>
+            </div>
+            <div class="fac-unit-stats-col">
+                <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:15px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(234, 179, 8, 0.05); border:1px solid rgba(234, 179, 8, 0.3); border-left:4px solid #eab308; padding:10px 15px; border-radius:6px; max-width:240px;">
+            <span style="font-size:11px; color:#eab308; font-weight:bold; letter-spacing:0.5px;">RESOURCE</span>
+            <span style="font-size:16px; font-weight:900; color:#eab308;">+1 EN</span>
+        </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; background:#020617; border:1px solid #334155; border-left:4px solid #ef4444; padding:10px 15px; border-radius:6px; max-width:240px;">
+                <span style="font-size:11px; color:#94a3b8; font-weight:bold; letter-spacing:0.5px;">ELITE SLOT</span>
+                <span style="font-size:16px; font-weight:900; color:white;">1</span>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; background:#020617; border:1px solid #334155; border-left:4px solid #38bdf8; padding:10px 15px; border-radius:6px; max-width:240px;">
+                <span style="font-size:11px; color:#94a3b8; font-weight:bold; letter-spacing:0.5px;">CORE SLOT</span>
+                <span style="font-size:16px; font-weight:900; color:white;">1</span>
+            </div></div>
+            </div>
+        </div>
+        <h4 style="color:#94a3b8; font-size:11px; text-transform:uppercase; margin:10px 0 5px 0; border-bottom:1px solid #334155; padding-bottom:5px;">Card Abilities</h4>
+        
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('overcharged_nexus_ANYPHASE')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Any Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body">
+                <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:6px; margin-bottom:8px; border-left:3px solid #64748b;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                        <strong style="color:white; font-size:13px;">Photon Overcharge</strong>
+                        <span class="fac-act-pill pill-reaction" style="margin:0;">Reaction</span>
+                    </div>
+                    <span style="color:#cbd5e1; font-size:12px;">Use when an <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('enemy')">Enemy</span> Unit enters the battlefield from <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('reserves')">Reserves</span> via a location other than its own <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('entry edge')">Entry Edge</span>. That Unit immediately suffers <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('hits')">HITS</span> 3 (1).</span>
+                </div>
+                </div>
+                </div>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('overcharged_nexus_MOVEMENTPHASE')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Movement Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body">
+                <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:6px; margin-bottom:8px; border-left:3px solid #64748b;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                        <strong style="color:white; font-size:13px;">Strategic Recall</strong>
+                        <span class="fac-act-pill pill-active" style="margin:0;">Active</span>
+                    </div>
+                    <span style="color:#cbd5e1; font-size:12px;">The active, <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('unengaged')">Unengaged</span> Ground Unit is placed in <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('reserves')">Reserves</span> instead of performing an action.</span>
+                </div>
+                </div>
+                </div>
+    </div>
+                </div>
+                <div class="fac-item-wrapper">
+                    <button class="fac-item-btn" onclick="window.toggleItem('power_field')">
+                        <div>
+                            <span style="color:white; font-size:14px;">Power Field</span> <span style="background:#eab308; color:black; padding:1px 4px; border-radius:3px; font-size:9px; margin-left:8px;">UNIQUE</span>
+                            <div style="font-size:10px; color:#64748b; margin-top:2px; font-weight:normal;">40 Gas</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-item-body">
+        <div class="fac-unit-top">
+            <div class="fac-unit-art-col">
+                <div class="fac-unit-art">
+                    ART PLACEHOLDER
+                    
+                </div>
+            </div>
+            <div class="fac-unit-stats-col">
+                <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:15px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(234, 179, 8, 0.05); border:1px solid rgba(234, 179, 8, 0.3); border-left:4px solid #eab308; padding:10px 15px; border-radius:6px; max-width:240px;">
+            <span style="font-size:11px; color:#eab308; font-weight:bold; letter-spacing:0.5px;">RESOURCE</span>
+            <span style="font-size:16px; font-weight:900; color:#eab308;">+1 EN</span>
+        </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; background:#020617; border:1px solid #334155; border-left:4px solid #a855f7; padding:10px 15px; border-radius:6px; max-width:240px;">
+                <span style="font-size:11px; color:#94a3b8; font-weight:bold; letter-spacing:0.5px;">HERO SLOT</span>
+                <span style="font-size:16px; font-weight:900; color:white;">1</span>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; background:#020617; border:1px solid #334155; border-left:4px solid #ef4444; padding:10px 15px; border-radius:6px; max-width:240px;">
+                <span style="font-size:11px; color:#94a3b8; font-weight:bold; letter-spacing:0.5px;">ELITE SLOT</span>
+                <span style="font-size:16px; font-weight:900; color:white;">1</span>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; background:#020617; border:1px solid #334155; border-left:4px solid #38bdf8; padding:10px 15px; border-radius:6px; max-width:240px;">
+                <span style="font-size:11px; color:#94a3b8; font-weight:bold; letter-spacing:0.5px;">CORE SLOT</span>
+                <span style="font-size:16px; font-weight:900; color:white;">1</span>
+            </div></div>
+            </div>
+        </div>
+        <h4 style="color:#94a3b8; font-size:11px; text-transform:uppercase; margin:10px 0 5px 0; border-bottom:1px solid #334155; padding-bottom:5px;">Card Abilities</h4>
+        
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('power_field_ANYPHASE')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Any Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body">
+                <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:6px; margin-bottom:8px; border-left:3px solid #64748b;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                        <strong style="color:white; font-size:13px;">Guardian Shell</strong>
+                        <span class="fac-act-pill pill-reaction" style="margin:0;">Reaction</span>
+                    </div>
+                    <span style="color:#cbd5e1; font-size:12px;">Use before a <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('friendly')">Friendly</span> Ground Unit makes an Armour Roll. That Unit gains <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('dodge')">DODGE</span> (2) for this roll.</span>
+                </div>
+                </div>
+                </div>
+    </div>
+                </div>
+                <div class="fac-item-wrapper">
+                    <button class="fac-item-btn" onclick="window.toggleItem('twilight_council')">
+                        <div>
+                            <span style="color:white; font-size:14px;">Twilight Council</span> <span style="background:#eab308; color:black; padding:1px 4px; border-radius:3px; font-size:9px; margin-left:8px;">UNIQUE</span>
+                            <div style="font-size:10px; color:#64748b; margin-top:2px; font-weight:normal;">40 Gas</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-item-body">
+        <div class="fac-unit-top">
+            <div class="fac-unit-art-col">
+                <div class="fac-unit-art">
+                    ART PLACEHOLDER
+                    
+                </div>
+            </div>
+            <div class="fac-unit-stats-col">
+                <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:15px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(234, 179, 8, 0.05); border:1px solid rgba(234, 179, 8, 0.3); border-left:4px solid #eab308; padding:10px 15px; border-radius:6px; max-width:240px;">
+            <span style="font-size:11px; color:#eab308; font-weight:bold; letter-spacing:0.5px;">RESOURCE</span>
+            <span style="font-size:16px; font-weight:900; color:#eab308;">+1 EN</span>
+        </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; background:#020617; border:1px solid #334155; border-left:4px solid #ef4444; padding:10px 15px; border-radius:6px; max-width:240px;">
+                <span style="font-size:11px; color:#94a3b8; font-weight:bold; letter-spacing:0.5px;">ELITE SLOT</span>
+                <span style="font-size:16px; font-weight:900; color:white;">1</span>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; background:#020617; border:1px solid #334155; border-left:4px solid #22c55e; padding:10px 15px; border-radius:6px; max-width:240px;">
+                <span style="font-size:11px; color:#94a3b8; font-weight:bold; letter-spacing:0.5px;">SUPPORT SLOT</span>
+                <span style="font-size:16px; font-weight:900; color:white;">1</span>
+            </div></div>
+            </div>
+        </div>
+        <h4 style="color:#94a3b8; font-size:11px; text-transform:uppercase; margin:10px 0 5px 0; border-bottom:1px solid #334155; padding-bottom:5px;">Card Abilities</h4>
+        
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('twilight_council_ANYPHASE')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Any Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body">
+                <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:6px; margin-bottom:8px; border-left:3px solid #64748b;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                        <strong style="color:white; font-size:13px;">Veil of Shadows</strong>
+                        <span class="fac-act-pill pill-reaction" style="margin:0;">Reaction</span>
+                    </div>
+                    <span style="color:#cbd5e1; font-size:12px;">Use after a <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('friendly')">Friendly</span> Unit resolves a <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('place')">PLACE</span> effect. That Unit immediately resolves the <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('heal')">HEAL</span> (2) effect.</span>
+                </div>
+                </div>
+                </div>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('twilight_council_ASSAULTPHASE')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Assault Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body">
+                <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:6px; margin-bottom:8px; border-left:3px solid #64748b;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                        <strong style="color:white; font-size:13px;">Weapons of the Firstborn</strong>
+                        <span class="fac-act-pill pill-active" style="margin:0;">Active</span>
+                    </div>
+                    <span style="color:#cbd5e1; font-size:12px;">The active Ground Unit’s first Ranged Weapon used gains <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('buff')">BUFF</span> Range (4).</span>
+                </div>
+                </div>
+                </div>
+    </div>
+                </div>
+                <div class="fac-item-wrapper">
+                    <button class="fac-item-btn" onclick="window.toggleItem('warp_gate')">
+                        <div>
+                            <span style="color:white; font-size:14px;">Warp Gate</span> <span style="background:#eab308; color:black; padding:1px 4px; border-radius:3px; font-size:9px; margin-left:8px;">UNIQUE</span>
+                            <div style="font-size:10px; color:#64748b; margin-top:2px; font-weight:normal;">40 Gas</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-item-body">
+        <div class="fac-unit-top">
+            <div class="fac-unit-art-col">
+                <div class="fac-unit-art">
+                    ART PLACEHOLDER
+                    
+                </div>
+            </div>
+            <div class="fac-unit-stats-col">
+                <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:15px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(234, 179, 8, 0.05); border:1px solid rgba(234, 179, 8, 0.3); border-left:4px solid #eab308; padding:10px 15px; border-radius:6px; max-width:240px;">
+            <span style="font-size:11px; color:#eab308; font-weight:bold; letter-spacing:0.5px;">RESOURCE</span>
+            <span style="font-size:16px; font-weight:900; color:#eab308;">+1 EN</span>
+        </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; background:#020617; border:1px solid #334155; border-left:4px solid #38bdf8; padding:10px 15px; border-radius:6px; max-width:240px;">
+                <span style="font-size:11px; color:#94a3b8; font-weight:bold; letter-spacing:0.5px;">CORE SLOT</span>
+                <span style="font-size:16px; font-weight:900; color:white;">2</span>
+            </div></div>
+            </div>
+        </div>
+        <h4 style="color:#94a3b8; font-size:11px; text-transform:uppercase; margin:10px 0 5px 0; border-bottom:1px solid #334155; padding-bottom:5px;">Card Abilities</h4>
+        
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('warp_gate_MOVEMENTPHASE')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Movement Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body">
+                <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:6px; margin-bottom:8px; border-left:3px solid #64748b;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                        <strong style="color:white; font-size:13px;">Warp In</strong>
+                        <span class="fac-act-pill pill-active" style="margin:0;">Active</span>
+                    </div>
+                    <span style="color:#cbd5e1; font-size:12px;">The active Ground Unit Deploys from any table edge that is not a player’s <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('entry edge')">Entry Edge</span>. This <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('deployment')">deployment</span> must end more than 10" away from any <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('enemy')">Enemy</span> model. The <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('controlling player')">controlling player</span> cannot use this ability if another <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('friendly')">Friendly</span> Ground Unit has already Deployed this Round.</span>
+                </div>
+                </div>
+                </div>
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('warp_gate_COMBATPHASE')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Combat Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body">
+                <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:6px; margin-bottom:8px; border-left:3px solid #64748b;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                        <strong style="color:white; font-size:13px;">Quick Strikes</strong>
+                        <span class="fac-act-pill pill-active" style="margin:0;">Active</span>
+                    </div>
+                    <span style="color:#cbd5e1; font-size:12px;">The active Unit’s first Close Combat Weapon used gains <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('precision')">PRECISION</span> (2).</span>
+                </div>
+                </div>
+                </div>
+    </div>
+                </div>
+                <div class="fac-item-wrapper">
+                    <button class="fac-item-btn" onclick="window.toggleItem('warp_prism')">
+                        <div>
+                            <span style="color:white; font-size:14px;">Warp Prism</span> <span style="background:#eab308; color:black; padding:1px 4px; border-radius:3px; font-size:9px; margin-left:8px;">UNIQUE</span>
+                            <div style="font-size:10px; color:#64748b; margin-top:2px; font-weight:normal;">45 Gas</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-item-body">
+        <div class="fac-unit-top">
+            <div class="fac-unit-art-col">
+                <div class="fac-unit-art">
+                    ART PLACEHOLDER
+                    
+                </div>
+            </div>
+            <div class="fac-unit-stats-col">
+                <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:15px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(234, 179, 8, 0.05); border:1px solid rgba(234, 179, 8, 0.3); border-left:4px solid #eab308; padding:10px 15px; border-radius:6px; max-width:240px;">
+            <span style="font-size:11px; color:#eab308; font-weight:bold; letter-spacing:0.5px;">RESOURCE</span>
+            <span style="font-size:16px; font-weight:900; color:#eab308;">+1 EN</span>
+        </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; background:#020617; border:1px solid #334155; border-left:4px solid #38bdf8; padding:10px 15px; border-radius:6px; max-width:240px;">
+                <span style="font-size:11px; color:#94a3b8; font-weight:bold; letter-spacing:0.5px;">CORE SLOT</span>
+                <span style="font-size:16px; font-weight:900; color:white;">2</span>
+            </div></div>
+            </div>
+        </div>
+        <h4 style="color:#94a3b8; font-size:11px; text-transform:uppercase; margin:10px 0 5px 0; border-bottom:1px solid #334155; padding-bottom:5px;">Card Abilities</h4>
+        
+                <div class="fac-phase-wrapper">
+                    <button class="fac-phase-btn" onclick="window.togglePhase('warp_prism_MOVEMENTPHASE')">
+                        <span><i class="fa-solid fa-circle-notch" style="margin-right:8px; color:var(--accent2);"></i> Movement Phase</span>
+                        <i class="fa-solid fa-chevron-down fac-chevron open"></i>
+                    </button>
+                    <div class="fac-phase-body">
+                <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:6px; margin-bottom:8px; border-left:3px solid #64748b;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                        <strong style="color:white; font-size:13px;">Phase</strong>
+                        <span class="fac-act-pill pill-active" style="margin:0;">Active</span>
+                    </div>
+                    <span style="color:#cbd5e1; font-size:12px;">The active Unit resolves the <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('place')">PLACE</span> (3) effect.</span>
+                </div>
+                
+                <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:6px; margin-bottom:8px; border-left:3px solid #64748b;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px;">
+                        <strong style="color:white; font-size:13px;">Warp Conduit</strong>
+                        <span class="fac-act-pill pill-active" style="margin:0;">Active</span>
+                    </div>
+                    <span style="color:#cbd5e1; font-size:12px;"><span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('place')">Place</span> a Faction Indicator anywhere on the battlefield more than 10" away from any <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('enemy')">Enemy</span> model. At the End of the Round, the <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('controlling player')">controlling player</span> may <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('deploy')">Deploy</span> one Ground Unit from <span class="kw-link" onclick="event.stopPropagation(); window.openKeywordModal('reserves')">Reserves</span> in base-to-base contact with this Faction Indicator.</span>
+                </div>
+                </div>
+                </div>
+    </div>
+                </div></div>
+        </div>
+    </div>

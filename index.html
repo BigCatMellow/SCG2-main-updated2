@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StarCraft TMG Engine</title>
+  <link rel="stylesheet" href="./css/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <main class="main-layout">
+
+      <!-- LEFT SIDEBAR: scrollable info panels -->
+      <aside class="sidebar left-sidebar">
+        <section class="card">
+          <div class="card-heading"><h2>Mission</h2></div>
+          <div class="kv-grid" id="battleState"></div>
+          <div class="progress-grid">
+            <div class="progress-block">
+              <div class="progress-header"><span>Your Supply</span><span id="playerSupplyText">0/4</span></div>
+              <div class="meter"><div id="playerSupplyFill" class="meter-fill terran"></div></div>
+            </div>
+            <div class="progress-block">
+              <div class="progress-header"><span>Enemy Supply</span><span id="enemySupplyText">0/4</span></div>
+              <div class="meter"><div id="enemySupplyFill" class="meter-fill zerg"></div></div>
+            </div>
+          </div>
+          <details class="foldout" open><summary>Objectives</summary><div id="objectiveControl" class="obj-list"></div></details>
+          <details class="foldout"><summary>Round Summary</summary><div id="roundSummary" class="obj-list"></div></details>
+        </section>
+
+        <section class="card">
+          <div class="card-heading"><h2>Your Forces</h2></div>
+          <details class="foldout" open><summary>Phase Progress</summary><div id="phaseChecklist" class="phase-checklist"></div></details>
+          <details class="foldout" open><summary>Reserves</summary><div id="playerReserves" class="unit-list"></div></details>
+          <details class="foldout" open><summary>Battlefield</summary><div id="playerBattlefield" class="unit-list"></div></details>
+        </section>
+      </aside>
+
+      <!-- CENTER: Board + floating action bar -->
+      <section class="center-col">
+        <!-- Status bar -->
+        <div class="status-bar">
+          <div id="turnBanner" class="turn-banner playerA">Blue — Movement Phase</div>
+          <div id="modeBanner" class="mode-banner">Select a unit.</div>
+        </div>
+
+        <!-- Board -->
+        <div class="board-wrap">
+          <svg id="battlefield" viewBox="0 0 36 36" preserveAspectRatio="xMidYMid meet"></svg>
+          <div id="battlefieldHint" class="battlefield-hint" aria-live="polite"></div>
+
+          <!-- Floating action bar pinned to bottom of board -->
+          <div id="actionBar" class="action-bar">
+            <div id="selectedUnitBrief" class="unit-brief"></div>
+            <button id="actionBarToggleBtn" class="btn secondary btn-sm" type="button">Compact</button>
+            <div id="actionButtons" class="action-btn-row"></div>
+            <button id="passBtn" class="btn primary">Pass Phase</button>
+          </div>
+        </div>
+
+        <!-- Compact selected unit detail (collapsible, below board) -->
+        <details class="card unit-detail-card" id="unitDetailSection">
+          <summary class="unit-detail-toggle">Unit Details</summary>
+          <div id="selectedUnitPanel" class="empty-state">No unit selected.</div>
+        </details>
+      </section>
+
+      <!-- RIGHT SIDEBAR -->
+      <aside class="sidebar right-sidebar">
+        <section class="card">
+          <div class="card-heading"><h2>Intel</h2></div>
+          <details class="foldout" open><summary>Tactical Cards</summary><div id="tacticalCards" class="card-stack"></div></details>
+          <details class="foldout" open><summary>Combat Queue</summary><div id="combatQueuePanel" class="obj-list"></div></details>
+          <details class="foldout"><summary>Enemy Reserves</summary><div id="enemyReserves" class="unit-list compact"></div></details>
+          <details class="foldout" open><summary>Enemy Battlefield</summary><div id="enemyBattlefield" class="unit-list compact"></div></details>
+          <details class="foldout" open><summary>Log</summary><div id="logPanel" class="log-panel"></div></details>
+        </section>
+
+        <!-- Toolbar tucked at bottom of right sidebar -->
+        <div class="toolbar-row">
+          <button id="gridModeBtn" class="btn secondary btn-sm">Grid: On</button>
+          <button id="armyBuilderBtn" class="btn secondary btn-sm">Army Builder</button>
+          <button id="exportBtn" class="btn secondary btn-sm">Export</button>
+          <button id="importBtn" class="btn secondary btn-sm">Load</button>
+          <input id="importFileInput" type="file" accept="application/json" hidden />
+          <input id="armyImportFileInput" type="file" accept="application/json" hidden />
+          <button id="newGameBtn" class="btn secondary btn-sm">Setup Battle</button>
+        </div>
+      </aside>
+
+    </main>
+  </div>
+  <div id="storyModalRoot"></div>
+  <div id="combatChoiceRoot"></div>
+  <div id="setupModalRoot"></div>
+  <div id="toastStack" class="toast-stack" aria-live="polite"></div>
+  <script type="module" src="./ui/main.js"></script>
+</body>
+</html>

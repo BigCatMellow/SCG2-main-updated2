@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#1a1a1a">
+  <title>StarCraft: TMG</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #1a1a1a;
+      --panel: #242424;
+      --panel-2: #2a2a2a;
+      --panel-3: #303030;
+      --text: #f0eee8;
+      --muted: #a8a299;
+      --border: #3a3a3a;
+      --accent: #eab308;
+      --zerg: #9333ea;
+      --terran: #1d4ed8;
+      --protoss: #eab308;
+      --setup: #06b6d4;
+      --rules: #ec4899;
+      --success: #22c55e;
+      --warning: #fbbf24;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --shadow: 0 10px 24px rgba(0,0,0,0.28);
+    }
+    html, body { background: var(--bg); color: var(--text); }
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      min-height: 100vh;
+      min-height: 100dvh;
+      line-height: 1.45;
+      -webkit-tap-highlight-color: transparent;
+      padding-bottom: calc(72px + env(safe-area-inset-bottom));
+    }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; }
+
+    .app {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 12px;
+    }
+
+    .header {
+      text-align: center;
+      padding: 16px 6px 14px;
+      margin-bottom: 10px;
+      border-bottom: 2px solid var(--accent);
+    }
+    .eyebrow {
+      color: var(--muted);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .title {
+      font-size: 1.45rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      line-height: 1.1;
+    }
+    .title span { color: var(--accent); }
+    .subtitle {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .sticky-header {
+      position: sticky;
+      top: 0;
+      z-index: 150;
+      background: rgba(26,26,26,0.96);
+      backdrop-filter: blur(10px);
+      margin: 0 -12px 14px;
+      padding: 10px 12px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .battle-size-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .battle-size-label {
+      font-size: 0.68rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 700;
+    }
+    .battle-size-options {
+      display: flex;
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 3px;
+      gap: 2px;
+      border: 1px solid var(--border);
+    }
+    .battle-size-option {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .battle-size-option.active {
+      background: var(--accent);
+      color: #111;
+    }
+
+    .resource-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .resource-stat {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 9px 8px;
+      text-align: center;
+    }
+    .resource-label {
+      color: var(--muted);
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .resource-value {
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+    .resource-value.minerals { color: var(--warning); }
+    .resource-value.gas { color: var(--setup); }
+    .resource-value.board { color: var(--success); }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .section { margin-bottom: 16px; }
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 4px;
+      margin-bottom: 8px;
+    }
+    .section-title {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      font-weight: 800;
+    }
+    .section-note {
+      font-size: 0.68rem;
+      color: var(--muted);
+    }
+
+    .hero-card,
+    .launcher-card,
+    .quick-card,
+    .ref-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-card {
+      padding: 16px;
+      margin-bottom: 16px;
+      overflow: hidden;
+      position: relative;
+      background:
+        radial-gradient(circle at top right, rgba(234,179,8,0.16), transparent 35%),
+        var(--panel);
+    }
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--accent);
+    }
+    .hero-kicker {
+      color: var(--accent);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .hero-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 6px;
+      padding-right: 10px;
+    }
+    .hero-desc {
+      color: var(--muted);
+      font-size: 0.86rem;
+      margin-bottom: 12px;
+    }
+    .hero-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .hero-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 44px;
+      border-radius: 12px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+    .hero-btn.primary {
+      background: rgba(234,179,8,0.18);
+      border-color: rgba(234,179,8,0.35);
+    }
+
+    .stack { display: grid; gap: 12px; }
+
+    .launcher-card {
+      display: block;
+      position: relative;
+      overflow: hidden;
+      padding: 16px;
+      min-height: 110px;
+    }
+    .launcher-card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--card-color);
+    }
+    .launcher-card:active { transform: translateY(1px); }
+    .card-top {
+      display: grid;
+      grid-template-columns: 52px minmax(0,1fr) 22px;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .card-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--panel-2), var(--panel-3));
+      border: 1px solid var(--border);
+      font-size: 1.5rem;
+    }
+    .card-name {
+      font-size: 1.04rem;
+      font-weight: 800;
+      margin-bottom: 2px;
+    }
+    .card-tagline {
+      font-size: 0.73rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--card-color);
+      font-weight: 800;
+    }
+    .card-arrow {
+      color: var(--muted);
+      font-size: 1.35rem;
+      text-align: right;
+    }
+    .card-desc {
+      color: var(--muted);
+      font-size: 0.83rem;
+      line-height: 1.42;
+      padding-left: 64px;
+    }
+    .card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding-left: 64px;
+      margin-top: 10px;
+    }
+    .mini-pill {
+      font-size: 0.63rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .quick-grid,
+    .ref-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .quick-card,
+    .ref-card {
+      padding: 12px;
+    }
+    .quick-label,
+    .ref-label {
+      font-size: 0.64rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .quick-value,
+    .ref-value {
+      font-size: 0.96rem;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+    .quick-sub,
+    .ref-sub {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.74rem;
+    }
+
+    .link-list {
+      display: grid;
+      gap: 10px;
+    }
+    .mini-link {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text);
+      font-weight: 700;
+    }
+    .mini-link span:last-child { color: var(--muted); }
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.74rem;
+      padding: 14px 8px 4px;
+      line-height: 1.55;
+    }
+
+    .tab-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: calc(58px + env(safe-area-inset-bottom));
+      padding-bottom: env(safe-area-inset-bottom);
+      background: var(--panel);
+      border-top: 1px solid var(--border);
+      display: flex;
+      z-index: 220;
+    }
+    .tab-btn {
+      flex: 1;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+    }
+    .tab-btn .icon { font-size: 1.08rem; }
+    .tab-btn.active {
+      color: var(--accent);
+      background: rgba(234,179,8,0.08);
+    }
+
+
+
+    .header {
+      position: relative;
+      padding-left: 52px;
+    }
+    .menu-btn {
+      position: absolute;
+      left: 0;
+      top: 12px;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+    }
+    .menu-btn:active { transform: translateY(1px); }
+    .hamburger {
+      width: 16px;
+      height: 12px;
+      position: relative;
+      display: block;
+    }
+    .hamburger::before,
+    .hamburger::after,
+    .hamburger span {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      border-radius: 999px;
+      background: currentColor;
+    }
+    .hamburger::before { top: 0; }
+    .hamburger span { top: 5px; }
+    .hamburger::after { bottom: 0; }
+
+    .menu-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease;
+      z-index: 280;
+    }
+    .menu-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .menu-sheet {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: min(84vw, 320px);
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      transform: translateX(-100%);
+      transition: transform 0.2s ease;
+      z-index: 290;
+      display: flex;
+      flex-direction: column;
+      padding: max(16px, env(safe-area-inset-top)) 14px 14px;
+    }
+    .menu-sheet.open { transform: translateX(0); }
+    .menu-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 2px 2px 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 12px;
+    }
+    .menu-title-wrap {
+      min-width: 0;
+    }
+    .menu-kicker {
+      color: var(--muted);
+      font-size: 0.66rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+      margin-bottom: 3px;
+    }
+    .menu-title {
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .menu-close {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+    .menu-links {
+      display: grid;
+      gap: 8px;
+    }
+    .menu-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 12px;
+      border-radius: 12px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      font-weight: 700;
+    }
+    .menu-link.active {
+      border-color: rgba(234,179,8,0.45);
+      background: rgba(234,179,8,0.12);
+      color: var(--accent);
+    }
+    .menu-link-main {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .menu-link-icon {
+      width: 28px;
+      text-align: center;
+      font-size: 1rem;
+      flex: 0 0 auto;
+    }
+    .menu-link-arrow {
+      color: var(--muted);
+      flex: 0 0 auto;
+    }
+
+    @media (max-width: 360px) {
+      .hero-actions,
+      .quick-grid,
+      .ref-grid { grid-template-columns: 1fr; }
+      .card-top { grid-template-columns: 48px minmax(0,1fr) 18px; gap: 10px; }
+      .card-desc, .card-meta { padding-left: 58px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <button class="menu-btn" id="menuBtn" aria-label="Open navigation menu" aria-expanded="false" aria-controls="appMenu">
+        <span class="hamburger"><span></span></span>
+      </button>
+      <div class="eyebrow">Mobile Companion</div>
+      <div class="title">StarCraft <span>TMG</span></div>
+      <div class="subtitle">Army building, setup, and quick rules support in one mobile-first launcher</div>
+    </header>
+
+    <div class="sticky-header">
+      <div class="battle-size-row">
+        <div class="battle-size-label">Battle Size</div>
+        <div class="battle-size-options" role="tablist" aria-label="Battle size selector">
+          <button class="battle-size-option active" data-size="standard">Standard</button>
+          <button class="battle-size-option" data-size="skirmish">Skirmish</button>
+        </div>
+      </div>
+      <div class="resource-stats">
+        <div class="resource-stat">
+          <div class="resource-label">Minerals</div>
+          <div class="resource-value minerals" id="mineralsValue">2000</div>
+        </div>
+        <div class="resource-stat">
+          <div class="resource-label">Gas Cap</div>
+          <div class="resource-value gas" id="gasValue">200</div>
+        </div>
+        <div class="resource-stat">
+          <div class="resource-label">Board</div>
+          <div class="resource-value board" id="boardValue">54×36</div>
+        </div>
+      </div>
+    </div>
+
+    <main>
+      <section class="tab-content active" id="tab-home">
+        <div class="hero-card">
+          <div class="hero-kicker">Start Here</div>
+          <div class="hero-title">Open the builder you need, then jump straight into battle setup.</div>
+          <div class="hero-desc">This home screen is arranged for phone use first: larger tap targets, less wasted space, and clearer separation between armies, setup, and reference.</div>
+          <div class="hero-actions">
+            <a class="hero-btn primary" href="missions.html">🗺️ Mission Setup</a>
+            <a class="hero-btn" href="rules.html">📘 Rules</a>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">
+            <div class="section-title">Fast Access</div>
+            <div class="section-note">Most used tools</div>
+          </div>
+          <div class="stack">
+            <a href="zerg-refactor-test/zerg.html" class="launcher-card" style="--card-color: var(--zerg)">
+              <div class="card-top">
+                <div class="card-icon">🦂</div>
+                <div>
+                  <div class="card-name">Zerg Army Builder</div>
+                  <div class="card-tagline">The Swarm</div>
+                </div>
+                <div class="card-arrow">›</div>
+              </div>
+              <div class="card-desc">Overwhelming numbers, mutation, and fast pressure. Built for quick roster edits on a phone.</div>
+              <div class="card-meta">
+                <div class="mini-pill">Builder</div>
+                <div class="mini-pill">Cards</div>
+                <div class="mini-pill">Glossary</div>
+              </div>
+            </a>
+
+            <a href="protoss.html" class="launcher-card" style="--card-color: var(--protoss)">
+              <div class="card-top">
+                <div class="card-icon">⚡</div>
+                <div>
+                  <div class="card-name">Protoss Army Builder</div>
+                  <div class="card-tagline">The Firstborn</div>
+                </div>
+                <div class="card-arrow">›</div>
+              </div>
+              <div class="card-desc">Elite warriors, shields, and psionic power with the same builder-style mobile layout.</div>
+              <div class="card-meta">
+                <div class="mini-pill">Builder</div>
+                <div class="mini-pill">Cards</div>
+                <div class="mini-pill">Glossary</div>
+              </div>
+            </a>
+
+            <a href="terran.html" class="launcher-card" style="--card-color: var(--terran)">
+              <div class="card-top">
+                <div class="card-icon">🎖️</div>
+                <div>
+                  <div class="card-name">Terran Army Builder</div>
+                  <div class="card-tagline">Dominion Forces</div>
+                </div>
+                <div class="card-arrow">›</div>
+              </div>
+              <div class="card-desc">Combined arms, support, and ranged firepower in the same builder shell for mobile use.</div>
+              <div class="card-meta">
+                <div class="mini-pill">Builder</div>
+                <div class="mini-pill">Cards</div>
+                <div class="mini-pill">Glossary</div>
+              </div>
+            </a>
+
+            <a href="missions.html" class="launcher-card" style="--card-color: var(--setup)">
+              <div class="card-top">
+                <div class="card-icon">🗺️</div>
+                <div>
+                  <div class="card-name">Missions & Maps</div>
+                  <div class="card-tagline">Battle Setup</div>
+                </div>
+                <div class="card-arrow">›</div>
+              </div>
+              <div class="card-desc">Pick missions, maps, and deployment zones without digging through a dense document layout.</div>
+              <div class="card-meta">
+                <div class="mini-pill">Mission Pool</div>
+                <div class="mini-pill">Deployment</div>
+                <div class="mini-pill">Reference</div>
+              </div>
+            </a>
+
+            <a href="rules.html" class="launcher-card" style="--card-color: var(--rules)">
+              <div class="card-top">
+                <div class="card-icon">📘</div>
+                <div>
+                  <div class="card-name">Rules</div>
+                  <div class="card-tagline">Reference</div>
+                </div>
+                <div class="card-arrow">›</div>
+              </div>
+              <div class="card-desc">Open the mobile rules reference with builder-style navigation and card layout.</div>
+              <div class="card-meta">
+                <div class="mini-pill">Reference</div>
+                <div class="mini-pill">Glossary</div>
+                <div class="mini-pill">Quick Use</div>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">
+            <div class="section-title">At a Glance</div>
+            <div class="section-note">Current size preset</div>
+          </div>
+          <div class="quick-grid">
+            <div class="quick-card">
+              <div class="quick-label">Recommended Flow</div>
+              <div class="quick-value">Builder → Setup → Rules</div>
+              <div class="quick-sub">Keeps list building and table prep separated cleanly on mobile.</div>
+            </div>
+            <div class="quick-card">
+              <div class="quick-label">App Style</div>
+              <div class="quick-value">Large tap targets</div>
+              <div class="quick-sub">Less side-scrolling, clearer card groupings, and bottom-nav access.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-content" id="tab-factions">
+        <div class="section">
+          <div class="section-head">
+            <div class="section-title">Army Builders</div>
+            <div class="section-note">Faction launchers</div>
+          </div>
+          <div class="stack">
+            <a href="zerg-refactor-test/zerg.html" class="launcher-card" style="--card-color: var(--zerg)">
+              <div class="card-top">
+                <div class="card-icon">🦂</div>
+                <div>
+                  <div class="card-name">Zerg</div>
+                  <div class="card-tagline">The Swarm</div>
+                </div>
+                <div class="card-arrow">›</div>
+              </div>
+              <div class="card-desc">Overwhelming numbers and rapid evolution.</div>
+              <div class="card-meta">
+                <div class="mini-pill">Aggressive</div>
+                <div class="mini-pill">Mutation</div>
+                <div class="mini-pill">Creep</div>
+              </div>
+            </a>
+
+            <a href="terran.html" class="launcher-card" style="--card-color: var(--terran)">
+              <div class="card-top">
+                <div class="card-icon">🎖️</div>
+                <div>
+                  <div class="card-name">Terran</div>
+                  <div class="card-tagline">Dominion Forces</div>
+                </div>
+                <div class="card-arrow">›</div>
+              </div>
+              <div class="card-desc">Versatile infantry, support pieces, and heavy firepower.</div>
+              <div class="card-meta">
+                <div class="mini-pill">Combined Arms</div>
+                <div class="mini-pill">Flexible</div>
+                <div class="mini-pill">Ranged</div>
+              </div>
+            </a>
+
+            <a href="protoss.html" class="launcher-card" style="--card-color: var(--protoss)">
+              <div class="card-top">
+                <div class="card-icon">⚡</div>
+                <div>
+                  <div class="card-name">Protoss</div>
+                  <div class="card-tagline">The Firstborn</div>
+                </div>
+                <div class="card-arrow">›</div>
+              </div>
+              <div class="card-desc">Elite warriors, shields, and psionic power.</div>
+              <div class="card-meta">
+                <div class="mini-pill">Elite</div>
+                <div class="mini-pill">Shielding</div>
+                <div class="mini-pill">Psionic</div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-content" id="tab-setup">
+        <div class="section">
+          <div class="section-head">
+            <div class="section-title">Battle Setup</div>
+            <div class="section-note">Pre-game tools</div>
+          </div>
+          <div class="stack">
+            <a href="missions.html" class="launcher-card" style="--card-color: var(--setup)">
+              <div class="card-top">
+                <div class="card-icon">🗺️</div>
+                <div>
+                  <div class="card-name">Missions & Maps</div>
+                  <div class="card-tagline">Deployment & Objectives</div>
+                </div>
+                <div class="card-arrow">›</div>
+              </div>
+              <div class="card-desc">Select the mission, deployment map, and table setup without leaving the app flow.</div>
+              <div class="card-meta">
+                <div class="mini-pill">Objectives</div>
+                <div class="mini-pill">Deployment</div>
+                <div class="mini-pill">Map Pool</div>
+              </div>
+            </a>
+            <a href="rules.html" class="launcher-card" style="--card-color: var(--rules)">
+              <div class="card-top">
+                <div class="card-icon">📘</div>
+                <div>
+                  <div class="card-name">Rules Reference</div>
+                  <div class="card-tagline">Core Play Support</div>
+                </div>
+                <div class="card-arrow">›</div>
+              </div>
+              <div class="card-desc">Open the rules in the same app family instead of jumping into a dense desktop-style document.</div>
+              <div class="card-meta">
+                <div class="mini-pill">Phases</div>
+                <div class="mini-pill">Keywords</div>
+                <div class="mini-pill">Quick Check</div>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">
+            <div class="section-title">Useful Order</div>
+          </div>
+          <div class="link-list">
+            <a href="zerg-refactor-test/zerg.html" class="mini-link"><span>1. Build armies</span><span>›</span></a>
+            <a href="missions.html" class="mini-link"><span>2. Choose mission and deployment</span><span>›</span></a>
+            <a href="rules.html" class="mini-link"><span>3. Check edge cases during play</span><span>›</span></a>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-content" id="tab-reference">
+        <div class="section">
+          <div class="section-head">
+            <div class="section-title">Quick Reference</div>
+            <div class="section-note">Mobile summary</div>
+          </div>
+          <div class="ref-grid">
+            <div class="ref-card">
+              <div class="ref-label">Standard Size</div>
+              <div class="ref-value" id="refMinerals">2000 Minerals</div>
+              <div class="ref-sub">10% gas cap, larger table footprint.</div>
+            </div>
+            <div class="ref-card">
+              <div class="ref-label">Board Size</div>
+              <div class="ref-value" id="refBoard">54" × 36"</div>
+              <div class="ref-sub">Good default for full matches.</div>
+            </div>
+            <div class="ref-card">
+              <div class="ref-label">Skirmish Option</div>
+              <div class="ref-value">1000 Minerals</div>
+              <div class="ref-sub">Smaller lists, faster setup.</div>
+            </div>
+            <div class="ref-card">
+              <div class="ref-label">Skirmish Board</div>
+              <div class="ref-value">36" × 36"</div>
+              <div class="ref-sub">Better for compact play space.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer">
+          StarCraft: The Miniatures Game<br>
+          Fan-made companion app launcher optimized for mobile use
+        </div>
+      </section>
+    </main>
+  </div>
+
+
+
+  <div class="menu-overlay" id="menuOverlay" hidden></div>
+  <aside class="menu-sheet" id="appMenu" aria-hidden="true">
+    <div class="menu-top">
+      <div class="menu-title-wrap">
+        <div class="menu-kicker">Navigation</div>
+        <div class="menu-title">StarCraft TMG</div>
+      </div>
+      <button class="menu-close" id="menuClose" aria-label="Close navigation menu">✕</button>
+    </div>
+    <nav class="menu-links" aria-label="Site navigation">
+      <a class="menu-link active" data-page="index.html" href="index.html"><span class="menu-link-main"><span class="menu-link-icon">⌂</span><span>Home</span></span><span class="menu-link-arrow">›</span></a>
+      <a class="menu-link" data-page="zerg-refactor-test/zerg.html" href="zerg-refactor-test/zerg.html"><span class="menu-link-main"><span class="menu-link-icon">🦂</span><span>Zerg</span></span><span class="menu-link-arrow">›</span></a>
+      <a class="menu-link" data-page="protoss.html" href="protoss.html"><span class="menu-link-main"><span class="menu-link-icon">⚡</span><span>Protoss</span></span><span class="menu-link-arrow">›</span></a>
+      <a class="menu-link" data-page="terran.html" href="terran.html"><span class="menu-link-main"><span class="menu-link-icon">🎖️</span><span>Terran</span></span><span class="menu-link-arrow">›</span></a>
+      <a class="menu-link" data-page="missions.html" href="missions.html"><span class="menu-link-main"><span class="menu-link-icon">🗺️</span><span>Missions</span></span><span class="menu-link-arrow">›</span></a>
+      <a class="menu-link" data-page="rules.html" href="rules.html"><span class="menu-link-main"><span class="menu-link-icon">📘</span><span>Rules</span></span><span class="menu-link-arrow">›</span></a>
+    </nav>
+  </aside>
+
+  <nav class="tab-bar" aria-label="Bottom navigation">
+    <button class="tab-btn active" data-tab="home"><span class="icon">⌂</span><span>Home</span></button>
+    <button class="tab-btn" data-tab="factions"><span class="icon">⚔</span><span>Factions</span></button>
+    <button class="tab-btn" data-tab="setup"><span class="icon">🗺</span><span>Setup</span></button>
+    <button class="tab-btn" data-tab="reference"><span class="icon">📊</span><span>Ref</span></button>
+  </nav>
+
+  <script>
+    const SIZE_DATA = {
+      standard: { minerals: '2000', gas: '200', board: '54×36', refMinerals: '2000 Minerals', refBoard: '54" × 36"' },
+      skirmish: { minerals: '1000', gas: '100', board: '36×36', refMinerals: '1000 Minerals', refBoard: '36" × 36"' }
+    };
+
+    const sizeButtons = Array.from(document.querySelectorAll('.battle-size-option'));
+    const tabButtons = Array.from(document.querySelectorAll('.tab-btn'));
+    const tabs = Array.from(document.querySelectorAll('.tab-content'));
+    const menuBtn = document.getElementById('menuBtn');
+    const menuClose = document.getElementById('menuClose');
+    const menuOverlay = document.getElementById('menuOverlay');
+    const appMenu = document.getElementById('appMenu');
+    const menuLinks = Array.from(document.querySelectorAll('.menu-link'));
+
+    function setSize(size) {
+      const data = SIZE_DATA[size];
+      document.getElementById('mineralsValue').textContent = data.minerals;
+      document.getElementById('gasValue').textContent = data.gas;
+      document.getElementById('boardValue').textContent = data.board;
+      document.getElementById('refMinerals').textContent = data.refMinerals;
+      document.getElementById('refBoard').textContent = data.refBoard;
+      sizeButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.size === size));
+      localStorage.setItem('sctmg_home_battle_size', size);
+    }
+
+    function setTab(tabName) {
+      tabButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tabName));
+      tabs.forEach(tab => tab.classList.toggle('active', tab.id === `tab-${tabName}`));
+      localStorage.setItem('sctmg_home_tab', tabName);
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }
+
+    function openMenu() {
+      menuOverlay.hidden = false;
+      requestAnimationFrame(() => {
+        menuOverlay.classList.add('open');
+        appMenu.classList.add('open');
+      });
+      appMenu.setAttribute('aria-hidden', 'false');
+      menuBtn.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMenu() {
+      menuOverlay.classList.remove('open');
+      appMenu.classList.remove('open');
+      appMenu.setAttribute('aria-hidden', 'true');
+      menuBtn.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+      window.setTimeout(() => {
+        if (!menuOverlay.classList.contains('open')) menuOverlay.hidden = true;
+      }, 200);
+    }
+
+    function syncMenuState() {
+      const current = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+      menuLinks.forEach(link => {
+        const isActive = link.dataset.page.toLowerCase() === current || (!current && link.dataset.page === 'index.html');
+        link.classList.toggle('active', isActive);
+      });
+    }
+
+    sizeButtons.forEach(btn => btn.addEventListener('click', () => setSize(btn.dataset.size)));
+    tabButtons.forEach(btn => btn.addEventListener('click', () => setTab(btn.dataset.tab)));
+    menuBtn.addEventListener('click', openMenu);
+    menuClose.addEventListener('click', closeMenu);
+    menuOverlay.addEventListener('click', closeMenu);
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && appMenu.classList.contains('open')) closeMenu();
+    });
+    menuLinks.forEach(link => link.addEventListener('click', closeMenu));
+
+    syncMenuState();
+    setSize(localStorage.getItem('sctmg_home_battle_size') || 'standard');
+    setTab(localStorage.getItem('sctmg_home_tab') || 'home');
+  </script>
+</body>
+</html>

@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#201711">
+  <title>Missions & Maps - StarCraft TMG</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #1a1a1a;
+      --panel: #242424;
+      --panel-2: #2a2a2a;
+      --panel-3: #303030;
+      --text: #f0eee8;
+      --muted: #a8a299;
+      --border: #3a3a3a;
+      --accent: #f97316;
+      --accent-rgb: 249,115,22;
+      --mission: #fb923c;
+      --map: #22d3ee;
+      --standard: #f59e0b;
+      --skirmish: #14b8a6;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --shadow: 0 10px 24px rgba(0,0,0,0.28);
+    }
+    html, body { background: var(--bg); color: var(--text); }
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh; min-height: 100dvh; line-height: 1.45;
+      -webkit-tap-highlight-color: transparent;
+      padding-bottom: calc(88px + env(safe-area-inset-bottom));
+    }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; }
+    .app { max-width: 480px; margin: 0 auto; padding: 12px; }
+    .header { text-align:center; padding:16px 6px 12px; border-bottom:2px solid var(--accent); margin-bottom: 10px; }
+    .eyebrow { color:var(--muted); font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; font-weight:800; margin-bottom:6px; }
+    .title { font-size:1.4rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; line-height:1.1; }
+    .title span { color:var(--accent); }
+    .subtitle { margin-top:6px; color:var(--muted); font-size:.82rem; }
+    .sticky-top { position: sticky; top:0; z-index:100; background: rgba(26,26,26,.96); backdrop-filter: blur(10px); margin:0 -12px 14px; padding:10px 12px 12px; border-bottom:1px solid var(--border); }
+    .size-switch { display:flex; background:var(--panel); border:1px solid var(--border); border-radius: 10px; padding:3px; gap:3px; margin-bottom:10px; }
+    .size-btn { flex:1; border:none; border-radius:8px; background:transparent; color:var(--muted); padding:10px 8px; font-size:.84rem; font-weight:800; cursor:pointer; }
+    .size-btn.active { background: var(--accent); color:#111; }
+    .summary-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; }
+    .summary-card { background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:9px 8px; text-align:center; }
+    .summary-label { color:var(--muted); font-size:.62rem; text-transform:uppercase; letter-spacing:.05em; font-weight:800; margin-bottom:2px; }
+    .summary-value { font-size:1rem; font-weight:800; }
+    .section { margin-bottom:16px; }
+    .section-head { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:8px 2px; margin-bottom:6px; }
+    .section-title { font-size:.76rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:800; }
+    .section-note { font-size:.68rem; color:var(--muted); }
+    .group-card, .setup-card, .library-card { background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); box-shadow: var(--shadow); overflow:hidden; margin-bottom:12px; }
+    .group-header { display:flex; justify-content:space-between; align-items:center; padding:14px 16px; cursor:pointer; user-select:none; gap:10px; }
+    .group-title { font-size:1.04rem; font-weight:800; }
+    .group-subtitle { font-size:.78rem; color:var(--muted); margin-top:2px; }
+    .group-body { padding: 0 12px 12px; }
+    .chev { color:var(--muted); font-size:18px; transition: transform .18s; flex-shrink:0; }
+    .open > .group-header .chev, .card.open .chev { transform: rotate(90deg); }
+    .actions { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+    .btn { border:1px solid var(--border); background:var(--panel-2); color:var(--text); border-radius:8px; padding:8px 12px; font-size:.78rem; font-weight:700; cursor:pointer; }
+    .btn.accent { color:var(--accent); border-color:var(--accent); }
+    .btn.map { color:var(--map); border-color:var(--map); }
+    .btn.danger { color:#f87171; border-color:#ef4444; }
+    .selected-slot { background:var(--panel-2); border:1px dashed var(--border); border-radius:12px; padding:14px; margin-bottom:12px; }
+    .selected-slot.filled { border-style:solid; border-color:var(--accent); background:rgba(234,179,8,.06); }
+    .slot-top { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px; }
+    .slot-label { font-size:.68rem; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:800; }
+    .slot-empty { color:var(--muted); font-size:.84rem; font-style:italic; }
+    .setup-head { display:flex; align-items:center; gap:10px; padding:14px; cursor:pointer; user-select:none; background:rgba(var(--accent-rgb),.07); }
+    .setup-type { font-size:.66rem; text-transform:uppercase; letter-spacing:.05em; font-weight:800; color:var(--accent); background:rgba(var(--accent-rgb),.15); padding:3px 8px; border-radius:5px; }
+    .setup-name { font-size:1rem; font-weight:800; }
+    .setup-meta { font-size:.76rem; color:var(--muted); margin-top:2px; }
+    .setup-head .spacer { flex:1; }
+    .tiny-btn { border:1px solid var(--border); background:var(--panel-2); color:var(--muted); border-radius:6px; padding:6px 10px; font-size:.75rem; font-weight:700; cursor:pointer; }
+    .tiny-btn.random { color:var(--accent); border-color:var(--accent); }
+    .tiny-btn.remove { color:#f87171; border-color:#ef4444; }
+    .setup-body { padding: 0 14px 14px; }
+    .card { background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:8px; box-shadow: var(--shadow); }
+    .card.mission { border-left:3px solid var(--mission); }
+    .card.map { border-left:3px solid var(--map); }
+    .card-head { display:flex; align-items:center; gap:12px; padding:14px; cursor:pointer; user-select:none; }
+    .card-main { flex:1; min-width:0; }
+    .card-name { font-size:1rem; font-weight:800; }
+    .card-meta { font-size:.75rem; color:var(--muted); margin-top:2px; }
+    .stats { display:flex; gap:8px; flex-shrink:0; }
+    .stat-pill { display:flex; flex-direction:column; align-items:center; justify-content:center; min-width:52px; padding:6px 8px; background:var(--panel-2); border-radius:8px; font-size:.92rem; font-weight:800; }
+    .stat-pill span { font-size:.58rem; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
+    .pick { width:24px; height:24px; border:2px solid var(--border); border-radius:999px; display:grid; place-items:center; flex-shrink:0; background:transparent; }
+    .pick::after { content:'✓'; font-size:12px; font-weight:800; color:transparent; }
+    .card.selected .pick { border-color:var(--accent); background:var(--accent); }
+    .card.selected .pick::after { color:#111; }
+    .card-body { padding:0 14px 14px; }
+    .info-box { background:var(--panel-2); border-radius:10px; padding:10px 12px; margin-bottom:10px; }
+    .info-title { font-size:.68rem; color:var(--accent); text-transform:uppercase; letter-spacing:.05em; font-weight:800; margin-bottom:8px; }
+    .rule { font-size:.84rem; line-height:1.5; margin-bottom:6px; padding-left:12px; position:relative; }
+    .rule:last-child { margin-bottom:0; }
+    .rule::before { content:'•'; position:absolute; left:0; color:var(--muted); }
+    .ability-name { font-size:.88rem; font-weight:700; }
+    .ability-name span { color:var(--muted); font-weight:500; font-size:.8rem; }
+    .ability-desc { font-size:.84rem; margin-top:4px; line-height:1.48; }
+    .special { border:1px solid rgba(var(--accent-rgb),.3); background:rgba(var(--accent-rgb),.1); }
+    .map-svg { width:100%; height:auto; display:block; border-radius:10px; margin-bottom:10px; background:var(--panel-2); }
+    .legend, .marker-box { background:var(--panel-2); border-radius:10px; padding:10px 12px; margin-bottom:10px; }
+    .legend { display:flex; flex-wrap:wrap; gap:12px; }
+    .legend-item { display:flex; align-items:center; gap:6px; font-size:.75rem; color:var(--muted); }
+    .legend-color { width:16px; height:12px; border-radius:3px; }
+    .legend-color.red { background:rgba(239,68,68,.3); border:1px solid var(--red); }
+    .legend-color.blue { background:rgba(59,130,246,.3); border:1px solid var(--blue); }
+    .legend-circle { width:18px; height:18px; border-radius:50%; border:1.5px solid var(--text); display:grid; place-items:center; font-size:.65rem; font-weight:800; }
+    .setup-section { background:var(--panel-2); border-radius:10px; padding:12px; margin-bottom:10px; }
+    .setup-section.red { border-left:3px solid var(--red); }
+    .setup-section.blue { border-left:3px solid var(--blue); }
+    .setup-title { font-size:.84rem; font-weight:700; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
+    .dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .dot.red { background:var(--red); }
+    .dot.blue { background:var(--blue); }
+    .setup-step { font-size:.8rem; line-height:1.5; margin-bottom:7px; padding-left:14px; position:relative; }
+    .setup-step:last-child { margin-bottom:0; }
+    .setup-step::before { content:'•'; position:absolute; left:0; color:var(--muted); }
+    .marker-title { font-size:.68rem; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:800; margin-bottom:8px; }
+    .marker-row { display:flex; align-items:flex-start; gap:10px; margin-bottom:6px; }
+    .marker-row:last-child { margin-bottom:0; }
+    .badge { width:22px; height:22px; border-radius:50%; border:2px solid var(--text); display:grid; place-items:center; font-size:.74rem; font-weight:800; background:var(--panel-3); flex-shrink:0; }
+    .badge.center { background:var(--accent); border-color:var(--accent); color:#111; }
+    .marker-desc { font-size:.8rem; line-height:1.4; padding-top:2px; }
+    .notes { font-size:.8rem; color:var(--muted); font-style:italic; background:rgba(var(--accent-rgb),.08); border-left:2px solid var(--accent); border-radius:10px; padding:10px 12px; }
+    .bottom-nav { position:fixed; left:0; right:0; bottom:0; z-index:140; background:rgba(24,24,24,.98); backdrop-filter:blur(10px); border-top:1px solid var(--border); padding:8px 10px calc(8px + env(safe-area-inset-bottom)); }
+    .nav-grid { max-width:480px; margin:0 auto; display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+    .nav-btn { border:none; background:var(--panel); color:var(--muted); border-radius:12px; min-height:52px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; font-size:.7rem; font-weight:700; cursor:pointer; }
+    .nav-btn.active { color:var(--text); border:1px solid var(--accent); background:rgba(var(--accent-rgb),.08); }
+    .nav-btn .icon { font-size:1rem; line-height:1; }
+    .tab-panel { display:none; }
+    .tab-panel.active { display:block; }
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.8); display:none; align-items:center; justify-content:center; z-index:200; padding:16px; }
+    .modal-overlay.open { display:flex; }
+    .modal { width:100%; max-width:440px; max-height:80vh; background:var(--panel); border:1px solid var(--border); border-radius:16px; display:flex; flex-direction:column; overflow:hidden; }
+    .modal-head { padding:14px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+    .modal-title { font-size:1.04rem; font-weight:800; }
+    .modal-close { width:32px; height:32px; border:none; border-radius:50%; background:var(--panel-2); color:var(--text); font-size:1.2rem; cursor:pointer; }
+    .modal-body { padding:16px; overflow:auto; }
+    .export-area { width:100%; min-height:300px; background:var(--panel-2); border:1px solid var(--border); border-radius:10px; padding:12px; color:var(--text); font: 12px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; resize:none; }
+    .hint { color:var(--muted); font-size:.75rem; text-align:center; margin-top:8px; }
+    /* App Menu */
+    .app-menu-btn { position:fixed; top:calc(env(safe-area-inset-top,0px) + 12px); left:12px; z-index:10000; width:44px; height:44px; border:none; border-radius:12px; background:rgba(36,36,36,.94); color:var(--text); display:flex; align-items:center; justify-content:center; box-shadow:0 8px 24px rgba(0,0,0,.32), inset 0 0 0 1px rgba(255,255,255,.08); backdrop-filter:blur(8px); cursor:pointer; }
+    .app-menu-btn:hover { background:rgba(48,48,48,.98); }
+    .app-menu-btn:active { transform:translateY(1px); }
+    .app-menu-btn .bars, .app-menu-btn .bars::before, .app-menu-btn .bars::after { display:block; width:18px; height:2px; background:currentColor; border-radius:2px; content:""; position:relative; }
+    .app-menu-btn .bars::before { position:absolute; top:-6px; left:0; }
+    .app-menu-btn .bars::after { position:absolute; top:6px; left:0; }
+    .app-menu-overlay { position:fixed; inset:0; background:rgba(0,0,0,.55); backdrop-filter:blur(3px); z-index:9998; opacity:0; pointer-events:none; transition:opacity .18s ease; }
+    .app-menu-overlay.open { opacity:1; pointer-events:auto; }
+    .app-menu-panel { position:fixed; top:0; left:0; bottom:0; width:min(82vw,320px); background:linear-gradient(180deg, #241913 0%, #1d1714 100%); border-right:1px solid rgba(255,255,255,.08); box-shadow:18px 0 38px rgba(0,0,0,.4); z-index:9999; transform:translateX(-105%); transition:transform .2s ease; padding:calc(env(safe-area-inset-top,0px) + 18px) 14px calc(env(safe-area-inset-bottom,0px) + 18px); display:flex; flex-direction:column; }
+    .app-menu-panel.open { transform:translateX(0); }
+    .app-menu-head { padding:0 4px 12px; border-bottom:1px solid rgba(255,255,255,.08); margin-bottom:12px; }
+    .app-menu-eyebrow { color:#c7b8aa; font-size:.68rem; text-transform:uppercase; letter-spacing:.08em; font-weight:800; margin-bottom:4px; }
+    .app-menu-title { color:var(--text); font-size:1.05rem; font-weight:800; }
+    .app-menu-list { display:flex; flex-direction:column; gap:8px; }
+    .app-menu-link { display:flex; align-items:center; gap:10px; padding:12px 12px; border-radius:12px; color:var(--text); border:1px solid transparent; background:rgba(255,255,255,.02); font-weight:700; }
+    .app-menu-link:hover { background:rgba(255,255,255,.05); border-color:rgba(255,255,255,.06); }
+    .app-menu-link.current { border-color:rgba(var(--accent-rgb),.7); background:rgba(var(--accent-rgb),.14); color:#fff; }
+    .app-menu-icon { width:18px; text-align:center; opacity:.9; }
+
+  </style>
+</head>
+<body>
+
+  <button class="app-menu-btn" id="appMenuBtn" aria-label="Open navigation menu" aria-expanded="false" aria-controls="appMenuPanel"><span class="bars"></span></button>
+  <div class="app-menu-overlay" id="appMenuOverlay"></div>
+  <aside class="app-menu-panel" id="appMenuPanel" aria-hidden="true">
+    <div class="app-menu-head">
+      <div class="app-menu-eyebrow">StarCraft TMG</div>
+      <div class="app-menu-title">App Navigation</div>
+    </div>
+    <nav class="app-menu-list">
+      <a class="app-menu-link" href="index.html"><span class="app-menu-icon">⌂</span><span>Home</span></a>
+      <a class="app-menu-link" href="zerg.html"><span class="app-menu-icon">☣</span><span>Zerg</span></a>
+      <a class="app-menu-link" href="protoss.html"><span class="app-menu-icon">✦</span><span>Protoss</span></a>
+      <a class="app-menu-link" href="terran.html"><span class="app-menu-icon">⚙</span><span>Terran</span></a>
+      <a class="app-menu-link current" href="missions.html"><span class="app-menu-icon">🗺</span><span>Missions</span></a>
+      <a class="app-menu-link" href="rules.html"><span class="app-menu-icon">📘</span><span>Rules</span></a>
+    </nav>
+  </aside>
+
+  <div class="app">
+    <header class="header">
+      <div class="eyebrow">StarCraft TMG</div>
+      <div class="title">Missions <span>&</span> Maps</div>
+      <div class="subtitle">Builder-style battle setup for phone play</div>
+    </header>
+
+    <div class="sticky-top">
+      <div class="size-switch">
+        <button class="size-btn active" data-size="standard">Standard</button>
+        <button class="size-btn" data-size="skirmish">Skirmish</button>
+      </div>
+      <div class="summary-grid">
+        <div class="summary-card"><div class="summary-label">Minerals</div><div class="summary-value" id="sum-minerals">2000</div></div>
+        <div class="summary-card"><div class="summary-label">Gas</div><div class="summary-value" id="sum-gas">200</div></div>
+        <div class="summary-card"><div class="summary-label">Board</div><div class="summary-value" id="sum-board">54×36</div></div>
+      </div>
+    </div>
+
+    <section id="panel-setup" class="tab-panel active"></section>
+    <section id="panel-missions" class="tab-panel"></section>
+    <section id="panel-maps" class="tab-panel"></section>
+    <section id="panel-ref" class="tab-panel"></section>
+  </div>
+
+  <nav class="bottom-nav">
+    <div class="nav-grid">
+      <button class="nav-btn active" data-tab="setup"><span class="icon">⚙</span><span>Setup</span></button>
+      <button class="nav-btn" data-tab="missions"><span class="icon">🎯</span><span>Missions</span></button>
+      <button class="nav-btn" data-tab="maps"><span class="icon">🗺</span><span>Maps</span></button>
+      <button class="nav-btn" data-tab="ref"><span class="icon">📘</span><span>Reference</span></button>
+    </div>
+  </nav>
+
+  <div class="modal-overlay" id="exportModal">
+    <div class="modal">
+      <div class="modal-head"><div class="modal-title">Export Battle Setup</div><button class="modal-close" id="closeModal">×</button></div>
+      <div class="modal-body"><textarea class="export-area" id="exportArea" readonly></textarea><div class="hint">Tap inside the text box to select and copy.</div></div>
+    </div>
+  </div>
+
+  <script>
+    const MISSIONS = [
+  // Standard Missions
+  {
+    id: 'supply-drop',
+    name: 'Supply Drop',
+    type: 'Standard',
+    supply: 6,
+    perRound: 2,
+    gameLength: 5,
+    parameters: [
+      'All Mission Markers are Deactivated.',
+      'Start of the Round (1-4): Randomly determine one Deactivated Mission Marker (1-4) and flip it to its Activated side.',
+      'Start of Round 5: Mission Marker 5 is automatically Activated.'
+    ],
+    scoring: [
+      'Score VPs equal to Enemy Supply destroyed this Round.',
+      'From the Start of the first Round: For each activated Controlled Mission Marker, gain VPs equal to the Game Round number in which that Mission Marker was Activated and remove it.'
+    ],
+    special: 'The game ends immediately if a Player leads by 12+ VPs.'
+  },
+  {
+    id: 'supply-drop-skirmish',
+    name: 'Supply Drop (Skirmish)',
+    type: 'Skirmish',
+    supply: 4,
+    perRound: 1,
+    gameLength: 4,
+    parameters: [
+      'All Mission Markers are Deactivated.',
+      'Start of the Round (2-4): Randomly determine one Deactivated Mission Marker (1,2,5) and flip it to its Activated side.'
+    ],
+    scoring: [
+      'Score VPs equal to Enemy Supply destroyed this Round.',
+      'From the Start of the Second Round: For each activated Controlled Mission Marker, gain VPs equal to the Game Round number in which that Mission Marker was Activated and remove it.'
+    ],
+    special: 'The game ends immediately if a Player leads by 8+ VPs.'
+  },
+  {
+    id: 'divide-and-conquer',
+    name: 'Divide and Conquer',
+    type: 'Standard',
+    supply: 8,
+    perRound: 2,
+    gameLength: 4,
+    parameters: [
+      'All Mission Markers are Activated.',
+      'Split the battlefield into four Quarters as shown on the Deployment Card.'
+    ],
+    scoring: [
+      'Score VPs equal to Enemy Supply destroyed this Round.',
+      'From the Start of the First Round: Calculate the Total Current Supply in each battlefield Quarter.',
+      'Gain 1 VP for each Quarter where your Total Current Supply is higher than the Opponent\'s.',
+      'Only Units Wholly Within a Quarter contribute their Supply to this check.',
+      'If a Unit controls a Mission Marker, that Unit is worth 1 extra Supply for controlling Quarters.',
+      'Gain 2 VP for Controlling Mission Marker 5.'
+    ],
+    special: 'The game ends immediately if a Player leads by 10+ VPs.'
+  },
+  {
+    id: 'divide-and-conquer-skirmish',
+    name: 'Divide and Conquer (Skirmish)',
+    type: 'Skirmish',
+    supply: 4,
+    perRound: 1,
+    gameLength: 4,
+    parameters: [
+      'All Mission Markers are Activated.',
+      'Split the battlefield into four Quarters as shown on the Deployment Card.'
+    ],
+    scoring: [
+      'Score VPs equal to Enemy Supply destroyed this Round.',
+      'From the Start of the First Round: Calculate the Total Current Supply in each battlefield Quarter.',
+      'Gain 1 VP for each Quarter where your Total Current Supply is higher than the Opponent\'s.',
+      'Only Units Wholly Within a Quarter contribute their Supply to this check.',
+      'If a Unit controls a Mission Marker, that Unit is worth 1 extra Supply for controlling Quarters.',
+      'Gain 2 VP for Controlling Mission Marker 5.'
+    ],
+    special: 'The game ends immediately if a Player leads by 8+ VPs.'
+  },
+  {
+    id: 'frontlines',
+    name: 'Frontlines',
+    type: 'Standard',
+    supply: 6,
+    perRound: 2,
+    gameLength: 5,
+    parameters: ['All Mission Markers are Activated.'],
+    scoring: [
+      'Score VPs equal to Enemy Supply destroyed this Round.',
+      'From the Start of the Second Round: Gain 1 VP for each Controlled Mission Marker.',
+      'Gain an additional 2 VPs for a Marker if you gained Control of it from the Opponent this Round.'
+    ],
+    special: 'The game ends immediately if a Player leads by 10+ VPs.'
+  },
+  {
+    id: 'frontlines-skirmish',
+    name: 'Frontlines (Skirmish)',
+    type: 'Skirmish',
+    supply: 3,
+    perRound: 1,
+    gameLength: 5,
+    parameters: ['All Mission Markers are Activated.'],
+    scoring: [
+      'Score VPs equal to Enemy Supply destroyed this Round.',
+      'From the Start of the Second Round: Gain 1 VP for each Controlled Mission Marker.',
+      'Gain an additional 2 VPs for a Marker if you gained Control of it from the Opponent this Round.'
+    ],
+    special: 'The game ends immediately if a Player leads by 8+ VPs.'
+  },
+  {
+    id: 'gather-the-resources',
+    name: 'Gather the Resources',
+    type: 'Standard',
+    supply: 6,
+    perRound: 2,
+    gameLength: 5,
+    parameters: ['All Mission Markers are Activated.'],
+    scoring: [
+      'Score VPs equal to Enemy Supply destroyed this Round.',
+      'From the Start of the Second Round: Gain 2 VPs for each Controlled Mission Marker associated with the Opponent colour.'
+    ],
+    special: 'The game ends immediately if a Player leads by 10+ VPs.',
+    additionalRules: [
+      {
+        phase: 'Assault Phase',
+        name: 'Gather Action',
+        description: 'If an Unengaged Unit is Within 3" of a Controlled Neutral Mission Marker or associated with the Opponent, this unit may perform the Gather Action instead of a standard action. Gain 1 VP.'
+      }
+    ]
+  },
+  {
+    id: 'gather-the-resources-skirmish',
+    name: 'Gather the Resources (Skirmish)',
+    type: 'Skirmish',
+    supply: 3,
+    perRound: 1,
+    gameLength: 5,
+    parameters: ['All Mission Markers are Activated.'],
+    scoring: [
+      'Score VPs equal to Enemy Supply destroyed this Round.',
+      'From the Start of the Second Round: Gain 2 VPs for each Controlled Mission Marker associated with the Opponent colour.'
+    ],
+    special: 'The game ends immediately if a Player leads by 10+ VPs.',
+    additionalRules: [
+      {
+        phase: 'Assault Phase',
+        name: 'Gather Action',
+        description: 'If an Unengaged Unit is Within 3" of a Controlled Neutral Mission Marker or associated with the Opponent, this unit may perform the Gather Action instead of a standard action. Gain 1 VP.'
+      }
+    ]
+  },
+  {
+    id: 'hold-position',
+    name: 'Hold Position',
+    type: 'Standard',
+    supply: 6,
+    perRound: 2,
+    gameLength: 5,
+    parameters: ['All Mission Markers are Activated.'],
+    scoring: [
+      'Score VPs equal to Enemy Supply destroyed this Round.',
+      'From the Start of the Second Round: Gain 1 VP for each Controlled Mission Marker that is Neutral or associated with your colour.',
+      'Gain 2 VPs for each Controlled Mission Marker associated with the Opponent colour.'
+    ],
+    special: 'The game ends immediately if a Player leads by 10+ VPs.'
+  },
+  {
+    id: 'hold-position-skirmish',
+    name: 'Hold Position (Skirmish)',
+    type: 'Skirmish',
+    supply: 3,
+    perRound: 1,
+    gameLength: 5,
+    parameters: ['All Mission Markers are Activated.'],
+    scoring: [
+      'Score VPs equal to Enemy Supply destroyed this Round.',
+      'From the Start of the Second Round: Gain 1 VP for each Controlled Mission Marker that is Neutral or associated with your colour.',
+      'Gain 2 VPs for each Controlled Mission Marker associated with the Opponent colour.'
+    ],
+    special: 'The game ends immediately if a Player leads by 8+ VPs.'
+  }
+];
+    const MAPS = [
+  // 36x36 Skirmish Maps
+  {
+    id: 'char-plains',
+    name: 'Char Plains',
+    size: '36" × 36"',
+    type: 'Skirmish',
+    width: 36,
+    height: 36,
+    blueZones: [{ x: 18, y: 0, w: 18, h: 6 }],
+    redZones: [{ x: 18, y: 30, w: 18, h: 6 }],
+    markers: [
+      { num: 1, x: 6, y: 30 },   // game (6,6) → SVG y=36-6=30
+      { num: 2, x: 6, y: 6 },    // game (6,30) → SVG y=36-30=6
+      { num: 5, x: 24, y: 18 }   // game (24,18) → SVG y=36-18=18
+    ],
+    blueSetup: {
+      title: 'Top-Right Strip',
+      instructions: [
+        'Start at the top-right corner of the board.',
+        'Measure 18" left along the top edge.',
+        'Then measure 6" downward into the battlefield.',
+        'Deploy anywhere inside that 18" × 6" rectangle.'
+      ]
+    },
+    redSetup: {
+      title: 'Bottom-Right Strip',
+      instructions: [
+        'Start at the bottom-right corner of the board.',
+        'Measure 18" left along the bottom edge.',
+        'Then measure 6" upward into the battlefield.',
+        'Deploy anywhere inside that 18" × 6" rectangle.'
+      ]
+    },
+    markerSetup: [
+      { num: 1, desc: '6" from left edge, 6" from bottom edge' },
+      { num: 2, desc: '6" from left edge, 30" from bottom edge' },
+      { num: 5, desc: '24" from left edge, 18" from bottom edge' }
+    ],
+    notes: 'Both players start on the right side of the board, one high and one low. The two outer markers are on the left side, and the center marker is shifted right.'
+  },
+  {
+    id: 'abandoned-camp',
+    name: 'Abandoned Camp',
+    size: '36" × 36"',
+    type: 'Skirmish',
+    width: 36,
+    height: 36,
+    blueZones: [{ x: 0, y: 0, w: 36, h: 6 }],
+    redZones: [{ x: 0, y: 30, w: 36, h: 6 }],
+    markers: [
+      { num: 1, x: 6, y: 18 },
+      { num: 5, x: 18, y: 18 },
+      { num: 2, x: 30, y: 18 }
+    ],
+    blueSetup: {
+      title: 'Full Top Edge Strip',
+      instructions: [
+        'Start at the top-left corner.',
+        'Measure 36" across the full top edge.',
+        'Then measure 6" downward into the battlefield.',
+        'Deploy anywhere inside that 36" × 6" strip.'
+      ]
+    },
+    redSetup: {
+      title: 'Full Bottom Edge Strip',
+      instructions: [
+        'Start at the bottom-left corner.',
+        'Measure 36" across the full bottom edge.',
+        'Then measure 6" upward into the battlefield.',
+        'Deploy anywhere inside that 36" × 6" strip.'
+      ]
+    },
+    markerSetup: [
+      { num: 1, desc: '6" from left edge, 18" from bottom edge' },
+      { num: 5, desc: '18" from left edge, 18" from bottom edge' },
+      { num: 2, desc: '30" from left edge, 18" from bottom edge' }
+    ],
+    notes: 'Simple top-versus-bottom layout with all three markers in a straight line across the center.'
+  },
+  {
+    id: 'agria-valley',
+    name: 'Agria Valley',
+    size: '36" × 36"',
+    type: 'Skirmish',
+    width: 36,
+    height: 36,
+    redZones: [{ x: 0, y: 0, w: 12, h: 6 }, { x: 0, y: 6, w: 6, h: 6 }],
+    blueZones: [{ x: 24, y: 30, w: 12, h: 6 }, { x: 30, y: 24, w: 6, h: 6 }],
+    markers: [
+      { num: 1, x: 6, y: 30 },
+      { num: 5, x: 18, y: 18 },
+      { num: 2, x: 30, y: 6 }
+    ],
+    blueSetup: {
+      title: 'Bottom-Right L-Shape',
+      instructions: [
+        'Bottom Strip: Start at the bottom-right corner. Measure 12" left along the bottom edge, then 6" upward.',
+        'Right Strip: From the right edge, measure the section from 6" to 12" up from the bottom. Then measure 6" inward from the right edge.',
+        'Deploy anywhere inside either rectangle.'
+      ]
+    },
+    redSetup: {
+      title: 'Top-Left L-Shape',
+      instructions: [
+        'Top Strip: Start at the top-left corner. Measure 12" right along the top edge, then 6" downward.',
+        'Left Strip: From the left edge, measure the section from 24" to 30" up from the bottom. Then measure 6" inward from the left edge.',
+        'Deploy anywhere inside either rectangle.'
+      ]
+    },
+    markerSetup: [
+      { num: 1, desc: '6" from left edge, 6" from bottom edge' },
+      { num: 5, desc: '18" from left edge, 18" from bottom edge' },
+      { num: 2, desc: '30" from left edge, 30" from bottom edge' }
+    ],
+    notes: 'Diagonal corner deployment: Red in the top-left, Blue in the bottom-right, with markers running diagonally across the board.'
+  },
+  {
+    id: 'dirt-side',
+    name: 'Dirt Side',
+    size: '36" × 36"',
+    type: 'Skirmish',
+    width: 36,
+    height: 36,
+    redZones: [
+      { x: 0, y: 0, w: 12, h: 6 }, { x: 0, y: 6, w: 6, h: 6 },
+      { x: 24, y: 30, w: 12, h: 6 }, { x: 30, y: 24, w: 6, h: 6 }
+    ],
+    blueZones: [
+      { x: 24, y: 0, w: 12, h: 6 }, { x: 30, y: 6, w: 6, h: 6 },
+      { x: 0, y: 30, w: 12, h: 6 }, { x: 0, y: 24, w: 6, h: 6 }
+    ],
+    markers: [
+      { num: 1, x: 6, y: 18 },
+      { num: 5, x: 18, y: 18 },
+      { num: 2, x: 30, y: 18 }
+    ],
+    blueSetup: {
+      title: 'Top-Right & Bottom-Left L-Shapes',
+      instructions: [
+        'Top-Right L: Top strip — start at the top-right corner, measure 12" left, then 6" down. Right strip — from the right edge, measure 24" to 30" up from the bottom, then 6" inward.',
+        'Bottom-Left L: Bottom strip — start at the bottom-left corner, measure 12" right, then 6" up. Left strip — from the left edge, measure 6" to 12" up from the bottom, then 6" inward.',
+        'Deploy anywhere inside either L-shaped zone.'
+      ]
+    },
+    redSetup: {
+      title: 'Top-Left & Bottom-Right L-Shapes',
+      instructions: [
+        'Top-Left L: Top strip — start at the top-left corner, measure 12" right, then 6" down. Left strip — from the left edge, measure 24" to 30" up from the bottom, then 6" inward.',
+        'Bottom-Right L: Bottom strip — start at the bottom-right corner, measure 12" left, then 6" up. Right strip — from the right edge, measure 6" to 12" up from the bottom, then 6" inward.',
+        'Deploy anywhere inside either L-shaped zone.'
+      ]
+    },
+    markerSetup: [
+      { num: 1, desc: '6" from left edge, 18" from bottom edge' },
+      { num: 5, desc: '18" from left edge, 18" from bottom edge' },
+      { num: 2, desc: '30" from left edge, 18" from bottom edge' }
+    ],
+    notes: 'Four-corner split deployment. Each player gets two opposite corners. The markers run straight across the center line.'
+  },
+  {
+    id: 'frontier',
+    name: 'Frontier',
+    size: '36" × 36"',
+    type: 'Skirmish',
+    width: 36,
+    height: 36,
+    redZones: [{ x: 12, y: 0, w: 12, h: 6 }, { x: 12, y: 30, w: 12, h: 6 }],
+    blueZones: [{ x: 0, y: 12, w: 6, h: 12 }, { x: 30, y: 12, w: 6, h: 12 }],
+    markers: [
+      { num: 1, x: 6, y: 30 },
+      { num: 5, x: 18, y: 18 },
+      { num: 2, x: 30, y: 6 }
+    ],
+    blueSetup: {
+      title: 'Left & Right Center Strips',
+      instructions: [
+        'Left-Center Strip: Along the left edge, measure from 12" to 24" up from bottom. Then measure 6" inward. (6" × 12")',
+        'Right-Center Strip: Along the right edge, measure from 12" to 24" up from bottom. Then measure 6" inward. (6" × 12")',
+        'Deploy anywhere inside either strip.'
+      ]
+    },
+    redSetup: {
+      title: 'Top & Bottom Center Strips',
+      instructions: [
+        'Top-Center Strip: Along the top edge, measure from 12" to 24" from left. Then measure 6" downward. (12" × 6")',
+        'Bottom-Center Strip: Along the bottom edge, measure from 12" to 24" from left. Then measure 6" upward. (12" × 6")',
+        'Deploy anywhere inside either strip.'
+      ]
+    },
+    markerSetup: [
+      { num: 1, desc: '6" from left edge, 6" from bottom edge' },
+      { num: 5, desc: '18" from left edge, 18" from bottom edge' },
+      { num: 2, desc: '30" from left edge, 30" from bottom edge' }
+    ],
+    notes: 'Cross-pattern deployment. Red controls top and bottom center. Blue controls left and right center. The markers run diagonally.'
+  },
+  // 54x36 Standard Maps
+  {
+    id: 'gauntlet',
+    name: 'Gauntlet',
+    size: '54" × 36"',
+    type: 'Standard',
+    width: 54,
+    height: 36,
+    redZones: [{ x: 0, y: 0, w: 54, h: 6 }],
+    blueZones: [{ x: 0, y: 30, w: 54, h: 6 }],
+    markers: [
+      { num: 1, x: 12, y: 12 },
+      { num: 3, x: 36, y: 12 },
+      { num: 4, x: 18, y: 24 },
+      { num: 2, x: 42, y: 24 },
+      { num: 5, x: 27, y: 18 }
+    ],
+    blueSetup: {
+      title: 'Full Bottom Edge Strip',
+      instructions: [
+        'Start at the bottom-left corner.',
+        'Measure 54" across the full bottom edge.',
+        'Then measure 6" upward into the battlefield.',
+        'Deploy anywhere inside that 54" × 6" strip.'
+      ]
+    },
+    redSetup: {
+      title: 'Full Top Edge Strip',
+      instructions: [
+        'Start at the top-left corner.',
+        'Measure 54" across the full top edge.',
+        'Then measure 6" downward into the battlefield.',
+        'Deploy anywhere inside that 54" × 6" strip.'
+      ]
+    },
+    markerSetup: [
+      { num: 1, desc: '12" from left edge, 24" from bottom edge' },
+      { num: 2, desc: '42" from left edge, 12" from bottom edge' },
+      { num: 3, desc: '36" from left edge, 24" from bottom edge' },
+      { num: 4, desc: '18" from left edge, 12" from bottom edge' },
+      { num: 5, desc: '27" from left edge, 18" from bottom edge' }
+    ],
+    notes: 'Straight top-versus-bottom deployment. One player starts along the full top edge, the other along the full bottom edge, with one central marker and four flanking markers.'
+  },
+  {
+    id: 'typhoon',
+    name: 'Typhoon',
+    size: '54" × 36"',
+    type: 'Standard',
+    width: 54,
+    height: 36,
+    redZones: [{ x: 30, y: 0, w: 24, h: 6 }, { x: 48, y: 6, w: 6, h: 12 }],
+    blueZones: [{ x: 0, y: 30, w: 24, h: 6 }, { x: 0, y: 18, w: 6, h: 12 }],
+    markers: [
+      { num: 2, x: 6, y: 6 },
+      { num: 1, x: 18, y: 12 },
+      { num: 5, x: 27, y: 18 },
+      { num: 4, x: 36, y: 24 },
+      { num: 3, x: 48, y: 30 }
+    ],
+    blueSetup: {
+      title: 'Bottom-Left L-Shape',
+      instructions: [
+        'Bottom Strip: Start at the bottom-left corner. Measure 24" right along the bottom edge, then 6" upward. This creates a 24" wide × 6" deep strip.',
+        'Left Strip: From the left edge, measure a vertical section from 6" to 18" up from the bottom. Then measure 6" rightward into the battlefield. This creates a 6" wide × 12" tall strip.',
+        'Blue may deploy in either rectangle; together they form the L-shape.'
+      ]
+    },
+    redSetup: {
+      title: 'Top-Right L-Shape',
+      instructions: [
+        'Top Strip: Start at the top-right corner. Measure 24" left along the top edge, then 6" downward. This creates a 24" wide × 6" deep strip.',
+        'Right Strip: From the right edge, measure a vertical section from 18" to 30" up from the bottom. Then measure 6" leftward into the battlefield. This creates a 6" wide × 12" tall strip.',
+        'Red may deploy in either rectangle; together they form the L-shape.'
+      ]
+    },
+    markerSetup: [
+      { num: 1, desc: '18" from left edge, 24" from bottom edge' },
+      { num: 2, desc: '6" from left edge, 30" from bottom edge' },
+      { num: 3, desc: '48" from left edge, 6" from bottom edge' },
+      { num: 4, desc: '36" from left edge, 12" from bottom edge' },
+      { num: 5, desc: '27" from left edge, 18" from bottom edge' }
+    ],
+    notes: 'Diagonal corner-to-corner L-shape deployment. Blue starts bottom-left, Red starts top-right, and the markers run diagonally across the table.'
+  },
+  {
+    id: 'acropolis',
+    name: 'Acropolis',
+    size: '54" × 36"',
+    type: 'Standard',
+    width: 54,
+    height: 36,
+    redZones: [{ x: 0, y: 0, w: 18, h: 6 }, { x: 36, y: 30, w: 18, h: 6 }],
+    blueZones: [{ x: 36, y: 0, w: 18, h: 6 }, { x: 0, y: 30, w: 18, h: 6 }],
+    markers: [
+      { num: 1, x: 12, y: 12 },
+      { num: 2, x: 42, y: 12 },
+      { num: 4, x: 12, y: 24 },
+      { num: 3, x: 42, y: 24 },
+      { num: 5, x: 27, y: 18 }
+    ],
+    blueSetup: {
+      title: 'Top-Right & Bottom-Left Strips',
+      instructions: [
+        'Top-Right Strip: Start at top-right corner. Measure 18" left along the top edge, then 6" downward. (18" × 6")',
+        'Bottom-Left Strip: Start at bottom-left corner. Measure 18" right along the bottom edge, then 6" upward. (18" × 6")',
+        'Deploy anywhere inside either strip.'
+      ]
+    },
+    redSetup: {
+      title: 'Top-Left & Bottom-Right Strips',
+      instructions: [
+        'Top-Left Strip: Start at top-left corner. Measure 18" right along the top edge, then 6" downward. (18" × 6")',
+        'Bottom-Right Strip: Start at bottom-right corner. Measure 18" left along the bottom edge, then 6" upward. (18" × 6")',
+        'Deploy anywhere inside either strip.'
+      ]
+    },
+    markerSetup: [
+      { num: 1, desc: '12" from left edge, 24" from bottom edge' },
+      { num: 2, desc: '42" from left edge, 24" from bottom edge' },
+      { num: 3, desc: '42" from left edge, 12" from bottom edge' },
+      { num: 4, desc: '12" from left edge, 12" from bottom edge' },
+      { num: 5, desc: '27" from left edge, 18" from bottom edge' }
+    ],
+    notes: 'Split-opposites setup. Each player gets two opposite corners of the board, and the markers form a box around the center.'
+  },
+  {
+    id: 'proving-grounds',
+    name: 'Proving Grounds',
+    size: '54" × 36"',
+    type: 'Standard',
+    width: 54,
+    height: 36,
+    redZones: [{ x: 0, y: 0, w: 6, h: 36 }, { x: 48, y: 0, w: 6, h: 36 }],
+    blueZones: [{ x: 18, y: 0, w: 18, h: 6 }],
+    markers: [
+      { num: 1, x: 12, y: 12 },
+      { num: 5, x: 27, y: 12 },
+      { num: 3, x: 42, y: 12 },
+      { num: 4, x: 18, y: 24 },
+      { num: 2, x: 36, y: 24 }
+    ],
+    blueSetup: {
+      title: 'Top-Center Strip',
+      instructions: [
+        'Along the top edge, measure from 18" to 36" from the left edge.',
+        'Then measure 6" downward into the battlefield.',
+        'Deploy anywhere inside that 18" × 6" strip centered along the top edge.'
+      ]
+    },
+    redSetup: {
+      title: 'Full Left & Right Side Strips',
+      instructions: [
+        'Left Strip: Start at bottom-left corner. Measure 36" up the full left edge, then 6" inward. (6" × 36")',
+        'Right Strip: Start at bottom-right corner. Measure 36" up the full right edge, then 6" inward. (6" × 36")',
+        'Deploy anywhere inside either strip.'
+      ]
+    },
+    markerSetup: [
+      { num: 1, desc: '12" from left edge, 24" from bottom edge' },
+      { num: 2, desc: '36" from left edge, 12" from bottom edge' },
+      { num: 3, desc: '42" from left edge, 24" from bottom edge' },
+      { num: 4, desc: '18" from left edge, 12" from bottom edge' },
+      { num: 5, desc: '27" from left edge, 24" from bottom edge' }
+    ],
+    notes: 'Blue starts in the top-center lane. Red starts on both outer side edges. The upper half has three markers, the lower half has two.'
+  },
+  {
+    id: 'breach',
+    name: 'Breach',
+    size: '54" × 36"',
+    type: 'Standard',
+    width: 54,
+    height: 36,
+    blueZones: [{ x: 0, y: 0, w: 6, h: 36 }],
+    redZones: [{ x: 48, y: 0, w: 6, h: 36 }],
+    markers: [
+      { num: 1, x: 18, y: 6 },
+      { num: 2, x: 36, y: 6 },
+      { num: 5, x: 27, y: 18 },
+      { num: 4, x: 18, y: 30 },
+      { num: 3, x: 36, y: 30 }
+    ],
+    blueSetup: {
+      title: 'Full Left Edge Strip',
+      instructions: [
+        'Start at the bottom-left corner.',
+        'Measure 36" up along the full left edge.',
+        'Then measure 6" inward from the left edge.',
+        'Deploy anywhere inside that 6" × 36" strip.'
+      ]
+    },
+    redSetup: {
+      title: 'Full Right Edge Strip',
+      instructions: [
+        'Start at the bottom-right corner.',
+        'Measure 36" up along the full right edge.',
+        'Then measure 6" inward from the right edge.',
+        'Deploy anywhere inside that 6" × 36" strip.'
+      ]
+    },
+    markerSetup: [
+      { num: 1, desc: '18" from left edge, 30" from bottom edge' },
+      { num: 2, desc: '36" from left edge, 30" from bottom edge' },
+      { num: 3, desc: '36" from left edge, 6" from bottom edge' },
+      { num: 4, desc: '18" from left edge, 6" from bottom edge' },
+      { num: 5, desc: '27" from left edge, 18" from bottom edge' }
+    ],
+    notes: 'Pure left-edge versus right-edge deployment. Both players start in long vertical side strips with markers forming a box around the center.'
+  }
+];
+    const STORAGE_KEY = 'starcraft_tmg_missions_builder_state_v1';
+    const state = { battleSize: 'standard', selectedMissionId: null, selectedMapId: null, setupMissionOpen: false, setupMapOpen: false, activeTab: 'setup' };
+
+    function loadState() {
+      try { const raw = localStorage.getItem(STORAGE_KEY); if (!raw) return; Object.assign(state, JSON.parse(raw)); } catch (e) {}
+    }
+    function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    function activeMissions() { return MISSIONS.filter(m => m.type.toLowerCase() === state.battleSize); }
+    function activeMaps() { return MAPS.filter(m => m.type.toLowerCase() === state.battleSize); }
+    function selectedMission() { return MISSIONS.find(m => m.id === state.selectedMissionId) || null; }
+    function selectedMap() { return MAPS.find(m => m.id === state.selectedMapId) || null; }
+    function toggleTab(tab) { state.activeTab = tab; saveState(); render(); }
+    function setBattleSize(size) { state.battleSize = size; const m = selectedMission(); const mp = selectedMap(); if (m && m.type.toLowerCase() !== size) { state.selectedMissionId = null; state.setupMissionOpen = false; } if (mp && mp.type.toLowerCase() !== size) { state.selectedMapId = null; state.setupMapOpen = false; } saveState(); render(); }
+    function selectMission(id) { state.selectedMissionId = state.selectedMissionId === id ? null : id; if (!state.selectedMissionId) state.setupMissionOpen = false; saveState(); render(); }
+    function selectMap(id) { state.selectedMapId = state.selectedMapId === id ? null : id; if (!state.selectedMapId) state.setupMapOpen = false; saveState(); render(); }
+    function randomMission() { const pool = activeMissions().filter(m => m.id !== state.selectedMissionId); const pick = (pool.length ? pool : activeMissions())[Math.floor(Math.random() * activeMissions().length)]; if (pick) state.selectedMissionId = pick.id; state.setupMissionOpen = false; saveState(); render(); }
+    function randomMap() { const pool = activeMaps().filter(m => m.id !== state.selectedMapId); const source = pool.length ? pool : activeMaps(); const pick = source[Math.floor(Math.random() * source.length)]; if (pick) state.selectedMapId = pick.id; state.setupMapOpen = false; saveState(); render(); }
+    function randomBoth() { const ms = activeMissions(); const mp = activeMaps(); if (ms.length) state.selectedMissionId = ms[Math.floor(Math.random()*ms.length)].id; if (mp.length) state.selectedMapId = mp[Math.floor(Math.random()*mp.length)].id; state.setupMissionOpen = false; state.setupMapOpen = false; saveState(); render(); }
+    function clearSetup() { state.selectedMissionId = null; state.selectedMapId = null; state.setupMissionOpen = false; state.setupMapOpen = false; saveState(); render(); }
+    function toggleSetupMission() { state.setupMissionOpen = !state.setupMissionOpen; saveState(); render(); }
+    function toggleSetupMap() { state.setupMapOpen = !state.setupMapOpen; saveState(); render(); }
+    function escapeHtml(s) { return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+    function renderRules(items) { return items.map(t => `<div class="rule">${escapeHtml(t)}</div>`).join(''); }
+    function renderMissionCard(m, inSetup=false, open=false) {
+      const selected = state.selectedMissionId === m.id;
+      return `<article class="card mission ${selected ? 'selected' : ''} ${open ? 'open' : ''}">
+        <div class="card-head" onclick="${inSetup ? 'toggleSetupMission()' : `toggleMissionOpen('${m.id}')`}">
+          ${!inSetup ? `<div class="pick" onclick="event.stopPropagation(); selectMission('${m.id}')"></div>` : `<span class="setup-type">Mission</span>`}
+          <div class="card-main"><div class="card-name">${escapeHtml(m.name)}</div><div class="card-meta">${escapeHtml(m.type)} · ${m.gameLength} Rounds</div></div>
+          <div class="stats"><div class="stat-pill"><span>Supply</span>${m.supply}</div><div class="stat-pill"><span>Per Rnd</span>${m.perRound}</div></div>
+          ${inSetup ? `<button class="tiny-btn random" onclick="event.stopPropagation(); randomMission()">🎲</button><button class="tiny-btn remove" onclick="event.stopPropagation(); state.selectedMissionId=null; state.setupMissionOpen=false; saveState(); render();">✕</button>` : ''}
+          <span class="chev">›</span></div>
+        ${open ? `<div class="card-body"><div class="info-box"><div class="info-title">Mission Parameters</div>${renderRules(m.parameters)}</div><div class="info-box"><div class="info-title">Scoring Conditions</div>${renderRules(m.scoring)}</div>${m.additionalRules ? `<div class="info-box"><div class="info-title">Additional Rules</div>${m.additionalRules.map(r=>`<div class="ability-name">${escapeHtml(r.name)} <span>(${escapeHtml(r.phase)})</span></div><div class="ability-desc">${escapeHtml(r.description)}</div>`).join('')}</div>` : ''}<div class="info-box special"><div class="info-title">Special Winning Condition</div><div class="rule">${escapeHtml(m.special)}</div></div></div>` : ''}
+      </article>`;
+    }
+    function mapSvg(map) {
+      const scale=6, w=map.width*scale, h=map.height*scale;
+      const vLines = Array.from({length: Math.floor(map.width/6)+1}, (_,i)=>`<line x1="${i*6*scale}" y1="0" x2="${i*6*scale}" y2="${h}" stroke="var(--border)" stroke-width="0.5" stroke-dasharray="2,2"/>`).join('');
+      const hLines = Array.from({length: Math.floor(map.height/6)+1}, (_,i)=>`<line x1="0" y1="${i*6*scale}" x2="${w}" y2="${i*6*scale}" stroke="var(--border)" stroke-width="0.5" stroke-dasharray="2,2"/>`).join('');
+      const red = map.redZones.map(z=>`<rect x="${z.x*scale}" y="${z.y*scale}" width="${z.w*scale}" height="${z.h*scale}" fill="rgba(239,68,68,.3)" stroke="#ef4444" stroke-width="1.5"/>`).join('');
+      const blue = map.blueZones.map(z=>`<rect x="${z.x*scale}" y="${z.y*scale}" width="${z.w*scale}" height="${z.h*scale}" fill="rgba(59,130,246,.3)" stroke="#3b82f6" stroke-width="1.5"/>`).join('');
+      const markers = map.markers.map(m=>`<g><circle cx="${m.x*scale}" cy="${m.y*scale}" r="12" fill="${m.num===5 ? 'var(--accent)' : 'var(--panel-3)'}" stroke="var(--text)" stroke-width="2"/><text x="${m.x*scale}" y="${m.y*scale+1}" text-anchor="middle" dominant-baseline="middle" fill="${m.num===5 ? '#111' : 'var(--text)'}" font-size="12" font-weight="700">${m.num}</text></g>`).join('');
+      return `<svg viewBox="0 0 ${w} ${h}" class="map-svg"><rect x="0" y="0" width="${w}" height="${h}" fill="var(--panel-2)"/>${vLines}${hLines}${red}${blue}${markers}<rect x="0" y="0" width="${w}" height="${h}" fill="none" stroke="var(--text)" stroke-width="2"/></svg>`;
+    }
+    function renderMapCard(map, inSetup=false, open=false) {
+      const selected = state.selectedMapId === map.id;
+      return `<article class="card map ${selected ? 'selected' : ''} ${open ? 'open' : ''}">
+        <div class="card-head" onclick="${inSetup ? 'toggleSetupMap()' : `toggleMapOpen('${map.id}')`}">
+          ${!inSetup ? `<div class="pick" onclick="event.stopPropagation(); selectMap('${map.id}')"></div>` : `<span class="setup-type">Map</span>`}
+          <div class="card-main"><div class="card-name">${escapeHtml(map.name)}</div><div class="card-meta">${escapeHtml(map.type)} · ${escapeHtml(map.size)}</div></div>
+          ${inSetup ? `<button class="tiny-btn random" onclick="event.stopPropagation(); randomMap()">🎲</button><button class="tiny-btn remove" onclick="event.stopPropagation(); state.selectedMapId=null; state.setupMapOpen=false; saveState(); render();">✕</button>` : ''}
+          <span class="chev">›</span></div>
+        ${open ? `<div class="card-body">${mapSvg(map)}<div class="legend"><div class="legend-item"><span class="legend-color red"></span> Red Deployment</div><div class="legend-item"><span class="legend-color blue"></span> Blue Deployment</div><div class="legend-item"><span class="legend-circle">5</span> Objective Marker</div></div>${map.redSetup ? `<div class="setup-section red"><div class="setup-title"><span class="dot red"></span>Red Deployment: ${escapeHtml(map.redSetup.title)}</div>${map.redSetup.instructions.map(i=>`<div class="setup-step">${escapeHtml(i)}</div>`).join('')}</div>` : ''}${map.blueSetup ? `<div class="setup-section blue"><div class="setup-title"><span class="dot blue"></span>Blue Deployment: ${escapeHtml(map.blueSetup.title)}</div>${map.blueSetup.instructions.map(i=>`<div class="setup-step">${escapeHtml(i)}</div>`).join('')}</div>` : ''}${map.markerSetup ? `<div class="marker-box"><div class="marker-title">Mission Markers</div>${map.markerSetup.slice().sort((a,b)=>a.num-b.num).map(m=>`<div class="marker-row"><span class="badge ${m.num===5 ? 'center' : ''}">${m.num}</span><span class="marker-desc">${escapeHtml(m.desc)}</span></div>`).join('')}</div>` : ''}<div class="notes">${escapeHtml(map.notes)}</div></div>` : ''}
+      </article>`;
+    }
+    const missionOpen = new Set();
+    const mapOpen = new Set();
+    function toggleMissionOpen(id) { missionOpen.has(id) ? missionOpen.delete(id) : missionOpen.add(id); render(); }
+    function toggleMapOpen(id) { mapOpen.has(id) ? mapOpen.delete(id) : mapOpen.add(id); render(); }
+    function exportText() {
+      const m = selectedMission(), mp = selectedMap();
+      let t = `═══════════════════════════════════════
+STARCRAFT TMG - BATTLE SETUP
+═══════════════════════════════════════
+
+Battle Size: ${state.battleSize==='standard' ? 'STANDARD (54" × 36")' : 'SKIRMISH (36" × 36")'}
+Minerals: ${state.battleSize==='standard' ? '2,000' : '1,000'}
+Gas: ${state.battleSize==='standard' ? '200' : '100'}
+
+`;
+      if (m) { t += `───────────────────────────────────────
+MISSION: ${m.name}
+───────────────────────────────────────
+Game Length: ${m.gameLength} Rounds
+Supply per Round: ${m.perRound}
+Total Supply: ${m.supply}
+
+MISSION PARAMETERS:
+`; m.parameters.forEach(p=>t += `• ${p}
+`); t += `
+SCORING CONDITIONS:
+`; m.scoring.forEach(s=>t += `• ${s}
+`); if (m.additionalRules) { t += `
+ADDITIONAL RULES:
+`; m.additionalRules.forEach(r=>t += `• ${r.name} (${r.phase}): ${r.description}
+`); } t += `
+SPECIAL WINNING CONDITION:
+• ${m.special}
+
+`; } else t += `MISSION: Not selected
+
+`;
+      if (mp) { t += `───────────────────────────────────────
+MAP: ${mp.name}
+───────────────────────────────────────
+Size: ${mp.size}
+
+`; if (mp.redSetup) { t += `RED DEPLOYMENT: ${mp.redSetup.title}
+`; mp.redSetup.instructions.forEach(i=>t+=`• ${i}
+`); t += `
+`; } if (mp.blueSetup) { t += `BLUE DEPLOYMENT: ${mp.blueSetup.title}
+`; mp.blueSetup.instructions.forEach(i=>t+=`• ${i}
+`); t += `
+`; } if (mp.markerSetup) { t += `MISSION MARKERS:
+`; mp.markerSetup.slice().sort((a,b)=>a.num-b.num).forEach(m=>t += `• Marker ${m.num}: ${m.desc}
+`); t += `
+`; } t += `NOTES: ${mp.notes}
+`; } else t += `MAP: Not selected
+`;
+      return t;
+    }
+    function openExport() { document.getElementById('exportModal').classList.add('open'); document.getElementById('exportArea').value = exportText(); }
+    function closeExport() { document.getElementById('exportModal').classList.remove('open'); }
+    function renderSetup() {
+      const m = selectedMission(), mp = selectedMap();
+      document.getElementById('panel-setup').innerHTML = `
+        <div class="section"><div class="section-head"><div class="section-title">Battle Setup</div><div class="section-note">Pick a mission and map, or randomize both.</div></div>
+          <div class="group-card open"><div class="group-header"><div><div class="group-title">Current Setup</div><div class="group-subtitle">${m ? escapeHtml(m.name) : 'No mission'} · ${mp ? escapeHtml(mp.name) : 'No map'}</div></div><span class="chev">›</span></div><div class="group-body">
+            <div class="actions"><button class="btn accent" onclick="randomBoth()">🎲 Random Both</button>${(m||mp) ? `<button class="btn map" onclick="openExport()">📋 Export</button><button class="btn danger" onclick="clearSetup()">✕ Clear</button>` : ''}</div>
+            ${m ? renderMissionCard(m, true, state.setupMissionOpen) : `<div class="selected-slot"><div class="slot-top"><div class="slot-label">Mission</div><button class="tiny-btn random" onclick="randomMission()">🎲 Random</button></div><div class="slot-empty">Select a mission from the mission library.</div></div>`}
+            ${mp ? renderMapCard(mp, true, state.setupMapOpen) : `<div class="selected-slot"><div class="slot-top"><div class="slot-label">Map</div><button class="tiny-btn random" onclick="randomMap()">🎲 Random</button></div><div class="slot-empty">Select a map from the map library.</div></div>`}
+          </div></div></div>`;
+    }
+    function renderMissionLibrary() {
+      const list = activeMissions();
+      document.getElementById('panel-missions').innerHTML = `<div class="section"><div class="section-head"><div class="section-title">Mission Library</div><div class="section-note">${list.length} missions for ${state.battleSize}</div></div>${list.map(m=>renderMissionCard(m,false,missionOpen.has(m.id))).join('')}</div>`;
+    }
+    function renderMapLibrary() {
+      const list = activeMaps();
+      document.getElementById('panel-maps').innerHTML = `<div class="section"><div class="section-head"><div class="section-title">Map Library</div><div class="section-note">${list.length} maps for ${state.battleSize}</div></div>${list.map(m=>renderMapCard(m,false,mapOpen.has(m.id))).join('')}</div>`;
+    }
+    function renderRef() {
+      document.getElementById('panel-ref').innerHTML = `<div class="section"><div class="section-head"><div class="section-title">Reference</div><div class="section-note">Quick reminders for setup flow.</div></div>
+      <div class="group-card open"><div class="group-header"><div><div class="group-title">How to Use</div><div class="group-subtitle">Fast setup for play night</div></div><span class="chev">›</span></div><div class="group-body">
+      <div class="info-box"><div class="info-title">1. Choose Battle Size</div><div class="rule">Standard uses 54&quot; × 36&quot; maps and a 2,000 mineral limit.</div><div class="rule">Skirmish uses 36&quot; × 36&quot; maps and a 1,000 mineral limit.</div></div>
+      <div class="info-box"><div class="info-title">2. Pick Mission</div><div class="rule">Use the Missions tab to compare scoring, supply, and round structure.</div></div>
+      <div class="info-box"><div class="info-title">3. Pick Map</div><div class="rule">Use the Maps tab to review deployment zones, marker positions, and notes.</div></div>
+      <div class="info-box"><div class="info-title">4. Export</div><div class="rule">Use Export from the Setup tab to generate a plain-text battle setup summary.</div></div>
+      </div></div></div>`;
+    }
+    function render() {
+      document.querySelectorAll('.size-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.size === state.battleSize));
+      document.getElementById('sum-minerals').textContent = state.battleSize === 'standard' ? '2000' : '1000';
+      document.getElementById('sum-gas').textContent = state.battleSize === 'standard' ? '200' : '100';
+      document.getElementById('sum-board').textContent = state.battleSize === 'standard' ? '54×36' : '36×36';
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === state.activeTab));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + state.activeTab));
+      renderSetup(); renderMissionLibrary(); renderMapLibrary(); renderRef();
+    }
+    document.querySelectorAll('.size-btn').forEach(btn => btn.addEventListener('click', () => setBattleSize(btn.dataset.size)));
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', () => toggleTab(btn.dataset.tab)));
+    document.getElementById('closeModal').addEventListener('click', closeExport);
+    document.getElementById('exportModal').addEventListener('click', e => { if (e.target.id === 'exportModal') closeExport(); });
+    loadState(); render();
+  
+    (function(){
+      const btn = document.getElementById('appMenuBtn');
+      const panel = document.getElementById('appMenuPanel');
+      const overlay = document.getElementById('appMenuOverlay');
+      if (!btn || !panel || !overlay) return;
+      function openMenu(){
+        panel.classList.add('open');
+        overlay.classList.add('open');
+        panel.setAttribute('aria-hidden','false');
+        btn.setAttribute('aria-expanded','true');
+        document.body.style.overflow='hidden';
+      }
+      function closeMenu(){
+        panel.classList.remove('open');
+        overlay.classList.remove('open');
+        panel.setAttribute('aria-hidden','true');
+        btn.setAttribute('aria-expanded','false');
+        document.body.style.overflow='';
+      }
+      btn.addEventListener('click', ()=> panel.classList.contains('open') ? closeMenu() : openMenu());
+      overlay.addEventListener('click', closeMenu);
+      document.addEventListener('keydown', (e)=>{ if (e.key === 'Escape') closeMenu(); });
+      panel.querySelectorAll('a').forEach(a=>a.addEventListener('click', closeMenu));
+    })();
+
+  </script>
+</body>
+</html>

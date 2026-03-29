@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#1a1a1a">
+  <title>Rules Reference - StarCraft: TMG</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    :root {
+      --bg: #1a1a1a;
+      --panel: #242424;
+      --panel-2: #2a2a2a;
+      --panel-3: #303030;
+      --text: #f0eee8;
+      --muted: #a8a299;
+      --border: #3a3a3a;
+      --accent: #eab308;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --movement: #3b82f6;
+      --assault: #f97316;
+      --combat: #ef4444;
+      --scoring: #22c55e;
+      --overview: #8b5cf6;
+      --concepts: #06b6d4;
+      --situations: #ec4899;
+      --abilities: #a855f7;
+      --mistakes: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.5 -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .app {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding: 64px 16px 24px;
+    }
+    
+    .header { text-align: center; padding: 8px 16px 16px; }
+    .title { font-size: 1.4rem; font-weight: 800; margin-bottom: 4px; }
+    .subtitle { font-size: 0.8rem; color: var(--muted); }
+    
+    .search-container {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 12px 0;
+      background: var(--bg);
+      margin-bottom: 8px;
+    }
+    .search-box {
+      display: flex;
+      align-items: center;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0 12px;
+    }
+    .search-box:focus-within { border-color: var(--accent); }
+    .search-icon { color: var(--muted); margin-right: 8px; }
+    .search-input {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 15px;
+      padding: 12px 0;
+      outline: none;
+    }
+    .search-input::placeholder { color: var(--muted); }
+    .clear-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 4px;
+      display: none;
+    }
+    .clear-btn.visible { display: block; }
+    .clear-btn:hover { color: var(--text); }
+    
+    .quick-nav {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 8px 0 16px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .quick-nav::-webkit-scrollbar { display: none; }
+    .nav-btn {
+      flex-shrink: 0;
+      padding: 6px 12px;
+      border-radius: 20px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .nav-btn:hover { border-color: var(--accent); color: var(--text); }
+    .nav-btn.movement { border-color: var(--movement); color: var(--movement); }
+    .nav-btn.assault { border-color: var(--assault); color: var(--assault); }
+    .nav-btn.combat { border-color: var(--combat); color: var(--combat); }
+    .nav-btn.scoring { border-color: var(--scoring); color: var(--scoring); }
+    
+    .section {
+      margin-bottom: 12px;
+      border-radius: var(--radius);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .section.hidden { display: none; }
+    .section-header {
+      display: flex;
+      align-items: center;
+      padding: 14px 16px;
+      cursor: pointer;
+      gap: 12px;
+      user-select: none;
+    }
+    .section-header:hover { background: var(--panel-2); }
+    .section-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .section-titles { flex: 1; min-width: 0; }
+    .section-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .section-meta {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .section-chevron {
+      font-size: 1.2rem;
+      color: var(--muted);
+      transition: transform 0.2s;
+    }
+    .section.expanded .section-chevron { transform: rotate(90deg); }
+    .section-body {
+      display: none;
+      border-top: 1px solid var(--border);
+    }
+    .section.expanded .section-body { display: block; }
+    
+    .subsection { border-bottom: 1px solid var(--border); }
+    .subsection:last-child { border-bottom: none; }
+    .subsection-header {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      cursor: pointer;
+      gap: 10px;
+      background: var(--panel-2);
+    }
+    .subsection-header:hover { background: var(--panel-3); }
+    .subsection-name { flex: 1; font-size: 0.85rem; font-weight: 600; }
+    .subsection-chevron {
+      font-size: 1rem;
+      color: var(--muted);
+      transition: transform 0.2s;
+    }
+    .subsection.expanded .subsection-chevron { transform: rotate(90deg); }
+    .subsection-body {
+      display: none;
+      padding: 12px 16px;
+      background: var(--bg);
+    }
+    .subsection.expanded .subsection-body { display: block; }
+    
+    .prose {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
+    .prose:last-child { margin-bottom: 0; }
+    .prose.practical {
+      font-style: italic;
+      padding: 10px 12px;
+      background: var(--panel);
+      border-radius: 8px;
+      border-left: 3px solid var(--accent);
+    }
+    
+    .rule-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .rule-item {
+      font-size: 0.85rem;
+      padding-left: 20px;
+      position: relative;
+      line-height: 1.5;
+    }
+    .rule-item::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-weight: bold;
+    }
+    
+    .mistake-item {
+      font-size: 0.85rem;
+      padding: 10px 12px;
+      padding-left: 36px;
+      position: relative;
+      line-height: 1.5;
+      background: rgba(239, 68, 68, 0.1);
+      border-radius: 8px;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      margin-bottom: 8px;
+    }
+    .mistake-item:last-child { margin-bottom: 0; }
+    .mistake-item::before {
+      content: '⚠';
+      position: absolute;
+      left: 12px;
+      color: #ef4444;
+    }
+    
+    .phase-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-right: 6px;
+    }
+    .phase-badge.movement { background: var(--movement); color: white; }
+    .phase-badge.assault { background: var(--assault); color: white; }
+    .phase-badge.combat { background: var(--combat); color: white; }
+    .phase-badge.scoring { background: var(--scoring); color: white; }
+    
+    .section-icon.overview { background: rgba(139, 92, 246, 0.2); color: var(--overview); }
+    .section-icon.concepts { background: rgba(6, 182, 212, 0.2); color: var(--concepts); }
+    .section-icon.round { background: rgba(234, 179, 8, 0.2); color: var(--accent); }
+    .section-icon.phases { background: rgba(99, 102, 241, 0.2); color: #818cf8; }
+    .section-icon.situations { background: rgba(236, 72, 153, 0.2); color: var(--situations); }
+    .section-icon.abilities { background: rgba(168, 85, 247, 0.2); color: var(--abilities); }
+    .section-icon.mistakes { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+    
+    .no-results {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--muted);
+    }
+    .no-results-icon { font-size: 2rem; margin-bottom: 12px; }
+    .no-results-text { font-size: 0.9rem; }
+    
+    .footer {
+      text-align: center;
+      padding: 24px 16px;
+      border-top: 1px solid var(--border);
+      margin-top: 24px;
+    }
+    .footer-text { font-size: 0.75rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+    <div class="app">
+    <div class="header">
+      <div class="title">📖 Rules Reference</div>
+      <div class="subtitle">Reorganized Master Rules</div>
+    </div>
+    
+    <div class="search-container">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" placeholder="Search rules..." id="searchInput">
+        <button class="clear-btn" id="clearBtn">×</button>
+      </div>
+    </div>
+    
+    <div class="quick-nav">
+      <a href="#overview" class="nav-btn">Overview</a>
+      <a href="#concepts" class="nav-btn">Concepts</a>
+      <a href="#phase-movement" class="nav-btn movement">Movement</a>
+      <a href="#phase-assault" class="nav-btn assault">Assault</a>
+      <a href="#phase-combat" class="nav-btn combat">Combat</a>
+      <a href="#phase-scoring" class="nav-btn scoring">Scoring</a>
+      <a href="#situations" class="nav-btn">Situations</a>
+      <a href="#mistakes" class="nav-btn">Mistakes</a>
+    </div>
+    
+    <div id="rulesContainer">
+      <!-- Section 1: Overview -->
+      <div class="section" id="overview" data-keywords="overview phases four alternating activation reserves supply mission markers victory points">
+        <div class="section-header" onclick="toggleSection(this.parentElement)">
+          <div class="section-icon overview">📋</div>
+          <div class="section-titles">
+            <div class="section-name">1. Overview</div>
+            <div class="section-meta">The shortest possible overview</div>
+          </div>
+          <span class="section-chevron">›</span>
+        </div>
+        <div class="section-body">
+          <div style="padding: 16px;">
+            <p class="prose">This is a four-phase alternating-activation wargame. Units usually begin off-table in Reserves, deploy gradually as Supply allows, and try to control Mission Markers to score Victory Points.</p>
+            <ul class="rule-list" style="margin-top: 12px;">
+              <li class="rule-item"><span class="phase-badge movement">Phase 1</span><strong>Movement:</strong> Deploy, Move, Disengage, or Hold.</li>
+              <li class="rule-item"><span class="phase-badge assault">Phase 2</span><strong>Assault:</strong> Ranged Attack, Charge, Run, or Hold.</li>
+              <li class="rule-item"><span class="phase-badge combat">Phase 3</span><strong>Combat:</strong> Every engaged ground unit that is still engaged must fight.</li>
+              <li class="rule-item"><span class="phase-badge scoring">Phase 4</span><strong>Scoring:</strong> Determine marker control, score VP, resolve end-of-round effects, refresh cards, and set next round initiative.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Section 2: Core Concepts -->
+      <div class="section" id="concepts" data-keywords="supply engagement leading model coherency ready exhausted cards resources">
+        <div class="section-header" onclick="toggleSection(this.parentElement)">
+          <div class="section-icon concepts">💡</div>
+          <div class="section-titles">
+            <div class="section-name">2. Core Concepts</div>
+            <div class="section-meta">Supply, engagement, coherency, cards</div>
+          </div>
+          <span class="section-chevron">›</span>
+        </div>
+        <div class="section-body">
+          <div class="subsection" data-keywords="supply current available pool deploy reserves casualties">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">2.1 Supply</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item">Current Supply updates as casualties reduce model count.</li>
+                <li class="rule-item"><strong>Available Supply</strong> = current Supply Pool minus the Supply already on the battlefield.</li>
+                <li class="rule-item">A unit can only deploy from Reserves if its Current Supply fits inside Available Supply.</li>
+                <li class="rule-item">Some missions also score based on enemy Supply destroyed.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="subsection" data-keywords="engaged engagement disengage hold target assault combat flying">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">2.2 Engagement</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item">Engaged units can <strong>Disengage</strong> or <strong>Hold</strong> in Movement.</li>
+                <li class="rule-item">Engaged units can only target units they are already engaged with in Assault.</li>
+                <li class="rule-item">Engaged ground units that are still engaged in Combat <strong>must activate and fight</strong>.</li>
+                <li class="rule-item">Flying units <strong>never</strong> participate in Combat Phase.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="subsection" data-keywords="leading model coherency 3 inches link move set casualties">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">2.3 Leading Model & Coherency</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item">Most movement is <strong>leader-first</strong>. Move the Leading Model first, then set the rest in legal Coherency.</li>
+                <li class="rule-item">Every model must end wholly within <strong>3 inches</strong> of the Leading Model and maintain a legal Coherency Link.</li>
+                <li class="rule-item">The rest of the unit is <strong>set</strong> after the leader moves; you do not individually walk every model.</li>
+                <li class="rule-item">Casualties do not by themselves trigger a new coherency check later.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="subsection" data-keywords="ready exhausted cards face up down resources abilities cleanup refresh">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">2.4 Ready & Exhausted Cards</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item"><strong>Ready</strong> = face-up. The card can provide resources or use its own ability.</li>
+                <li class="rule-item"><strong>Exhausted</strong> = face-down. It provides no resources and cannot use abilities until Cleanup & Refresh.</li>
+                <li class="rule-item">Resources are generated and spent at the moment you exhaust a card. Unused extra output is lost.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Section 3: Round Structure -->
+      <div class="section" id="round-structure" data-keywords="round structure initiative before start first player pass tempo">
+        <div class="section-header" onclick="toggleSection(this.parentElement)">
+          <div class="section-icon round">🔄</div>
+          <div class="section-titles">
+            <div class="section-name">3. Round Structure</div>
+            <div class="section-meta">Initiative and flow</div>
+          </div>
+          <span class="section-chevron">›</span>
+        </div>
+        <div class="section-body">
+          <div class="subsection" data-keywords="before round setup mission terrain deployment roster reserves">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">Before Round 1</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item">Choose the mission, terrain, deployment map, and starting First Player Marker.</li>
+                <li class="rule-item">Your army is bought during roster building, but most units usually begin off-table in Reserves.</li>
+                <li class="rule-item">You do <strong>not</strong> usually deploy your full army before play starts. Deployment is folded into Movement Phase as Supply escalates.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="subsection" data-keywords="start round effects tactical card supply pool available">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">Start of Each Round</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item">Resolve Start of the Round effects and any Tactical Card timing.</li>
+                <li class="rule-item">Check the mission Supply Pool for the current round. Many missions increase it each round.</li>
+                <li class="rule-item">Recalculate Available Supply before deploying new units.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="subsection" data-keywords="misunderstandings deploy reserves charge combat melee">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">Two Common Misunderstandings</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item">You do <strong>not</strong> deploy your whole army at game start. Most units enter gradually during Movement as Supply allows.</li>
+                <li class="rule-item"><strong>Charging happens in Assault</strong>, but close-combat attacks are resolved later in Combat Phase.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Section 4.1: Movement Phase -->
+      <div class="section" id="phase-movement" data-keywords="movement phase deploy move disengage hold tempo reserves entry edge zone influence">
+        <div class="section-header" onclick="toggleSection(this.parentElement)">
+          <div class="section-icon" style="background: rgba(59, 130, 246, 0.2); color: var(--movement);">1️⃣</div>
+          <div class="section-titles">
+            <div class="section-name"><span class="phase-badge movement">Phase 1</span>Movement</div>
+            <div class="section-meta">Deploy, Move, Disengage, Hold</div>
+          </div>
+          <span class="section-chevron">›</span>
+        </div>
+        <div class="section-body">
+          <div style="padding: 16px;">
+            <p class="prose">Movement is for bringing units onto the table, repositioning unengaged units, escaping melee, and managing tempo through passing.</p>
+            <p class="prose practical">You are not just moving models. You are deciding which pieces enter play, which lanes they threaten, and whether you want one more activation or first move in the shooting phase.</p>
+          </div>
+          
+          <div class="subsection" data-keywords="deploy reserves supply entry edge coherency zone influence">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">Deploy</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item">Choose a unit in Reserves that has not activated this phase.</li>
+                <li class="rule-item">Its Current Supply must fit inside Available Supply.</li>
+                <li class="rule-item">Place the Leading Model in contact with your Entry Edge, then move it up to Speed using standard movement rules.</li>
+                <li class="rule-item">Set the rest of the unit in legal Coherency.</li>
+                <li class="rule-item">The unit <strong>cannot</strong> finish deployment inside the enemy Zone of Influence.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="subsection" data-keywords="move unengaged leading model speed coherency 1 inch enemy">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">Move</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item">Choose an <strong>unengaged</strong> on-table unit.</li>
+                <li class="rule-item">Move the Leading Model up to Speed, then set the rest in Coherency.</li>
+                <li class="rule-item">A normal Move cannot end within <strong>1 inch</strong> of an enemy ground unit.</li>
+                <li class="rule-item">All standard pathing, terrain, elevation, and gap-clearance rules still apply.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="subsection" data-keywords="disengage engaged escape melee clear removed leading model tactical mass supply penalty">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">Disengage</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item">Choose an engaged unit and move it using standard Move rules.</li>
+                <li class="rule-item">Every surviving model must end <strong>outside</strong> the Engagement Range of all enemy units it was engaged with.</li>
+                <li class="rule-item">Any model that cannot get clear is <strong>removed</strong>.</li>
+                <li class="rule-item">If the Leading Model cannot get clear, the unit does not move, the leader is removed, and the activation ends.</li>
+                <li class="rule-item">A unit that disengages normally <strong>cannot</strong> make a Ranged Attack or Charge in the following Assault Phase.</li>
+                <li class="rule-item">That penalty is ignored if, when disengaging, its Current Supply exceeds the combined Supply of all engaged enemies (<strong>Tactical Mass</strong>).</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="subsection" data-keywords="hold nothing activated initiative assault">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">Hold</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item">Hold does nothing, but the unit still counts as activated.</li>
+                <li class="rule-item">This matters when you want Assault initiative more than one more weak movement activation.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Section 4.2: Assault Phase -->
+      <div class="section" id="phase-assault" data-keywords="assault phase ranged attack charge run shooting target engagement batch weapon">
+        <div class="section-header" onclick="toggleSection(this.parentElement)">
+          <div class="section-icon" style="background: rgba(249, 115, 22, 0.2); color: var(--assault);">2️⃣</div>
+          <div class="section-titles">
+            <div class="section-name"><span class="phase-badge assault">Phase 2</span>Assault</div>
+            <div class="section-meta">Ranged Attack, Charge, Run, Hold</div>
+          </div>
+          <span class="section-chevron">›</span>
+        </div>
+        <div class="section-body">
+          <div style="padding: 16px;">
+            <p class="prose">Assault is where on-table units either shoot, charge, run, or hold. Engagement status quietly invalidates many otherwise legal-looking targets.</p>
+            <p class="prose practical">Assault is where damage, target legality, and setup for melee all collide. Many turns hinge on whether you take one more attack now or preserve first activation in Combat.</p>
+          </div>
+          
+          <div class="subsection" data-keywords="ranged attack shooting visible range target tag engaged batch weapon profile">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">Ranged Attack</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item">A legal target must be <strong>visible</strong>, within <strong>range</strong>, and match the weapon's <strong>target tag</strong>.</li>
+                <li class="rule-item">An <strong>unengaged</strong> attacker cannot normally target an <strong>engaged</strong> enemy unit.</li>
+                <li class="rule-item">An <strong>engaged</strong> attacker may only target the enemy unit(s) it is already engaged with.</li>
+                <li class="rule-item">Each <strong>batch</strong> is all models using the same weapon profile at the same target.</li>
+                <li class="rule-item">Resolve one batch <strong>completely</strong> before declaring the next batch.</li>
+                <li class="rule-item">If a unit has multiple weapon profiles, separate batches can target different enemy units.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="subsection" data-keywords="attack sequence pool hit surge armour evade damage casualties">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">Attack Sequence</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item"><strong>1.</strong> Build the Attack Pool.</li>
+                <li class="rule-item"><strong>2.</strong> Roll to Hit.</li>
+                <li class="rule-item"><strong>3.</strong> Resolve Surge if the target's tags match the weapon's Surge Type.</li>
+                <li class="rule-item"><strong>4.</strong> Roll Armour.</li>
+                <li class="rule-item"><strong>5.</strong> Roll Evade <strong>only if</strong> the defender is entitled to it.</li>
+                <li class="rule-item"><strong>6.</strong> Apply Damage and remove casualties.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="subsection" data-keywords="charge unengaged ground declare targets 1d6 speed leading model all or nothing partial">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">Charge</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item">Charge is for an <strong>unengaged ground</strong> unit only.</li>
+                <li class="rule-item">Declare <strong>all target units</strong> before rolling.</li>
+                <li class="rule-item">Line of sight is <strong>not</strong> required.</li>
+                <li class="rule-item">Roll <strong>1D6 + Speed</strong> for charge distance.</li>
+                <li class="rule-item">The Leading Model must legally end within 1 inch of <strong>every</strong> declared target, must not overlap bases or impassable terrain, and must not end within 1 inch of an undeclared enemy.</li>
+                <li class="rule-item">If <strong>any</strong> declared target cannot be reached legally, the charge <strong>fails completely</strong> and the unit does not move.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="subsection" data-keywords="run hold move disengaged assault options">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">Run & Hold</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item"><strong>Run</strong> is identical to a standard Move action during Assault.</li>
+                <li class="rule-item"><strong>Hold</strong> does nothing but still activates the unit.</li>
+                <li class="rule-item">A unit that disengaged in Movement usually cannot shoot or charge, so Run or Hold are often its only Assault choices.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Section 4.3: Combat Phase -->
+      <div class="section" id="phase-combat" data-keywords="combat phase melee close ranks fighting rank supporting rank engaged ground mandatory">
+        <div class="section-header" onclick="toggleSection(this.parentElement)">
+          <div class="section-icon" style="background: rgba(239, 68, 68, 0.2); color: var(--combat);">3️⃣</div>
+          <div class="section-titles">
+            <div class="section-name"><span class="phase-badge combat">Phase 3</span>Combat</div>
+            <div class="section-meta">Melee resolution</div>
+          </div>
+          <span class="section-chevron">›</span>
+        </div>
+        <div class="section-body">
+          <div style="padding: 16px;">
+            <p class="prose">Combat resolves all melee. It is <strong>mandatory</strong> for any engaged ground unit that is still engaged when its turn to activate comes.</p>
+            <p class="prose practical">Assault is where you move into melee; Combat is where that melee actually pays off or collapses.</p>
+          </div>
+          
+          <div class="subsection" data-keywords="close ranks leading model 3 inches closer engage disengage base contact fighting supporting">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">Close Ranks</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item">Before rolling, choose a Leading Model and move it up to <strong>3 inches</strong> using standard Move rules with extra restrictions.</li>
+                <li class="rule-item">The Leading Model must end <strong>closer</strong> to the enemy unit(s) it is engaged with.</li>
+                <li class="rule-item">The move <strong>cannot</strong> bring the unit into engagement with new enemy units.</li>
+                <li class="rule-item">The move <strong>cannot</strong> be used to disengage from enemy units.</li>
+                <li class="rule-item">Models already in base-to-base contact do not move.</li>
+                <li class="rule-item">Close Ranks is mainly for pulling more models into Fighting Rank and Supporting Rank.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="subsection" data-keywords="fighting rank supporting rank 1 inch base contact line of sight combat weapons melee">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">Who Can Attack in Melee</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item"><strong>Fighting Rank:</strong> models within 1 inch of an enemy model.</li>
+                <li class="rule-item"><strong>Supporting Rank:</strong> models in base-to-base contact with a friendly model from the same unit that is in Fighting Rank.</li>
+                <li class="rule-item">Line of sight is <strong>not</strong> required for melee attacks.</li>
+                <li class="rule-item">Use only <strong>Combat Phase weapons</strong>.</li>
+                <li class="rule-item">If a model has more than one eligible melee weapon, the controlling player chooses one.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="subsection" data-keywords="multiple enemy units split dice surge die declare binding">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">Multiple Enemy Units</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item">If a unit is engaged with more than one enemy unit, declare how attack dice are split <strong>before rolling</strong>.</li>
+                <li class="rule-item">Declare which target receives the Surge Die <strong>before rolling</strong>.</li>
+                <li class="rule-item">That declaration is <strong>binding</strong>.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="subsection" data-keywords="melee evade automatic casualty priority unengaged freed combat">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">Combat Reminders</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item">Melee uses the same six-step attack sequence as ranged attacks.</li>
+                <li class="rule-item"><strong>Evade in melee is NOT automatic.</strong> A unit only gets it if a rule explicitly grants it.</li>
+                <li class="rule-item">Use the engaged casualty priority rules.</li>
+                <li class="rule-item">After casualties are removed, if none of the unit's models remain within 1 inch of an enemy, the unit becomes unengaged immediately.</li>
+                <li class="rule-item">A unit freed from combat before it activates no longer has to fight that phase.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Section 4.4: Scoring Phase -->
+      <div class="section" id="phase-scoring" data-keywords="scoring phase cleanup mission marker control victory points refresh end game">
+        <div class="section-header" onclick="toggleSection(this.parentElement)">
+          <div class="section-icon" style="background: rgba(34, 197, 94, 0.2); color: var(--scoring);">4️⃣</div>
+          <div class="section-titles">
+            <div class="section-name"><span class="phase-badge scoring">Phase 4</span>Scoring & Cleanup</div>
+            <div class="section-meta">VP, markers, refresh</div>
+          </div>
+          <span class="section-chevron">›</span>
+        </div>
+        <div class="section-body">
+          <div style="padding: 16px;">
+            <p class="prose">This phase decides who is actually winning. <strong>Follow the order strictly.</strong></p>
+            <p class="prose practical">This is where board position becomes score, and where the round-end timing window matters. Do not skip straight from fighting to refreshing cards.</p>
+          </div>
+          
+          <div class="subsection" data-keywords="mission marker control contest 3 inches line sight elevation supply flying burrowed sticky tie">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">Mission Marker Control</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item">A unit contests only if it is on the battlefield, in coherency, and has at least one model within <strong>3 inches</strong> of the marker with <strong>line of sight</strong> to it and on the <strong>same elevation</strong>.</li>
+                <li class="rule-item"><strong>Flying</strong> units cannot contest or control.</li>
+                <li class="rule-item"><strong>Burrowed</strong> units cannot contest or control.</li>
+                <li class="rule-item">Control is determined by eligible <strong>Current Supply</strong>, not model count.</li>
+                <li class="rule-item">A tie does <strong>not</strong> transfer control.</li>
+                <li class="rule-item">Control is <strong>sticky</strong>: once a player controls a marker, it stays theirs until the enemy wins a later comparison with higher Supply.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="subsection" data-keywords="end game tabling round limit reserves destroyed refresh cleanup tactical faction cards">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">End of Game & Refresh</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item">The game can end by mission special win condition, tabling, or round limit.</li>
+                <li class="rule-item">If a player has no models on the battlefield and no units in Reserves, the surviving player gains <strong>+10 VP</strong>.</li>
+                <li class="rule-item">At the start of the final Scoring Phase, units still in Reserves are treated as destroyed for scoring.</li>
+                <li class="rule-item">End-of-round effects resolve <strong>before</strong> Cleanup & Refresh.</li>
+                <li class="rule-item">Cleanup removes temporary tokens (keeping Damage Markers, Mission Markers, Faction Indicators).</li>
+                <li class="rule-item">Exhausted Tactical Cards and Faction Cards refresh here — <strong>not earlier</strong>.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Section 5: Situations -->
+      <div class="section" id="situations" data-keywords="situation what can i do reserves unengaged engaged disengaged shoot charge marker">
+        <div class="section-header" onclick="toggleSection(this.parentElement)">
+          <div class="section-icon situations">❓</div>
+          <div class="section-titles">
+            <div class="section-name">5. Situation Guide</div>
+            <div class="section-meta">What can I do right now?</div>
+          </div>
+          <span class="section-chevron">›</span>
+        </div>
+        <div class="section-body">
+          <div class="subsection" data-keywords="reserves abilities deploy supply">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">My unit is in Reserves</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item">It normally cannot use Active, Passive, or Reaction abilities unless a rule explicitly says it can.</li>
+                <li class="rule-item">Its normal action is to <strong>Deploy</strong> during Movement if its Supply fits.</li>
+                <li class="rule-item">It does not act in Assault or Combat while in Reserves.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="subsection" data-keywords="unengaged battlefield move hold ranged attack charge run contest">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">My unit is unengaged on the battlefield</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item"><span class="phase-badge movement">Movement</span>Move or Hold.</li>
+                <li class="rule-item"><span class="phase-badge assault">Assault</span>Ranged Attack, Charge, Run, or Hold.</li>
+                <li class="rule-item"><span class="phase-badge combat">Combat</span>Nothing unless it becomes engaged.</li>
+                <li class="rule-item"><span class="phase-badge scoring">Scoring</span>Contest a marker if it meets all conditions.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="subsection" data-keywords="engaged disengage hold target restricted fight ground">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">My unit is engaged</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item"><span class="phase-badge movement">Movement</span>Disengage or Hold.</li>
+                <li class="rule-item"><span class="phase-badge assault">Assault</span>It can activate, but targeting is heavily restricted.</li>
+                <li class="rule-item"><span class="phase-badge combat">Combat</span>If it is a ground unit and still engaged, it <strong>must fight</strong>.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="subsection" data-keywords="disengaged ranged attack charge tactical mass run hold penalty">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">My unit just disengaged</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item">It normally <strong>cannot</strong> make a Ranged Attack or Charge in the following Assault Phase.</li>
+                <li class="rule-item">If <strong>Tactical Mass</strong> applied at disengage, that penalty is ignored.</li>
+                <li class="rule-item">Its realistic Assault options are often Run or Hold.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="subsection" data-keywords="shoot visibility range target tags engagement batch">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">I want to shoot</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item">Check <strong>visibility, range, and target tags</strong> first.</li>
+                <li class="rule-item">Then check <strong>engagement legality</strong> — engagement can invalidate an otherwise legal-looking target.</li>
+                <li class="rule-item">Declare and resolve batches one at a time.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="subsection" data-keywords="charge unengaged grounded declare all targets multi-charge">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">I want to charge</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item">The unit must be <strong>unengaged and grounded</strong>.</li>
+                <li class="rule-item">Declare <strong>all targets first</strong>.</li>
+                <li class="rule-item">A multi-charge only succeeds if <strong>all</strong> declared targets can be reached legally.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="subsection" data-keywords="melee multiple enemy split dice surge die declare before rolling">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">I am in melee with multiple enemy units</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item">You <strong>must split attack dice</strong> before rolling.</li>
+                <li class="rule-item">You <strong>must declare</strong> which target gets the Surge Die before rolling.</li>
+                <li class="rule-item">You <strong>cannot</strong> assign results after seeing the dice.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="subsection" data-keywords="marker contest distance coherency line of sight elevation flying burrowed">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">I am near a Mission Marker</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item">Distance alone is <strong>not</strong> enough.</li>
+                <li class="rule-item">You need: battlefield presence, coherency, line of sight, same elevation, and correct unit state.</li>
+                <li class="rule-item"><strong>Flying, Burrowed, and out-of-coherency</strong> units do not contest.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="subsection" data-keywords="ready card exhaust resources ability timing">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">My card is Ready</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item">It may be exhausted for <strong>resources</strong> or to use its own <strong>ability</strong>, depending on timing and cost.</li>
+                <li class="rule-item">That choice is made when you use the card, not preselected for the round.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="subsection" data-keywords="exhausted card resources abilities cleanup refresh double dip">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">My card is Exhausted</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item">It provides <strong>no resources</strong> and cannot use abilities until Cleanup & Refresh.</li>
+                <li class="rule-item">You <strong>cannot double-dip</strong> a face-down card for both resources and an ability.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Section 6: Abilities & Resources -->
+      <div class="section" id="abilities" data-keywords="abilities active passive reaction resources cp bm pe terran zerg protoss">
+        <div class="section-header" onclick="toggleSection(this.parentElement)">
+          <div class="section-icon abilities">⚡</div>
+          <div class="section-titles">
+            <div class="section-name">6. Abilities & Resources</div>
+            <div class="section-meta">Active, Passive, Reaction, Payment</div>
+          </div>
+          <span class="section-chevron">›</span>
+        </div>
+        <div class="section-body">
+          <div class="subsection" data-keywords="active ability activated before after action reserves once per round repeatable">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">Active Abilities</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item">May only be used while the unit is <strong>currently activated</strong>.</li>
+                <li class="rule-item">Must be triggered immediately <strong>before</strong> declaring an action or immediately <strong>after</strong> one fully resolves.</li>
+                <li class="rule-item"><strong>Cannot</strong> be used in the middle of an action.</li>
+                <li class="rule-item"><strong>Cannot</strong> normally be used while the unit is in Reserves.</li>
+                <li class="rule-item">Each named Active ability is usually once per round per unit unless it is <strong>Repeatable</strong>.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="subsection" data-keywords="passive ability always on battlefield reserves activation">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">Passive Abilities</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item"><strong>Always on</strong> while the unit is on the battlefield.</li>
+                <li class="rule-item">Do not require activation.</li>
+                <li class="rule-item">Do not normally function while in Reserves unless stated otherwise.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="subsection" data-keywords="reaction ability trigger response exact moment retroactive one per activation active player">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">Reaction Abilities</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item">Trigger in direct response to a defined event.</li>
+                <li class="rule-item">Must be declared at the <strong>exact trigger moment</strong>.</li>
+                <li class="rule-item"><strong>Cannot</strong> be used retroactively.</li>
+                <li class="rule-item">Each player may resolve only <strong>one Reaction per Activation</strong>.</li>
+                <li class="rule-item">If both players react to the same trigger, the Active Player resolves first.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="subsection" data-keywords="resources cp bm pe terran zerg protoss exhaust ready faction tactical card pay cost excess lost">
+            <div class="subsection-header" onclick="toggleSubsection(this.parentElement)">
+              <span class="subsection-name">Resource Payment Rules</span>
+              <span class="subsection-chevron">›</span>
+            </div>
+            <div class="subsection-body">
+              <ul class="rule-list">
+                <li class="rule-item">Terran uses <strong>CP</strong>, Zerg uses <strong>BM</strong>, and Protoss uses <strong>PE</strong>.</li>
+                <li class="rule-item">To pay a cost, exhaust a Ready Faction Card or Tactical Card that produces the required resource type.</li>
+                <li class="rule-item">If you cannot exhaust enough cards to pay the full cost, the ability <strong>cannot be activated</strong>.</li>
+                <li class="rule-item">Excess output is <strong>lost</strong>.</li>
+                <li class="rule-item">Resources generated for one ability <strong>cannot be saved</strong> for another later ability.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Section 7: Common Mistakes -->
+      <div class="section" id="mistakes" data-keywords="mistakes errors judge reminders common problems">
+        <div class="section-header" onclick="toggleSection(this.parentElement)">
+          <div class="section-icon mistakes">⚠️</div>
+          <div class="section-titles">
+            <div class="section-name">7. Common Mistakes</div>
+            <div class="section-meta">High-frequency errors & judge reminders</div>
+          </div>
+          <span class="section-chevron">›</span>
+        </div>
+        <div class="section-body">
+          <div style="padding: 16px;">
+            <div class="mistake-item">Walking every model individually instead of moving the Leading Model first and then setting the rest in coherency.</div>
+            <div class="mistake-item">Forgetting that Deploy still uses standard movement rules and can be blocked by Available Supply or Zone of Influence.</div>
+            <div class="mistake-item">Forgetting that disengage can kill trailing models and that the leader dying can cause the whole move to fail.</div>
+            <div class="mistake-item">Letting a disengaged unit shoot or charge in Assault when Tactical Mass did not remove the penalty.</div>
+            <div class="mistake-item">Shooting into melee illegally with an unengaged unit.</div>
+            <div class="mistake-item">Letting an engaged attacker target enemies it is not engaged with.</div>
+            <div class="mistake-item">Declaring all weapon targets at once instead of one batch at a time.</div>
+            <div class="mistake-item">Treating a failed multi-charge as a partial success.</div>
+            <div class="mistake-item">Forgetting Close Ranks in Combat.</div>
+            <div class="mistake-item">Giving melee attacks an Evade Roll automatically.</div>
+            <div class="mistake-item">Failing to split dice before rolling when engaged with multiple enemy units.</div>
+            <div class="mistake-item">Using visibility-based casualty removal when engaged casualty priority is required.</div>
+            <div class="mistake-item">Counting model count instead of Current Supply for Mission Marker control.</div>
+            <div class="mistake-item">Letting Flying, Burrowed, or Out-of-Coherency units contest markers.</div>
+            <div class="mistake-item">Refreshing exhausted cards too early.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="no-results" id="noResults" style="display: none;">
+      <div class="no-results-icon">🔍</div>
+      <div class="no-results-text">No rules found matching your search</div>
+    </div>
+    
+    <div class="footer">
+      <div class="footer-text">StarCraft: The Miniatures Game<br>Reorganized Master Rules Reference</div>
+    </div>
+  </div>
+  
+  <script>
+    function toggleSection(section) {
+      section.classList.toggle('expanded');
+    }
+    
+    function toggleSubsection(subsection) {
+      subsection.classList.toggle('expanded');
+    }
+    
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = btn.getAttribute('href').substring(1);
+        const target = document.getElementById(targetId);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (!target.classList.contains('expanded')) {
+            target.classList.add('expanded');
+          }
+        }
+      });
+    });
+    
+    const searchInput = document.getElementById('searchInput');
+    const clearBtn = document.getElementById('clearBtn');
+    const noResults = document.getElementById('noResults');
+    
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase().trim();
+      clearBtn.classList.toggle('visible', query.length > 0);
+      
+      if (query.length === 0) {
+        document.querySelectorAll('.section').forEach(s => {
+          s.classList.remove('hidden');
+          s.classList.remove('expanded');
+        });
+        document.querySelectorAll('.subsection').forEach(s => {
+          s.classList.remove('hidden');
+          s.classList.remove('expanded');
+        });
+        noResults.style.display = 'none';
+        return;
+      }
+      
+      let hasResults = false;
+      
+      document.querySelectorAll('.section').forEach(section => {
+        const sectionKeywords = section.dataset.keywords || '';
+        const sectionText = section.textContent.toLowerCase();
+        const sectionMatches = sectionText.includes(query) || sectionKeywords.includes(query);
+        
+        if (sectionMatches) {
+          section.classList.remove('hidden');
+          section.classList.add('expanded');
+          hasResults = true;
+          
+          section.querySelectorAll('.subsection').forEach(sub => {
+            const subKeywords = sub.dataset.keywords || '';
+            const subText = sub.textContent.toLowerCase();
+            const subMatches = subText.includes(query) || subKeywords.includes(query);
+            
+            if (subMatches) {
+              sub.classList.remove('hidden');
+              sub.classList.add('expanded');
+            } else {
+              sub.classList.add('hidden');
+            }
+          });
+        } else {
+          section.classList.add('hidden');
+        }
+      });
+      
+      noResults.style.display = hasResults ? 'none' : 'block';
+    });
+    
+    clearBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      searchInput.dispatchEvent(new Event('input'));
+      searchInput.focus();
+    });
+  </script>
+</body>
+</html>
